@@ -1,5 +1,5 @@
 [package]
-name = "anyparser"
+name = "idl2json"
 version = "0.1.0"
 authors = ["Max <max@dfinity.org>"]
 edition = "2018"
@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies]
 candid = "0.6.17"
-serde_json = "1.0.59"
+serde_json = "1.0.64"

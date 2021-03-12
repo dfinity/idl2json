@@ -9,14 +9,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "anyparser"
-version = "0.1.0"
-dependencies = [
- "candid 0.6.17 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_json 1.0.64 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "arrayref"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -285,6 +277,14 @@ dependencies = [
  "serde 1.0.124 (registry+https://github.com/rust-lang/crates.io-index)",
  "sha2 0.9.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "thiserror 1.0.24 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "idl2json"
+version = "0.1.0"
+dependencies = [
+ "candid 0.6.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_json 1.0.64 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

@@ -1,57 +1,18 @@
+use std::io::{self, Read};
 use candid::parser::value::IDLValue;
+use candid::IDLArgs;
+use serde_json::value::Value as JsonValue;
 
-fn main() {
-    use candid::IDLArgs;
-    // Candid values represented in text format
-    let text_value = r#"
-(
-  opt record {
-    id = opt record { id = 1 };
-    ballots = vec {
-      record {
-        10_393_729_187_455_219_830;
-        record { vote = 0; voting_power = 15_117_295_952_643_213_369 };
-      };
-      record {
-        49;
-        record { vote = 1; voting_power = 151_172_959_526_432_132 };
-      };
-      record { 0; record { vote = 1; voting_power = 201_540_946_954_225_587 } };
-      record {
-        50;
-        record { vote = 0; voting_power = 151_172_959_526_432_132 };
-      };
-    };
-    reject_cost_doms = 100_000_000;
-    proposal_timestamp_seconds = 1_615_390_834;
-    reward_event_round = 0;
-    failed_timestamp_seconds = 0;
-    proposal = opt record {
-      url = "";
-      action = opt variant {
-        ExternalUpdate = record {
-          update_type = 5;
-          payload = blob "DIDL\01l\07\f2\ad\d0\b1\03q\be\b2\94\c2\03q\c3\d7\f3\b3\06q\c9\ef\8e\c5\09q\d4\cb\8b\ab\0cq\a0\d8\ef\ae\0cq\f1\81\93\b1\0fq\01\00@a1d71312400d163a1bec704259adbaff1fbbb904b2dab7403b8de30f02ce946a\00@e4b6cc7d77af4c8e02e7db58e2a71d481b446e612d3fbd2e38e072b7c236348e(f4fc0e60c04184d9939eddcc467c6d5404e74203\00lhttps://download.dfinity.systems/ic/f4fc0e60c04184d9939eddcc467c6d5404e74203/x86_64-linux/nodemanager.tar.gzkhttps://download.dfinity.systems/ic/f4fc0e60c04184d9939eddcc467c6d5404e74203/x86_64-linux/ic-replica.tar.gz";
-        }
-      };
-      summary = "<proposal created from initialization>";
-    };
-    proposer = opt record { id = 49 };
-    tally_at_decision_time = null;
-    executed_timestamp_seconds = 0;
-  },
-)
-"#;
+fn main() -> io::Result<()> {
+    let mut buffer = String::new();
+    io::stdin().read_to_string(&mut buffer)?;
 
-    // Parse text format into IDLArgs for serialization
-    let args: IDLArgs = text_value.parse().expect("");
+    let args: IDLArgs = buffer.parse().expect("Malformed input");
+    println!("{}", serde_json::to_string(&idl_to_serde(&args.args[0])).expect("Cannot get it out"));
 
-    println!("{:?}", args);
-    println!("{}", serde_json::to_string(&idl_to_serde(&args.args[0])).expect(""));
+    Ok(())
 }
 
-// Better way to do this:  https://github.com/sfackler/serde-transcode/blob/master/src/lib.rs
-use serde_json::value::Value as JsonValue;
 fn idl_to_serde(idl: &IDLValue) -> JsonValue {
     match idl {
       IDLValue::Bool(bool) => JsonValue::Bool(*bool),
