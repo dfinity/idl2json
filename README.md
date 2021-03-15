@@ -13,11 +13,19 @@ There is sample output to play with without dfx:
 <samples/proposal.idl ./target/debug/idl2json
 ```
 
-# Installation on OSX
+# Build
+
+Build with any of the following methods.  The binary executable will be at `idl2json/target/{debug,release}/idl2json` (depending on whether `cargo build --release` is used).
+
+## With nix:
+```
+nix-shell --command 'cargo build'
+```
+
+## Build OSX without nix
 
 ```
 brew install libiconv
 export LIBRARY_PATH=/usr/local/Cellar/libiconv/1.16/lib/
+cargo build
 ```
-
-I guess this could be done via nix.

@@ -17,6 +17,7 @@ let
     pkgs.cargo
     pkgs.rustfmt
     pkgs.clippy
+    pkgs.libiconv
   ];
 in
 pkgs.stdenv.mkDerivation {
