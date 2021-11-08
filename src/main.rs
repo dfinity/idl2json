@@ -33,14 +33,11 @@ fn idl_to_serde(idl: &IDLValue) -> JsonValue {
                 .map(|field| (format!("{}", field.id), idl_to_serde(&field.val)))
                 .collect(),
         ),
-        IDLValue::Variant(variant_value) => {
-            let field = &variant_value.0;
-            JsonValue::Object(
-                vec![(format!("{}", field.id), idl_to_serde(&field.val))]
-                    .into_iter()
-                    .collect(),
-            )
-        }
+        IDLValue::Variant(field, _) => JsonValue::Object(
+            vec![(format!("{}", field.id), idl_to_serde(&field.val))]
+                .into_iter()
+                .collect(),
+        ),
         IDLValue::Principal(p) => JsonValue::String(format!("{}", p)),
         IDLValue::Service(p) => JsonValue::String(format!("{}", p)),
         IDLValue::Func(p, c) => JsonValue::Object(
