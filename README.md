@@ -1,7 +1,9 @@
 idl2json
 ========
 
-Parse idl output from dfx.
+Reads [Candid](https://github.com/dfinity/candid) textual values from `stdin` and emits them as json values on `stdout`.
+
+This command is useful for piping the output of Candid value producing tools (such as dfx) into json tools.
 
 ```
 dfx canister call governance get_proposal_info 1 | idl2json
