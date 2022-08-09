@@ -1,6 +1,7 @@
-mod test;
 use candid::parser::value::IDLValue;
 use serde_json::value::Value as JsonValue;
+#[cfg(test)]
+mod test;
 
 /// Converts a candid IDLValue to a serde JsonValue
 pub fn idl_to_serde(idl: &IDLValue) -> JsonValue {

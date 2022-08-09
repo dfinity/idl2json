@@ -1,6 +1,6 @@
 use candid::IDLArgs;
-use std::io::{self, Read};
 use idl2json::idl_to_serde;
+use std::io::{self, Read};
 
 /// Reads IDL from stdin, writes JSON to stdout.
 fn main() -> io::Result<()> {
