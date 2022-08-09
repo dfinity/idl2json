@@ -88,3 +88,9 @@ jobs:
         with:
           name: code-coverage-report
           path: tarpaulin-report.html
+  may-merge:
+    needs: ["check", "test", "fmt", "clippy"]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Cleared for merging
+        run: echo OK
