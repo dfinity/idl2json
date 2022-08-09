@@ -15,7 +15,7 @@ fn idl_is_parsed_as_expected() {
     let json_value: JsonValue = idl_to_serde(&idl_value.args[0]);
 
     let diff = json_patch::diff(&expected_json_value, &json_value);
-    if diff.0.len() != 0 {
+    if !(diff.0).is_empty() {
         panic!("Unexpected changes:\n{:?}", diff);
     }
 }
