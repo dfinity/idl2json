@@ -47,7 +47,9 @@ impl Yaml2Idl {
     /// * `yaml_str` is not valid YAML.
     pub fn convert_str(&self, type_name: &str, yaml_str: &str) -> anyhow::Result<String> {
         let yaml_value: YamlValue = serde_yaml::from_str(yaml_str).unwrap();
-        let converted = self.convert(&IDLType::VarT(type_name.to_string()), &yaml_value).unwrap();
+        let converted = self
+            .convert(&IDLType::VarT(type_name.to_string()), &yaml_value)
+            .unwrap();
         Ok(format!("{:?}", converted))
     }
     /// Converts a YAML value into an IDL value.
