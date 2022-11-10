@@ -3,4 +3,6 @@
 members = [
   "src/idl2json",
   "src/idl2json_cli",
+  "src/yaml2candid",
+  "src/yaml2candid_cli",
 ]
