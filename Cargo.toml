@@ -2,4 +2,5 @@
 
 members = [
   "src/idl2json",
+  "src/idl2json_cli",
 ]
