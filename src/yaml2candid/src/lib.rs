@@ -9,19 +9,19 @@ use candid::IDLProg;
 use serde_yaml::Value as YamlValue;
 use std::path::Path;
 
-/// Converts YAML to IDL using a given did file.
-pub struct Yaml2Idl {
+/// Converts YAML to Candid using a given did file.
+pub struct Yaml2Candid {
     /// The types that the converter supports, defined in an IDLProg interface definition.
     pub prog: IDLProg,
 }
-impl Yaml2Idl {
-    /// Utility that creates a yaml2idl converter from the did file at the given path.
+impl Yaml2Candid {
+    /// Utility that creates a Yaml2Candid converter from the did file at the given path.
     ///
     /// # Arguments
     /// * `path` - the path to a candid interface `.did` file.
     ///
     /// # Return value
-    /// A `Yaml2Idl` converter for the provided `.did` file
+    /// A `Yaml2Candid` converter for the provided `.did` file
     pub fn from_did_file<P: AsRef<Path> + std::fmt::Display>(path: P) -> anyhow::Result<Self> {
         let did_file = std::fs::read_to_string(&path).with_context(|| {
             let absolute_path = if path.as_ref().is_absolute() {
@@ -32,7 +32,7 @@ impl Yaml2Idl {
             format!("Could not open did file: {:?}", absolute_path)
         })?;
         let prog: IDLProg = did_file.parse()?;
-        Ok(Yaml2Idl { prog })
+        Ok(Yaml2Candid { prog })
     }
     /// Converts a YAML string to a named IDL type.
     ///
@@ -41,7 +41,7 @@ impl Yaml2Idl {
     /// * `yaml_str` - The YAML to convert
     ///
     /// # Return value
-    /// An IDL string of the requested type, populated with the data in the YAML file.
+    /// An Candid string of the requested type, populated with the data in the YAML file.
     ///
     /// # Errors
     /// This function will return an error if:
@@ -52,7 +52,7 @@ impl Yaml2Idl {
         let converted = self.convert(&IDLType::VarT(type_name.to_string()), &yaml_value)?;
         Ok(format!("{:?}", converted))
     }
-    /// Converts a YAML value into an IDL value.
+    /// Converts a YAML value into a Candid value of the given IDL type.
     ///
     /// Note: The converter will ignore additional fields in the YAML file.
     ///

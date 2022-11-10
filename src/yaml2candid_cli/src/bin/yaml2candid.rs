@@ -1,7 +1,7 @@
 use clap::Parser;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, Read};
-use yaml2candid::Yaml2Idl;
+use yaml2candid::Yaml2Candid;
 
 /// Converts YAML to Candid
 #[derive(Parser, Debug)]
@@ -22,7 +22,7 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    let converter = Yaml2Idl::from_did_file(&args.did).unwrap();
+    let converter = Yaml2Candid::from_did_file(&args.did).unwrap();
     let yaml_str = file2string(args.yml);
     let candid = converter.convert_str(&args.typ, &yaml_str).unwrap();
     println!("{candid}")
