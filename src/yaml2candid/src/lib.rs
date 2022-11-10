@@ -1,6 +1,8 @@
 //! Library for converting YAML to IDL values.
 #![warn(missing_docs)]
-use anyhow::Context;
+#![deny(clippy::panic)]
+#![deny(clippy::unwrap_used)]
+use anyhow::{anyhow, bail, Context};
 use candid::parser::types::{Dec, IDLType};
 use candid::parser::value::{IDLField, IDLValue, VariantValue};
 use candid::IDLProg;
@@ -29,7 +31,7 @@ impl Yaml2Idl {
             };
             format!("Could not open did file: {:?}", absolute_path)
         })?;
-        let prog: IDLProg = did_file.parse().unwrap();
+        let prog: IDLProg = did_file.parse()?;
         Ok(Yaml2Idl { prog })
     }
     /// Converts a YAML string to a named IDL type.
@@ -46,10 +48,8 @@ impl Yaml2Idl {
     ///
     /// * `yaml_str` is not valid YAML.
     pub fn convert_str(&self, type_name: &str, yaml_str: &str) -> anyhow::Result<String> {
-        let yaml_value: YamlValue = serde_yaml::from_str(yaml_str).unwrap();
-        let converted = self
-            .convert(&IDLType::VarT(type_name.to_string()), &yaml_value)
-            .unwrap();
+        let yaml_value: YamlValue = serde_yaml::from_str(yaml_str)?;
+        let converted = self.convert(&IDLType::VarT(type_name.to_string()), &yaml_value)?;
         Ok(format!("{:?}", converted))
     }
     /// Converts a YAML value into an IDL value.
@@ -79,33 +79,41 @@ impl Yaml2Idl {
                         }
                         None
                     })
-                    .unwrap();
+                    .ok_or_else(|| anyhow!("Could not find a type called {name:?}"))?;
                 self.convert(&typ, val)
             }
             (IDLType::PrimT(candid::parser::types::PrimType::Nat8), YamlValue::Number(number)) => {
-                Ok(IDLValue::Nat8(
-                    u8::try_from(number.as_u64().unwrap()).unwrap(),
-                ))
+                Ok(IDLValue::Nat8(u8::try_from(
+                    number
+                        .as_u64()
+                        .with_context(|| "Could not parse number as u64: {number:?}")?,
+                )?))
             }
             (IDLType::PrimT(candid::parser::types::PrimType::Nat16), YamlValue::Number(number)) => {
-                Ok(IDLValue::Nat16(
-                    u16::try_from(number.as_u64().unwrap()).unwrap(),
-                ))
+                Ok(IDLValue::Nat16(u16::try_from(
+                    number
+                        .as_u64()
+                        .with_context(|| "Could not parse number as u64: {number:?}")?,
+                )?))
             }
             (IDLType::PrimT(candid::parser::types::PrimType::Nat32), YamlValue::Number(number)) => {
-                Ok(IDLValue::Nat32(
-                    u32::try_from(number.as_u64().unwrap()).unwrap(),
-                ))
+                Ok(IDLValue::Nat32(u32::try_from(
+                    number
+                        .as_u64()
+                        .with_context(|| "Could not parse number as u64: {number:?}")?,
+                )?))
             }
             (IDLType::PrimT(candid::parser::types::PrimType::Nat64), YamlValue::Number(number)) => {
-                Ok(IDLValue::Nat64(number.as_u64().unwrap()))
+                Ok(IDLValue::Nat64(number.as_u64().with_context(|| {
+                    "Could not parse number as u64: {number:?}"
+                })?))
             }
             (IDLType::PrimT(candid::parser::types::PrimType::Text), YamlValue::String(value)) => {
                 Ok(IDLValue::Text(value.to_string()))
             }
-            (IDLType::PrincipalT, YamlValue::String(value)) => Ok(IDLValue::Principal(
-                candid::Principal::from_text(value).unwrap(),
-            )),
+            (IDLType::PrincipalT, YamlValue::String(value)) => {
+                Ok(IDLValue::Principal(candid::Principal::from_text(value)?))
+            }
             (IDLType::RecordT(fields), YamlValue::Mapping(mapping)) => Ok(IDLValue::Record(
                 fields
                     .iter()
@@ -114,23 +122,23 @@ impl Yaml2Idl {
                         let mapping_key = field.label.to_string();
                         let val = mapping.get(&mapping_key);
                         let val = match (&field.typ, val) {
-                            (IDLType::OptT(typ), Some(val)) => self.convert(typ, val).unwrap(),
+                            (IDLType::OptT(typ), Some(val)) => self.convert(typ, val)?,
                             (IDLType::OptT(_typ), None) => IDLValue::None,
-                            (typ, Some(val)) => self.convert(typ, val).unwrap(),
-                            (_typ, None) => panic!("Missing key: {}", &mapping_key),
+                            (typ, Some(val)) => self.convert(typ, val)?,
+                            (_typ, None) => bail!("Missing key: {}", &mapping_key),
                         };
-                        IDLField { id, val }
+                        Ok(IDLField { id, val })
                     })
-                    .collect(),
+                    .collect::<Result<Vec<_>, _>>()?,
             )),
             (IDLType::VecT(typ), YamlValue::Sequence(values)) => Ok(IDLValue::Vec(
                 values
                     .iter()
-                    .map(|val| self.convert(typ, val).unwrap())
-                    .collect(),
+                    .map(|val| self.convert(typ, val))
+                    .collect::<Result<Vec<_>, _>>()?,
             )),
             (IDLType::VariantT(types), YamlValue::Mapping(value)) => {
-                Ok(types
+                types
                     .iter()
                     .find_map(|typ| {
                         let key = typ.label.to_string();
@@ -143,17 +151,22 @@ impl Yaml2Idl {
                             let numerical_key = u64::from(typ.label.get_id());
                             let field = IDLField {
                                 id: typ.label.clone(),
-                                val: self.convert(&typ.typ, val).unwrap(),
+                                val: self.convert(&typ.typ, val).with_context(|| {
+                                    format!("Failed to convert variant of type {key}")
+                                })?,
                             };
-                            IDLValue::Variant(VariantValue(Box::new(field), numerical_key))
+                            Ok(IDLValue::Variant(VariantValue(
+                                Box::new(field),
+                                numerical_key,
+                            )))
                         })
                     })
                     .unwrap_or_else(|| {
-                        panic!("Could not find matching type:\n{:?}\n\n{:?}", types, value)
-                    }))
+                        bail!("Could not find matching type:\n{:?}\n\n{:?}", types, value)
+                    })
             }
             (typ, data) => {
-                panic!("Unsupported pair:\n{:?}\n\n{:?}", typ, data);
+                bail!("Unsupported pair:\n{:?}\n\n{:?}", typ, data);
             }
         }
     }
