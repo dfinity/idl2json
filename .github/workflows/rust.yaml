@@ -84,7 +84,7 @@ jobs:
         uses: actions-rs/tarpaulin@v0.1
         with:
           version: '0.16.0'
-          args: '--run-types Lib --out Json -- --test-threads 1'
+          args: '--out Json -- --test-threads 1'
           out-type: 'Html'
 
       - name: Archive code coverage results
@@ -94,7 +94,7 @@ jobs:
           path: tarpaulin-report.html
 
       - name: Check code coverage percentage
-        run: jq -e '.files | reduce .[] as $num ([0,0]; [.[0]+$num.coverable, .[1]+$num.covered]) | (.[1] * 100 / .[0]) >= 50' tarpaulin-report.json
+        run: jq -e '.files | reduce .[] as $num ([0,0]; [.[0]+$num.coverable, .[1]+$num.covered]) | (.[1] * 100 / .[0]) >= 60' tarpaulin-report.json
 
   may-merge:
     needs: ["check", "test", "fmt", "clippy"]
