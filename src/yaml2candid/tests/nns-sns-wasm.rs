@@ -20,7 +20,7 @@ fn should_convert_sns_yaml_strings() {
     let converter = Yaml2Candid::from_did_file("tests/nns-sns-wasm.did").unwrap();
     let yaml_str = include_str!("nns-sns-wasm/SnsInitPayload.yaml");
     let expected_idl_str = include_str!("nns-sns-wasm/SnsInitPayload.idl");
-    let actual_idl_str = converter.convert_str("SnsInitPayload", &yaml_str).unwrap();
+    let actual_idl_str = converter.convert_str("SnsInitPayload", yaml_str).unwrap();
     assert_eq!(expected_idl_str, &actual_idl_str);
 }
 
