@@ -1,4 +1,8 @@
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 name: Continuous integration
 
@@ -80,7 +84,7 @@ jobs:
         uses: actions-rs/tarpaulin@v0.1
         with:
           version: '0.16.0'
-          args: '--run-types AllTargets -- --test-threads 1'
+          args: '--out Json -- --test-threads 1'
           out-type: 'Html'
 
       - name: Archive code coverage results
@@ -88,6 +92,10 @@ jobs:
         with:
           name: code-coverage-report
           path: tarpaulin-report.html
+
+      - name: Check code coverage percentage
+        run: jq -e '.files | reduce .[] as $num ([0,0]; [.[0]+$num.coverable, .[1]+$num.covered]) | (.[1] * 100 / .[0]) >= 60' tarpaulin-report.json
+
   may-merge:
     needs: ["check", "test", "fmt", "clippy"]
     runs-on: ubuntu-20.04
