@@ -1,0 +1,27 @@
+(
+    opt record {
+        bool_true = true;
+        bool_false = false;
+        null_value = null;
+        text_value = "I am Bob Geldorf";
+        unconstrained_number = 5;
+        float32_value = 0.5: float32;
+        float64_value = 0.64: float64;
+        maybe_record = opt record {};
+        maybe_number = opt 64;
+        vec_nat8 = vec {1: nat8; 2: nat8;};
+        variant_value = variant { bob = "Geldorf"};
+        principal_value = principal "jg6qm-uw64t-m6ppo-oluwn-ogr5j-dc5pm-lgy2p-eh6px-hebcd-5v73i-nqe";
+        // Omitted: func, service, none.
+        int_value = -911: int;
+        int8_min = -128: int8;
+        int16_min = -32768: int16;
+        int32_min = -2147483648: int32;
+        int64_min = -9223372036854775808: int64;
+        nat_value = 911: nat;
+        nat8_value = 255: nat8;
+        nat16_value = 65535: nat16;
+        nat32_value = 4294967295: nat32;
+        nat64_value = 18446744073709551615;
+    }
+)

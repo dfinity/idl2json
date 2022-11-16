@@ -4,7 +4,7 @@ use serde_json::value::Value as JsonValue;
 mod test;
 
 /// Converts a candid IDLValue to a serde JsonValue
-pub fn idl_to_serde(idl: &IDLValue) -> JsonValue {
+pub fn idl2json(idl: &IDLValue) -> JsonValue {
     match idl {
         IDLValue::Bool(bool) => JsonValue::Bool(*bool),
         IDLValue::Null => JsonValue::Null,
@@ -13,16 +13,16 @@ pub fn idl_to_serde(idl: &IDLValue) -> JsonValue {
         IDLValue::Float64(f) => {
             JsonValue::Number(serde_json::Number::from_f64(*f).expect("A float's a float"))
         }
-        IDLValue::Opt(value) => JsonValue::Array(vec![idl_to_serde(value)]),
-        IDLValue::Vec(value) => JsonValue::Array(value.iter().map(idl_to_serde).collect()),
+        IDLValue::Opt(value) => JsonValue::Array(vec![idl2json(value)]),
+        IDLValue::Vec(value) => JsonValue::Array(value.iter().map(idl2json).collect()),
         IDLValue::Record(value) => JsonValue::Object(
             value
                 .iter()
-                .map(|field| (format!("{}", field.id), idl_to_serde(&field.val)))
+                .map(|field| (format!("{}", field.id), idl2json(&field.val)))
                 .collect(),
         ),
         IDLValue::Variant(field, _) => JsonValue::Object(
-            vec![(format!("{}", field.id), idl_to_serde(&field.val))]
+            vec![(format!("{}", field.id), idl2json(&field.val))]
                 .into_iter()
                 .collect(),
         ),
@@ -42,11 +42,11 @@ pub fn idl_to_serde(idl: &IDLValue) -> JsonValue {
         IDLValue::Nat8(i) => JsonValue::Number(serde_json::Number::from(*i)),
         IDLValue::Nat16(i) => JsonValue::Number(serde_json::Number::from(*i)),
         IDLValue::Nat32(i) => JsonValue::Number(serde_json::Number::from(*i)),
-        IDLValue::Nat64(i) => JsonValue::Number(serde_json::Number::from(*i)),
+        IDLValue::Nat64(i) => JsonValue::String(format!("{}", i)),
         IDLValue::Int8(i) => JsonValue::Number(serde_json::Number::from(*i)),
         IDLValue::Int16(i) => JsonValue::Number(serde_json::Number::from(*i)),
         IDLValue::Int32(i) => JsonValue::Number(serde_json::Number::from(*i)),
-        IDLValue::Int64(i) => JsonValue::Number(serde_json::Number::from(*i)),
+        IDLValue::Int64(i) => JsonValue::String(format!("{}", i)),
         IDLValue::Float32(f) => {
             JsonValue::Number(serde_json::Number::from_f64(*f as f64).expect("A float's a float"))
         }
