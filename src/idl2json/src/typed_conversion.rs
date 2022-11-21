@@ -1,6 +1,7 @@
 #![warn(missing_docs)]
 #![deny(clippy::panic)]
 #![deny(clippy::unwrap_used)]
+#![deny(clippy::expect_used)]
 use candid::parser::{
     types::{IDLType, TypeField},
     value::{IDLField, IDLValue},
@@ -14,6 +15,9 @@ use crate::idl2json;
 /// - Key names MAY be incorrect.  They are provided on a best-effort basis.
 /// - If types are incompatible with the data, the data wins.
 /// - Data is never omitted.
+/// - Fields are never added, even if the schema suggests that some fields are missing.
+/// 
+/// The data is preserved at all cost, the schema is applied only to make the data easier to understand and use.
 pub fn idl2json_with_weak_names(idl: &IDLValue, idl_type: &IDLType) -> JsonValue {
     match (idl, idl_type) {
         (IDLValue::Bool(bool), _) => JsonValue::Bool(*bool),
