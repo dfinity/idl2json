@@ -41,12 +41,12 @@ pub fn idl2json_with_weak_names(idl: &IDLValue, idl_type: &IDLType) -> JsonValue
                 .collect(),
         ),
         (IDLValue::Record(_value), _) => idl2json(idl), // Fallback for mismatched types
-        (IDLValue::Variant(field, _), IDLType::VariantT(record_types)) => JsonValue::Object(
-            vec![convert_idl_field(field, record_types)]
+        (IDLValue::Variant(field), IDLType::VariantT(record_types)) => JsonValue::Object(
+            vec![convert_idl_field(&field.0, record_types)]
                 .into_iter()
                 .collect(),
         ),
-        (IDLValue::Variant(_field, _), _) => idl2json(idl), // Fallback for mismatched types
+        (IDLValue::Variant(_field), _) => idl2json(idl), // Fallback for mismatched types
         (IDLValue::Principal(p), _) => JsonValue::String(p.to_string()),
         (IDLValue::Service(p), _) => JsonValue::String(p.to_string()),
         (IDLValue::Func(p, c), _) => JsonValue::Object(

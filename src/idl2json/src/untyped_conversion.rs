@@ -19,8 +19,8 @@ pub fn idl2json(idl: &IDLValue) -> JsonValue {
                 .map(|field| (format!("{}", field.id), idl2json(&field.val)))
                 .collect(),
         ),
-        IDLValue::Variant(field, _) => JsonValue::Object(
-            vec![(format!("{}", field.id), idl2json(&field.val))]
+        IDLValue::Variant(field) => JsonValue::Object(
+            vec![(format!("{}", field.0.id), idl2json(&field.0.val))]
                 .into_iter()
                 .collect(),
         ),

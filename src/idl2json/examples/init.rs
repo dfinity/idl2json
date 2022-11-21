@@ -5,8 +5,6 @@ use candid::{
     },
     Decode, IDLProg,
 };
-use core::str;
-use hex::FromHex;
 use idl2json::{idl2json, idl2json_with_weak_names};
 use std::str::FromStr;
 
@@ -18,6 +16,9 @@ fn main() {
             .expect("Could not read did file");
         IDLProg::from_str(&did_as_str).expect("Failed to parse did")
     };
+    // TODO: This is still unimplemented in candid, but should be available soon.
+    //let rust = idl_to_rust(&prog, &Config::default()).expect("Could not compute rust");
+    //println!("Rust: {rust}");
     let idl_type = prog
         .decs
         .iter()
@@ -32,8 +33,6 @@ fn main() {
         .expect("Failed to get idltype");
     let idl_type = IDLType::OptT(Box::new(idl_type));
     println!("Type: {:?}\n\n", &idl_type);
-    let hex_bytes = "4449444C056E016C02C488BFD70102F7F5CBFB07046E036D7B6E780100010120F691F269DD66AA4FC44E6916AEFEE03BB7FEB821AEF43467526974F470CD4B07010010A5D4E8000000";
-    //let buffer = <[u8; 12]>::from_hex(hex_bytes);
     let buffer = [
         68, 73, 68, 76, 5, 110, 1, 108, 2, 196, 136, 191, 215, 1, 2, 247, 245, 203, 251, 7, 4, 110,
         3, 109, 123, 110, 120, 1, 0, 1, 1, 32, 246, 145, 242, 105, 221, 102, 170, 79, 196, 78, 105,
