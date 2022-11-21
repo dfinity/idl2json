@@ -1,3 +1,6 @@
+#![warn(missing_docs)]
+#![deny(clippy::panic)]
+#![deny(clippy::unwrap_used)]
 use candid::{
     parser::{
         types::{IDLType, TypeField},
@@ -70,7 +73,7 @@ pub fn idl2json_with_weak_names(idl: &IDLValue, idl_type: &IDLType) -> JsonValue
             // As far as I can see, JsonValue does not have an explicit NaN type so we provide NaN as a string.
             serde_json::Number::from_f64(*f as f64).map(JsonValue::Number).unwrap_or_else(|| JsonValue::String("NaN".to_string()))
         }
-        (IDLValue::Reserved, _) => panic!("Unimplemented: {:?}", idl),
+        (IDLValue::Reserved, _) => JsonValue::String(idl.to_string()),
     }
 }
 
