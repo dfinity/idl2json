@@ -1,11 +1,9 @@
 #![warn(missing_docs)]
 #![deny(clippy::panic)]
 #![deny(clippy::unwrap_used)]
-use candid::{
-    parser::{
-        types::{IDLType, TypeField},
-        value::{IDLField, IDLValue},
-    },
+use candid::parser::{
+    types::{IDLType, TypeField},
+    value::{IDLField, IDLValue},
 };
 use serde_json::value::Value as JsonValue;
 
@@ -39,7 +37,8 @@ pub fn idl2json_with_weak_names(idl: &IDLValue, idl_type: &IDLType) -> JsonValue
         (IDLValue::Record(value), IDLType::RecordT(record_types)) => JsonValue::Object(
             value
                 .iter()
-                .map(|field| convert_idl_field(field, record_types)).collect(),
+                .map(|field| convert_idl_field(field, record_types))
+                .collect(),
         ),
         (IDLValue::Record(_value), _) => idl2json(idl), // Fallback for mismatched types
         (IDLValue::Variant(field, _), IDLType::VariantT(record_types)) => JsonValue::Object(
@@ -71,14 +70,16 @@ pub fn idl2json_with_weak_names(idl: &IDLValue, idl_type: &IDLType) -> JsonValue
         (IDLValue::Int64(i), _) => JsonValue::String(i.to_string()),
         (IDLValue::Float32(f), _) => {
             // As far as I can see, JsonValue does not have an explicit NaN type so we provide NaN as a string.
-            serde_json::Number::from_f64(*f as f64).map(JsonValue::Number).unwrap_or_else(|| JsonValue::String("NaN".to_string()))
+            serde_json::Number::from_f64(*f as f64)
+                .map(JsonValue::Number)
+                .unwrap_or_else(|| JsonValue::String("NaN".to_string()))
         }
         (IDLValue::Reserved, _) => JsonValue::String(idl.to_string()),
     }
 }
 
 /// Returns a typed IDLField as a (key, value) pair.
-/// 
+///
 /// - The key is obtained from the type, if possible, else is the raw key as given.
 /// - The value is a typed conversion, if the type is as specified, else it is converted without the benefit of type information.
 fn convert_idl_field(field: &IDLField, record_types: &[TypeField]) -> (String, JsonValue) {
@@ -88,7 +89,7 @@ fn convert_idl_field(field: &IDLField, record_types: &[TypeField]) -> (String, J
         .find(|field_type| field_type.label.get_id() == field_id);
     field_type
         .map(|field_type| {
-            (   
+            (
                 field_type.label.to_string(),
                 idl2json_with_weak_names(&field.val, &field_type.typ),
             )
