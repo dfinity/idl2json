@@ -621,7 +621,6 @@ name = "idl2json"
 version = "0.8.4"
 dependencies = [
  "candid 0.8.4",
- "hex",
  "json-patch",
  "serde_json",
 ]
