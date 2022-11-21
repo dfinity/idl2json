@@ -31,7 +31,7 @@ fn main() {
    //let idl_value: (IDLValue) = buffer[..].parse().expect("Could not parse bytes");
    let idl_value = Decode!(&buffer[..], IDLValue).expect("Failed to parse buffer");
    println!("Value: {:?}\n\n", idl_value);
-   println!("Untyped conversion: {:?}\n\n", idl2json(&idl_value));
+   println!("Untyped conversion: {:?}\n\n", serde_json::to_string(&idl2json(&idl_value)).expect("Failed to stringify"));
 
    println!("Typed conversion: {}\n\n", serde_json::to_string(&idl2json_with_weak_names(&idl_value, &idl_type)).expect("Failed to stringify"));
 }
