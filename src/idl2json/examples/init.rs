@@ -1,3 +1,4 @@
+//! Example of how to convert binary candid to JSON using a schema
 use candid::{
     parser::{
         types::{Dec, IDLType},
@@ -8,7 +9,7 @@ use candid::{
 use idl2json::{idl2json, idl2json_with_weak_names};
 use std::str::FromStr;
 
-/// Converts some sample bytes
+/// Converts some sample candid bytes to JSON using a .did file.
 fn main() {
     let type_name = "InternetIdentityInit";
     let prog = {

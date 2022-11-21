@@ -1,3 +1,4 @@
+//! Library of IDL (candid) to JSON conversion functions.
 mod typed_conversion;
 mod untyped_conversion;
 pub use serde_json::Value as JsonValue;
