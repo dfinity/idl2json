@@ -51,6 +51,7 @@ fn sample_idls_are_parsed_as_expected() {
 #[test]
 fn sample_binaries_are_parsed_with_did() {
     // The inputs:
+    // .. At the time of writing, this type is `InternetIdentityInit` from `internet_identity.did`.
     let idl_type = IDLType::OptT(Box::new(IDLType::RecordT(vec![
         TypeField {
             label: Label::Named("archive_module_hash".to_string()),
