@@ -1,12 +1,15 @@
-use crate::{idl2json, idl2json_with_weak_names, JsonValue};
+use crate::{
+    candid_types::internal_candid_type_to_idl_type, idl2json, idl2json_with_weak_names, JsonValue,
+};
 use candid::{
     parser::{
         types::{IDLType, PrimType, TypeField},
         value::IDLValue,
     },
     types::internal::Label,
-    Decode, IDLArgs,
+    CandidType, Decode, Deserialize, IDLArgs,
 };
+use serde::Serialize;
 use std::fs;
 
 /// Returns the absolute path to a file in the samples directory.
@@ -47,12 +50,31 @@ fn sample_idls_are_parsed_as_expected() {
     idl_is_parsed_as_expected("all_types.idl", "all_types.json");
 }
 
-/// Verifies that the buffer is parsed to the expected JSON using the provided .did.
-#[test]
-fn sample_binaries_are_parsed_with_did() {
-    // The inputs:
-    // .. At the time of writing, this type is `InternetIdentityInit` from `internet_identity.did`.
-    let idl_type = IDLType::OptT(Box::new(IDLType::RecordT(vec![
+/// A test type: The Rust equivalent of the eponymous type in the sample did file.
+#[derive(CandidType, Serialize, Deserialize)]
+struct InternetIdentityInit {
+    pub assigned_user_number_range: Option<(u64, u64)>,
+    pub archive_module_hash: Option<[u8; 32]>,
+    pub canister_creation_cycles_cost: Option<u64>,
+}
+
+/// A test vector for the test type.
+fn test_vector() -> (Vec<u8>, String) {
+    (vec![
+    68, 73, 68, 76, 5, 110, 1, 108, 2, 196, 136, 191, 215, 1, 2, 247, 245, 203, 251, 7, 4, 110,
+    3, 109, 123, 110, 120, 1, 0, 1, 1, 32, 246, 145, 242, 105, 221, 102, 170, 79, 196, 78, 105,
+    22, 174, 254, 224, 59, 183, 254, 184, 33, 174, 244, 52, 103, 82, 105, 116, 244, 112, 205,
+    75, 7, 1, 0, 16, 165, 212, 232, 0, 0, 0,
+],
+r#"[
+    {"archive_module_hash":[[246,145,242,105,221,102,170,79,196,78,105,22,174,254,224,59,183,254,184,33,174,244,52,103,82,105,116,244,112,205,75,7]],
+    "canister_creation_cycles_cost":["1000000000000"]
+    }]"#.to_string())
+}
+
+/// The expected IDLType of the test type
+fn test_idl_type() -> IDLType {
+    IDLType::OptT(Box::new(IDLType::RecordT(vec![
         TypeField {
             label: Label::Named("archive_module_hash".to_string()),
             typ: IDLType::OptT(Box::new(IDLType::VecT(Box::new(IDLType::PrimT(
@@ -76,17 +98,34 @@ fn sample_binaries_are_parsed_with_did() {
             label: Label::Named("canister_creation_cycles_cost".to_string()),
             typ: IDLType::OptT(Box::new(IDLType::PrimT(PrimType::Nat64))),
         },
-    ])));
-    let binary = &[
-        68, 73, 68, 76, 5, 110, 1, 108, 2, 196, 136, 191, 215, 1, 2, 247, 245, 203, 251, 7, 4, 110,
-        3, 109, 123, 110, 120, 1, 0, 1, 1, 32, 246, 145, 242, 105, 221, 102, 170, 79, 196, 78, 105,
-        22, 174, 254, 224, 59, 183, 254, 184, 33, 174, 244, 52, 103, 82, 105, 116, 244, 112, 205,
-        75, 7, 1, 0, 16, 165, 212, 232, 0, 0, 0,
-    ];
-    let expected_json: JsonValue = serde_json::from_str(r#"[
-        {"archive_module_hash":[[246,145,242,105,221,102,170,79,196,78,105,22,174,254,224,59,183,254,184,33,174,244,52,103,82,105,116,244,112,205,75,7]],
-        "canister_creation_cycles_cost":["1000000000000"]
-        }]"#).expect("Invalid JSON in test");
+    ])))
+}
+
+/// Verifies that the buffer is parsed to the expected JSON using the provided IDLType.
+#[test]
+fn sample_binaries_are_parsed_with_idl_type() {
+    // The inputs:
+    // .. At the time of writing, this type is `InternetIdentityInit` from `internet_identity.did`.
+    let idl_type = test_idl_type();
+    let (binary, expected_json_string) = test_vector();
+    let expected_json: JsonValue =
+        serde_json::from_str(&expected_json_string).expect("Invalid JSON in test");
+    // Let the conversion begin
+    let idl_value = Decode!(&binary[..], IDLValue).expect("Failed to parse buffer");
+    let json_value: JsonValue = idl2json_with_weak_names(&idl_value, &idl_type);
+    assert_eq!(expected_json, json_value);
+}
+
+/// Verifies that the buffer is parsed to the expected JSON using the derived IDLType.
+#[test]
+fn sample_binaries_are_parsed_with_derived_idl_type() {
+    // The inputs:
+    // .. At the time of writing, this type is `InternetIdentityInit` from `internet_identity.did`.
+    let idl_type = internal_candid_type_to_idl_type(&InternetIdentityInit::ty());
+    let idl_type = IDLType::OptT(Box::new(idl_type));
+    let (binary, expected_json_string) = test_vector();
+    let expected_json: JsonValue =
+        serde_json::from_str(&expected_json_string).expect("Invalid JSON in test");
     // Let the conversion begin
     let idl_value = Decode!(&binary[..], IDLValue).expect("Failed to parse buffer");
     let json_value: JsonValue = idl2json_with_weak_names(&idl_value, &idl_type);

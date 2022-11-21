@@ -13,3 +13,4 @@ serde_json = "^1.0"
 
 [dev-dependencies]
 json-patch = "0.2.6"
+serde = "1"

@@ -622,6 +622,7 @@ version = "0.8.1"
 dependencies = [
  "candid 0.8.4",
  "json-patch",
+ "serde",
  "serde_json",
 ]
 
