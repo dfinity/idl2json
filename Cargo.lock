@@ -618,7 +618,7 @@ dependencies = [
 
 [[package]]
 name = "idl2json"
-version = "0.8.4"
+version = "0.8.1"
 dependencies = [
  "candid 0.8.4",
  "json-patch",
@@ -627,7 +627,7 @@ dependencies = [
 
 [[package]]
 name = "idl2json_cli"
-version = "0.8.4"
+version = "0.8.1"
 dependencies = [
  "candid 0.8.4",
  "idl2json",
