@@ -16,7 +16,7 @@ use crate::idl2json;
 /// - If types are incompatible with the data, the data wins.
 /// - Data is never omitted.
 /// - Fields are never added, even if the schema suggests that some fields are missing.
-/// 
+///
 /// The data is preserved at all cost, the schema is applied only to make the data easier to understand and use.
 pub fn idl2json_with_weak_names(idl: &IDLValue, idl_type: &IDLType) -> JsonValue {
     match (idl, idl_type) {
@@ -24,9 +24,9 @@ pub fn idl2json_with_weak_names(idl: &IDLValue, idl_type: &IDLType) -> JsonValue
         (IDLValue::Null, _) => JsonValue::Null,
         (IDLValue::Text(s), _) => JsonValue::String(s.clone()),
         (IDLValue::Number(s), _) => JsonValue::String(s.clone()), // Unspecified number type
-        (IDLValue::Float64(f), _) => {
-            JsonValue::Number(serde_json::Number::from_f64(*f).expect("A float's a float"))
-        }
+        (IDLValue::Float64(f), _) => serde_json::Number::from_f64(*f)
+            .map(JsonValue::Number)
+            .unwrap_or_else(|| JsonValue::String("NaN".to_string())),
         (IDLValue::Opt(value), IDLType::OptT(opt_type)) => {
             JsonValue::Array(vec![idl2json_with_weak_names(value, opt_type)])
         }
