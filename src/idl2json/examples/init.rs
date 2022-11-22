@@ -41,7 +41,6 @@ fn main() {
         75, 7, 1, 0, 16, 165, 212, 232, 0, 0, 0,
     ];
     println!("data: {:?}\n\n", &buffer);
-    //let idl_value: (IDLValue) = buffer[..].parse().expect("Could not parse bytes");
     let idl_value = Decode!(&buffer[..], IDLValue).expect("Failed to parse buffer");
     println!("Value: {:?}\n\n", idl_value);
     println!(
