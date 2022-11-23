@@ -158,9 +158,8 @@ fn format_bytes(bytes: &[IDLValue], bytes_format: &BytesFormat) -> Result<JsonVa
                 }
             }
             let digest = hasher.finalize();
-            Ok(JsonValue::String(format!("sha256:{digest:x}")))
+            Ok(JsonValue::String(format!("Bytes with sha256: {digest:x}")))
         }
-        _ => unimplemented!(),
     }
 }
 

@@ -72,23 +72,33 @@ fn test_vector() -> BinaryTestVector {
     3, 109, 123, 110, 120, 1, 0, 1, 1, 32, 246, 145, 242, 105, 221, 102, 170, 79, 196, 78, 105,
     22, 174, 254, 224, 59, 183, 254, 184, 33, 174, 244, 52, 103, 82, 105, 116, 244, 112, 205,
     75, 7, 1, 0, 16, 165, 212, 232, 0, 0, 0,
-],  json_options: vec![
-   ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Numbers), long_bytes_as: None },
+    ],  json_options: vec![
+    ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Numbers), long_bytes_as: None },
       r#"[
        {"archive_module_hash":[[246,145,242,105,221,102,170,79,196,78,105,22,174,254,224,59,183,254,184,33,174,244,52,103,82,105,116,244,112,205,75,7]],
         "canister_creation_cycles_cost":["1000000000000"]
        }]"#.to_string()),
-   ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Hex), long_bytes_as: None },
+    ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Hex), long_bytes_as: None },
        r#"[
         {"archive_module_hash":["f691f269dd66aa4fc44e6916aefee03bb7feb821aef43467526974f470cd4b07"],
          "canister_creation_cycles_cost":["1000000000000"]
         }]"#.to_string()),
-        ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Sha256), long_bytes_as: None },
+    ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Sha256), long_bytes_as: None },
        r#"[
-        {"archive_module_hash":["sha256:ac0c88f389e4af11790089d940f8483905e8766de960ccd847d0500b4caf6acf"],
+        {"archive_module_hash":["Bytes with sha256: ac0c88f389e4af11790089d940f8483905e8766de960ccd847d0500b4caf6acf"],
          "canister_creation_cycles_cost":["1000000000000"]
         }]"#.to_string()),
-     ]}
+        ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Sha256), long_bytes_as: Some((1000, BytesFormat::Hex)) },
+        r#"[
+         {"archive_module_hash":["Bytes with sha256: ac0c88f389e4af11790089d940f8483905e8766de960ccd847d0500b4caf6acf"],
+          "canister_creation_cycles_cost":["1000000000000"]
+         }]"#.to_string()), 
+         ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Sha256), long_bytes_as: Some((5, BytesFormat::Hex)) },
+         r#"[
+          {"archive_module_hash":["f691f269dd66aa4fc44e6916aefee03bb7feb821aef43467526974f470cd4b07"],
+           "canister_creation_cycles_cost":["1000000000000"]
+          }]"#.to_string()),  
+         ]}
 }
 
 /// The expected IDLType of the test type
