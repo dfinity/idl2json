@@ -83,6 +83,11 @@ fn test_vector() -> BinaryTestVector {
         {"archive_module_hash":["f691f269dd66aa4fc44e6916aefee03bb7feb821aef43467526974f470cd4b07"],
          "canister_creation_cycles_cost":["1000000000000"]
         }]"#.to_string()),
+        ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Sha256), long_bytes_as: None },
+       r#"[
+        {"archive_module_hash":["sha256:ac0c88f389e4af11790089d940f8483905e8766de960ccd847d0500b4caf6acf"],
+         "canister_creation_cycles_cost":["1000000000000"]
+        }]"#.to_string()),
      ]}
 }
 

@@ -3,6 +3,7 @@ use candid::parser::{
     value::{IDLField, IDLValue},
 };
 use serde_json::value::Value as JsonValue;
+use sha2::{Digest, Sha256};
 
 use crate::{idl2json, BytesFormat, Idl2JsonOptions};
 
@@ -148,6 +149,19 @@ fn format_bytes(bytes: &[IDLValue], bytes_format: &BytesFormat) -> Result<JsonVa
                 }
             }
             Ok(JsonValue::String(ans))
+        }
+        #[cfg(feature = "crypto")]
+        BytesFormat::Sha256 => {
+            let mut hasher = Sha256::new();
+            for byte in bytes {
+                if let IDLValue::Nat8(value) = byte {
+                    hasher.update(&[*value]);
+                } else {
+                    return Err(());
+                }
+            }
+            let digest = hasher.finalize();
+            Ok(JsonValue::String(format!("sha256:{digest:x}")))
         }
         _ => unimplemented!(),
     }

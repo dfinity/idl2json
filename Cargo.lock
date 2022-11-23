@@ -624,6 +624,7 @@ dependencies = [
  "json-patch",
  "serde",
  "serde_json",
+ "sha2 0.10.6",
 ]
 
 [[package]]
