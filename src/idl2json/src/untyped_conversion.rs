@@ -1,8 +1,10 @@
 use candid::parser::value::IDLValue;
 use serde_json::value::Value as JsonValue;
 
+use crate::Idl2JsonOptions;
+
 /// Converts a candid IDLValue to a serde JsonValue, without type information.
-pub fn idl2json(idl: &IDLValue) -> JsonValue {
+pub fn idl2json(idl: &IDLValue, options: &Idl2JsonOptions) -> JsonValue {
     match idl {
         IDLValue::Bool(bool) => JsonValue::Bool(*bool),
         IDLValue::Null => JsonValue::Null,
@@ -11,16 +13,16 @@ pub fn idl2json(idl: &IDLValue) -> JsonValue {
         IDLValue::Float64(f) => {
             JsonValue::Number(serde_json::Number::from_f64(*f).expect("A float's a float"))
         }
-        IDLValue::Opt(value) => JsonValue::Array(vec![idl2json(value)]),
-        IDLValue::Vec(value) => JsonValue::Array(value.iter().map(idl2json).collect()),
+        IDLValue::Opt(value) => JsonValue::Array(vec![idl2json(value, options)]),
+        IDLValue::Vec(value) => JsonValue::Array(value.iter().map(|item| idl2json(item, options)).collect()),
         IDLValue::Record(value) => JsonValue::Object(
             value
                 .iter()
-                .map(|field| (format!("{}", field.id), idl2json(&field.val)))
+                .map(|field| (format!("{}", field.id), idl2json(&field.val, options)))
                 .collect(),
         ),
         IDLValue::Variant(field) => JsonValue::Object(
-            vec![(format!("{}", field.0.id), idl2json(&field.0.val))]
+            vec![(format!("{}", field.0.id), idl2json(&field.0.val, options))]
                 .into_iter()
                 .collect(),
         ),
