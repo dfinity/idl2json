@@ -77,8 +77,13 @@ fn test_vector() -> BinaryTestVector {
       r#"[
        {"archive_module_hash":[[246,145,242,105,221,102,170,79,196,78,105,22,174,254,224,59,183,254,184,33,174,244,52,103,82,105,116,244,112,205,75,7]],
         "canister_creation_cycles_cost":["1000000000000"]
-       }]"#.to_string())
-    ]}
+       }]"#.to_string()),
+   ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Hex), long_bytes_as: None },
+       r#"[
+        {"archive_module_hash":["f691f269dd66aa4fc44e6916aefee03bb7feb821aef43467526974f470cd4b07"],
+         "canister_creation_cycles_cost":["1000000000000"]
+        }]"#.to_string()),
+     ]}
 }
 
 /// The expected IDLType of the test type
