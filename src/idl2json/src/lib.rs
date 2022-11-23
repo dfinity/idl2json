@@ -32,7 +32,7 @@ pub enum BytesFormat {
     Hex,
     /// Data is represented hex ending in an elipsis with at most the given total number of characters.
     /// E.g. `Ellipsis(7) -> "A5B8..."`
-    Ellipsis(usize),
+    // Ellipsis(usize), // TODO
     #[cfg(feature = "crypto")]
     /// Data is hashed:  "sha512:abbabababababababbababababab"
     Sha256,

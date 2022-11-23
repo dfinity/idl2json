@@ -113,14 +113,11 @@ fn convert_idl_field(
 
 /// Converts supposedly binary data.  Returns an error if the data is not binary.
 fn convert_bytes(bytes: &[IDLValue], options: &Idl2JsonOptions) -> Result<JsonValue, ()> {
-    /*
-    if let Some(len, bytes_format) = options.long_bytes_as {
+    if let Some((len, bytes_format)) = options.long_bytes_as {
         if bytes.len() >= len {
-            return match bytes_format {
-
-            }
+            return format_bytes(bytes, &bytes_format);
         }
-    }*/
+    }
     format_bytes(bytes, &(options.bytes_as.unwrap_or_default()))
 }
 /// Converts formats supposedly binary data.  Returns an error if the data is not binary.
