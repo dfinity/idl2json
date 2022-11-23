@@ -1,7 +1,3 @@
-#![warn(missing_docs)]
-#![deny(clippy::panic)]
-#![deny(clippy::unwrap_used)]
-#![deny(clippy::expect_used)]
 use candid::parser::{
     types::{IDLType, TypeField},
     value::{IDLField, IDLValue},

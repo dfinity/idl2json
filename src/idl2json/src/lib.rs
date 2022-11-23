@@ -1,4 +1,10 @@
 //! Library of IDL (candid) to JSON conversion functions.
+#![warn(missing_docs)]
+#![deny(clippy::panic)]
+#![deny(clippy::unwrap_used)]
+#![deny(clippy::expect_used)]
+#![deny(clippy::unimplemented)] // Allowed in some specific places
+
 pub mod candid_types;
 mod typed_conversion;
 mod untyped_conversion;
