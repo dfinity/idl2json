@@ -44,7 +44,7 @@ fn format_bytes(bytes: &[IDLValue], bytes_format: &BytesFormat) -> Result<JsonVa
             let mut hasher = Sha256::new();
             for byte in bytes {
                 if let IDLValue::Nat8(value) = byte {
-                    hasher.update(&[*value]);
+                    hasher.update([*value]);
                 } else {
                     return Err(());
                 }
