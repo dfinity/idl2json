@@ -1,5 +1,6 @@
 use crate::{
-    candid_types::internal_candid_type_to_idl_type, idl2json, idl2json_with_weak_names, JsonValue,
+    candid_types::internal_candid_type_to_idl_type, idl2json, idl2json_with_weak_names,
+    Idl2JsonOptions, JsonValue,
 };
 use candid::{
     parser::{
@@ -32,7 +33,7 @@ fn idl_is_parsed_as_expected(idl_filename: &str, json_filename: &str) {
     let idl_string: String =
         fs::read_to_string(sample_file!(idl_filename)).expect("Could not read sample IDL");
     let idl_value: IDLArgs = idl_string.parse::<IDLArgs>().expect("Malformed input");
-    let json_value: JsonValue = idl2json(&idl_value.args[0]);
+    let json_value: JsonValue = idl2json(&idl_value.args[0], &Idl2JsonOptions::default());
 
     let diff = json_patch::diff(&expected_json_value, &json_value);
     if !(diff.0).is_empty() {
@@ -112,7 +113,8 @@ fn sample_binaries_are_parsed_with_idl_type() {
         serde_json::from_str(&expected_json_string).expect("Invalid JSON in test");
     // Let the conversion begin
     let idl_value = Decode!(&binary[..], IDLValue).expect("Failed to parse buffer");
-    let json_value: JsonValue = idl2json_with_weak_names(&idl_value, &idl_type);
+    let json_value: JsonValue =
+        idl2json_with_weak_names(&idl_value, &idl_type, &Idl2JsonOptions::default());
     assert_eq!(expected_json, json_value);
 }
 
@@ -128,6 +130,7 @@ fn sample_binaries_are_parsed_with_derived_idl_type() {
         serde_json::from_str(&expected_json_string).expect("Invalid JSON in test");
     // Let the conversion begin
     let idl_value = Decode!(&binary[..], IDLValue).expect("Failed to parse buffer");
-    let json_value: JsonValue = idl2json_with_weak_names(&idl_value, &idl_type);
+    let json_value: JsonValue =
+        idl2json_with_weak_names(&idl_value, &idl_type, &crate::Idl2JsonOptions::default());
     assert_eq!(expected_json, json_value);
 }

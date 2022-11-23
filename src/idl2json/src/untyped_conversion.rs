@@ -11,10 +11,12 @@ pub fn idl2json(idl: &IDLValue, options: &Idl2JsonOptions) -> JsonValue {
         IDLValue::Text(s) => JsonValue::String(s.clone()),
         IDLValue::Number(s) => JsonValue::String(s.clone()), // Unspecified number type
         IDLValue::Float64(f) => serde_json::Number::from_f64(*f)
-        .map(JsonValue::Number)
-        .unwrap_or_else(|| JsonValue::String("NaN".to_string())),
+            .map(JsonValue::Number)
+            .unwrap_or_else(|| JsonValue::String("NaN".to_string())),
         IDLValue::Opt(value) => JsonValue::Array(vec![idl2json(value, options)]),
-        IDLValue::Vec(value) => JsonValue::Array(value.iter().map(|item| idl2json(item, options)).collect()),
+        IDLValue::Vec(value) => {
+            JsonValue::Array(value.iter().map(|item| idl2json(item, options)).collect())
+        }
         IDLValue::Record(value) => JsonValue::Object(
             value
                 .iter()
@@ -47,8 +49,7 @@ pub fn idl2json(idl: &IDLValue, options: &Idl2JsonOptions) -> JsonValue {
         IDLValue::Int16(i) => JsonValue::Number(serde_json::Number::from(*i)),
         IDLValue::Int32(i) => JsonValue::Number(serde_json::Number::from(*i)),
         IDLValue::Int64(i) => JsonValue::String(format!("{}", i)),
-        IDLValue::Float32(f) =>
-            serde_json::Number::from_f64(*f as f64)
+        IDLValue::Float32(f) => serde_json::Number::from_f64(*f as f64)
             .map(JsonValue::Number)
             .unwrap_or_else(|| JsonValue::String("NaN".to_string())),
         IDLValue::Reserved => JsonValue::String(idl.to_string()),

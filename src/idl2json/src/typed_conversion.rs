@@ -1,10 +1,10 @@
 use candid::parser::{
-    types::{IDLType, TypeField},
+    types::{IDLType, PrimType, TypeField},
     value::{IDLField, IDLValue},
 };
 use serde_json::value::Value as JsonValue;
 
-use crate::{idl2json, Idl2JsonOptions};
+use crate::{idl2json, BytesFormat, Idl2JsonOptions};
 
 /// Converts a candid IDLValue to a serde JsonValue, with keys as names where possible.
 ///
@@ -14,7 +14,11 @@ use crate::{idl2json, Idl2JsonOptions};
 /// - Fields are never added, even if the schema suggests that some fields are missing.
 ///
 /// The data is preserved at all cost, the schema is applied only to make the data easier to understand and use.
-pub fn idl2json_with_weak_names(idl: &IDLValue, idl_type: &IDLType, options: &Idl2JsonOptions) -> JsonValue {
+pub fn idl2json_with_weak_names(
+    idl: &IDLValue,
+    idl_type: &IDLType,
+    options: &Idl2JsonOptions,
+) -> JsonValue {
     match (idl, idl_type) {
         (IDLValue::Bool(bool), _) => JsonValue::Bool(*bool),
         (IDLValue::Null, _) => JsonValue::Null,
@@ -27,12 +31,17 @@ pub fn idl2json_with_weak_names(idl: &IDLValue, idl_type: &IDLType, options: &Id
             JsonValue::Array(vec![idl2json_with_weak_names(value, opt_type, options)])
         }
         (IDLValue::Opt(_value), _) => idl2json(idl, options), // Fallback for mismatched types
-        (IDLValue::Vec(value), IDLType::VecT(item_type)) => JsonValue::Array(
-            value
-                .iter()
-                .map(|item| idl2json_with_weak_names(item, item_type, options))
-                .collect(),
-        ),
+        (IDLValue::Vec(value), IDLType::VecT(item_type)) => match &**item_type {
+            IDLType::PrimT(prim_t) if *prim_t == PrimType::Nat8 => {
+                convert_bytes(value, options).unwrap_or_else(|_| idl2json(idl, options))
+            }
+            _ => JsonValue::Array(
+                value
+                    .iter()
+                    .map(|item| idl2json_with_weak_names(item, item_type, options))
+                    .collect(),
+            ),
+        },
         (IDLValue::Vec(_value), _) => idl2json(idl, options), // Fallback for mismatched types
         (IDLValue::Record(value), IDLType::RecordT(record_types)) => JsonValue::Object(
             value
@@ -82,7 +91,11 @@ pub fn idl2json_with_weak_names(idl: &IDLValue, idl_type: &IDLType, options: &Id
 ///
 /// - The key is obtained from the type, if possible, else is the raw key as given.
 /// - The value is a typed conversion, if the type is as specified, else it is converted without the benefit of type information.
-fn convert_idl_field(field: &IDLField, record_types: &[TypeField], options: &Idl2JsonOptions) -> (String, JsonValue) {
+fn convert_idl_field(
+    field: &IDLField,
+    record_types: &[TypeField],
+    options: &Idl2JsonOptions,
+) -> (String, JsonValue) {
     let field_id = field.id.get_id();
     let field_type = record_types
         .iter()
@@ -95,4 +108,35 @@ fn convert_idl_field(field: &IDLField, record_types: &[TypeField], options: &Idl
             )
         })
         .unwrap_or_else(|| (field.id.to_string(), idl2json(&field.val, options)))
+}
+
+/// Converts supposedly binary data.  Returns an error if the data is not binary.
+fn convert_bytes(bytes: &[IDLValue], options: &Idl2JsonOptions) -> Result<JsonValue, ()> {
+    /*
+    if let Some(len, bytes_format) = options.long_bytes_as {
+        if bytes.len() >= len {
+            return match bytes_format {
+
+            }
+        }
+    }*/
+    format_bytes(bytes, &(options.bytes_as.unwrap_or_default()))
+}
+/// Converts formats supposedly binary data.  Returns an error if the data is not binary.
+fn format_bytes(bytes: &[IDLValue], bytes_format: &BytesFormat) -> Result<JsonValue, ()> {
+    match bytes_format {
+        BytesFormat::Numbers => Ok(JsonValue::Array(
+            bytes
+                .iter()
+                .map(|item| {
+                    if let IDLValue::Nat8(value) = item {
+                        Ok(JsonValue::Number(serde_json::Number::from(*value)))
+                    } else {
+                        Err(())
+                    }
+                })
+                .collect::<Result<Vec<JsonValue>, ()>>()?,
+        )),
+        _ => unimplemented!(),
+    }
 }

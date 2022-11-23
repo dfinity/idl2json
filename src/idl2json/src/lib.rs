@@ -15,14 +15,16 @@ pub use untyped_conversion::idl2json;
 mod test;
 
 /// Options for idl2json conversions
+#[derive(Default, Clone, Eq, PartialEq)]
 pub struct Idl2JsonOptions {
     /// How to represent `Vec<u8>`
-    pub bytes_as: BytesFormat,
+    pub bytes_as: Option<BytesFormat>,
     /// How to represent `Vec<u8>` of at least some given length.
-    pub long_bytes_as: Option<(usize, BytesFormat)>
+    pub long_bytes_as: Option<(usize, BytesFormat)>,
 }
 
 /// Options for how to represent `Vec<u8>`
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum BytesFormat {
     /// Data is represented as an array of numbers: `[1,34,0]`
     Numbers,
@@ -33,4 +35,10 @@ pub enum BytesFormat {
     Ellipsis(usize),
     /// Data is hashed:  "sha512:abbabababababababbababababab"
     Sha512,
+}
+
+impl Default for BytesFormat {
+    fn default() -> Self {
+        BytesFormat::Numbers
+    }
 }
