@@ -10,7 +10,8 @@ fn main() -> io::Result<()> {
     let args: IDLArgs = buffer.parse().expect("Malformed input");
     println!(
         "{}",
-        serde_json::to_string(&idl2json(&args.args[0], &Idl2JsonOptions::default())).expect("Cannot get it out")
+        serde_json::to_string(&idl2json(&args.args[0], &Idl2JsonOptions::default()))
+            .expect("Cannot get it out")
     );
 
     Ok(())
