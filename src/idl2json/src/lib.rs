@@ -5,9 +5,11 @@
 #![deny(clippy::expect_used)]
 #![deny(clippy::unimplemented)] // Allowed in some specific places
 
+mod bytes;
 pub mod candid_types;
 mod typed_conversion;
 mod untyped_conversion;
+
 pub use serde_json::Value as JsonValue;
 pub use typed_conversion::idl2json_with_weak_names;
 pub use untyped_conversion::idl2json;
