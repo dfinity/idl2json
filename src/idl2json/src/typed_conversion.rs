@@ -4,7 +4,9 @@ use candid::parser::{
 };
 use serde_json::value::Value as JsonValue;
 
-use crate::{idl2json, Idl2JsonOptions, bytes::convert_bytes};
+use crate::{
+    bytes::convert_bytes, idl2json, untyped_conversion::convert_non_bytes_array, Idl2JsonOptions,
+};
 
 /// Converts a candid IDLValue to a serde JsonValue, with keys as names where possible.
 ///
@@ -32,9 +34,8 @@ pub fn idl2json_with_weak_names(
         }
         (IDLValue::Opt(_value), _) => idl2json(idl, options), // Fallback for mismatched types
         (IDLValue::Vec(value), IDLType::VecT(item_type)) => match &**item_type {
-            IDLType::PrimT(prim_t) if *prim_t == PrimType::Nat8 => {
-                convert_bytes(value, options).unwrap_or_else(|_| idl2json(idl, options))
-            }
+            IDLType::PrimT(prim_t) if *prim_t == PrimType::Nat8 => convert_bytes(value, options)
+                .unwrap_or_else(|_| convert_non_bytes_array(value, options)),
             _ => JsonValue::Array(
                 value
                     .iter()

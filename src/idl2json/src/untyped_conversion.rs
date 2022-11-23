@@ -1,7 +1,7 @@
 use candid::parser::value::IDLValue;
 use serde_json::value::Value as JsonValue;
 
-use crate::Idl2JsonOptions;
+use crate::{bytes::convert_bytes, Idl2JsonOptions};
 
 /// Converts a candid IDLValue to a serde JsonValue, without type information.
 pub fn idl2json(idl: &IDLValue, options: &Idl2JsonOptions) -> JsonValue {
@@ -14,9 +14,8 @@ pub fn idl2json(idl: &IDLValue, options: &Idl2JsonOptions) -> JsonValue {
             .map(JsonValue::Number)
             .unwrap_or_else(|| JsonValue::String("NaN".to_string())),
         IDLValue::Opt(value) => JsonValue::Array(vec![idl2json(value, options)]),
-        IDLValue::Vec(value) => {
-            JsonValue::Array(value.iter().map(|item| idl2json(item, options)).collect())
-        }
+        IDLValue::Vec(value) => convert_bytes(value, options)
+            .unwrap_or_else(|_| convert_non_bytes_array(value, options)),
         IDLValue::Record(value) => JsonValue::Object(
             value
                 .iter()
@@ -54,4 +53,9 @@ pub fn idl2json(idl: &IDLValue, options: &Idl2JsonOptions) -> JsonValue {
             .unwrap_or_else(|| JsonValue::String("NaN".to_string())),
         IDLValue::Reserved => JsonValue::String(idl.to_string()),
     }
+}
+
+/// Conver
+pub(crate) fn convert_non_bytes_array(value: &[IDLValue], options: &Idl2JsonOptions) -> JsonValue {
+    JsonValue::Array(value.iter().map(|item| idl2json(item, options)).collect())
 }
