@@ -137,6 +137,40 @@ fn format_bytes(bytes: &[IDLValue], bytes_format: &BytesFormat) -> Result<JsonVa
                 })
                 .collect::<Result<Vec<JsonValue>, ()>>()?,
         )),
+        BytesFormat::Hex => {
+            let mut ans = String::with_capacity(bytes.len() * 2);
+            for byte in bytes {
+                if let IDLValue::Nat8(value) = byte {
+                    ans.push_str(nybble2hex(value >> 4));
+                    ans.push_str(nybble2hex(value & 0xf));
+                } else {
+                    return Err(());
+                }
+            }
+            Ok(JsonValue::String(ans))
+        }
         _ => unimplemented!(),
+    }
+}
+
+fn nybble2hex(nybble: u8) -> &'static str {
+    match nybble {
+        0 => "0",
+        1 => "1",
+        2 => "2",
+        3 => "3",
+        4 => "4",
+        5 => "5",
+        6 => "6",
+        7 => "7",
+        8 => "8",
+        9 => "9",
+        10 => "10",
+        11 => "11",
+        12 => "12",
+        13 => "13",
+        14 => "14",
+        15 => "15",
+        _ => "?",
     }
 }
