@@ -1,3 +1,5 @@
+#![allow(clippy::expect_used)]
+#![allow(clippy::panic)]
 use crate::{
     candid_types::internal_candid_type_to_idl_type, idl2json, idl2json_with_weak_names,
     BytesFormat, Idl2JsonOptions, JsonValue,
@@ -199,7 +201,7 @@ fn sample_binaries_are_parsed_with_idl_type() {
     } = test_vector();
     for (options, _, expected_json_string, _) in &json_options {
         let expected_json: JsonValue =
-            serde_json::from_str(&expected_json_string).expect("Invalid JSON in test");
+            serde_json::from_str(expected_json_string).expect("Invalid JSON in test");
         // Let the conversion begin
         let idl_value = Decode!(&binary[..], IDLValue).expect("Failed to parse buffer");
         let json_value: JsonValue = idl2json_with_weak_names(&idl_value, &idl_type, options);
@@ -220,7 +222,7 @@ fn sample_binaries_are_parsed_with_derived_idl_type() {
     } = test_vector();
     for (options, _, expected_json_string, _) in &json_options {
         let expected_json: JsonValue =
-            serde_json::from_str(&expected_json_string).expect("Invalid JSON in test");
+            serde_json::from_str(expected_json_string).expect("Invalid JSON in test");
         // Let the conversion begin
         let idl_value = Decode!(&binary[..], IDLValue).expect("Failed to parse buffer");
         let json_value: JsonValue = idl2json_with_weak_names(&idl_value, &idl_type, options);
@@ -238,7 +240,7 @@ fn sample_binaries_are_parsed_without_type() {
     } = test_vector();
     for (options, expected_json_string, _, _) in &json_options {
         let expected_json: JsonValue =
-            serde_json::from_str(&expected_json_string).expect("Invalid JSON in test");
+            serde_json::from_str(expected_json_string).expect("Invalid JSON in test");
         // Let the conversion begin
         let idl_value = Decode!(&binary[..], IDLValue).expect("Failed to parse buffer");
         let json_value: JsonValue = idl2json(&idl_value, options);
@@ -264,7 +266,7 @@ fn sample_binaries_are_parsed_with_changed_idl_type() {
     } = test_vector();
     for (options, _, _, expected_json_string) in &json_options {
         let expected_json: JsonValue =
-            serde_json::from_str(&expected_json_string).expect("Invalid JSON in test");
+            serde_json::from_str(expected_json_string).expect("Invalid JSON in test");
         // Let the conversion begin
         let idl_value = Decode!(&binary[..], IDLValue).expect("Failed to parse buffer");
         let json_value: JsonValue = idl2json_with_weak_names(&idl_value, &idl_type, options);
