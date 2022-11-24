@@ -6,7 +6,7 @@ use candid::{
     },
     Decode, IDLProg,
 };
-use idl2json::{idl2json, idl2json_with_weak_names};
+use idl2json::{idl2json, idl2json_with_weak_names, Idl2JsonOptions};
 use std::str::FromStr;
 
 /// Converts some sample candid bytes to JSON using a .did file.
@@ -45,12 +45,17 @@ fn main() {
     println!("Value: {:?}\n\n", idl_value);
     println!(
         "Untyped conversion: {:?}\n\n",
-        serde_json::to_string(&idl2json(&idl_value)).expect("Failed to stringify")
+        serde_json::to_string(&idl2json(&idl_value, &Idl2JsonOptions::default()))
+            .expect("Failed to stringify")
     );
 
     println!(
         "Typed conversion: {}\n\n",
-        serde_json::to_string(&idl2json_with_weak_names(&idl_value, &idl_type))
-            .expect("Failed to stringify")
+        serde_json::to_string(&idl2json_with_weak_names(
+            &idl_value,
+            &idl_type,
+            &Idl2JsonOptions::default()
+        ))
+        .expect("Failed to stringify")
     );
 }

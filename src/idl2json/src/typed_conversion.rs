@@ -1,14 +1,12 @@
-#![warn(missing_docs)]
-#![deny(clippy::panic)]
-#![deny(clippy::unwrap_used)]
-#![deny(clippy::expect_used)]
 use candid::parser::{
-    types::{IDLType, TypeField},
+    types::{IDLType, PrimType, TypeField},
     value::{IDLField, IDLValue},
 };
 use serde_json::value::Value as JsonValue;
 
-use crate::idl2json;
+use crate::{
+    bytes::convert_bytes, idl2json, untyped_conversion::convert_non_bytes_array, Idl2JsonOptions,
+};
 
 /// Converts a candid IDLValue to a serde JsonValue, with keys as names where possible.
 ///
@@ -18,7 +16,11 @@ use crate::idl2json;
 /// - Fields are never added, even if the schema suggests that some fields are missing.
 ///
 /// The data is preserved at all cost, the schema is applied only to make the data easier to understand and use.
-pub fn idl2json_with_weak_names(idl: &IDLValue, idl_type: &IDLType) -> JsonValue {
+pub fn idl2json_with_weak_names(
+    idl: &IDLValue,
+    idl_type: &IDLType,
+    options: &Idl2JsonOptions,
+) -> JsonValue {
     match (idl, idl_type) {
         (IDLValue::Bool(bool), _) => JsonValue::Bool(*bool),
         (IDLValue::Null, _) => JsonValue::Null,
@@ -28,29 +30,33 @@ pub fn idl2json_with_weak_names(idl: &IDLValue, idl_type: &IDLType) -> JsonValue
             .map(JsonValue::Number)
             .unwrap_or_else(|| JsonValue::String("NaN".to_string())),
         (IDLValue::Opt(value), IDLType::OptT(opt_type)) => {
-            JsonValue::Array(vec![idl2json_with_weak_names(value, opt_type)])
+            JsonValue::Array(vec![idl2json_with_weak_names(value, opt_type, options)])
         }
-        (IDLValue::Opt(_value), _) => idl2json(idl), // Fallback for mismatched types
-        (IDLValue::Vec(value), IDLType::VecT(item_type)) => JsonValue::Array(
-            value
-                .iter()
-                .map(|item| idl2json_with_weak_names(item, item_type))
-                .collect(),
-        ),
-        (IDLValue::Vec(_value), _) => idl2json(idl), // Fallback for mismatched types
+        (IDLValue::Opt(_value), _) => idl2json(idl, options), // Fallback for mismatched types
+        (IDLValue::Vec(value), IDLType::VecT(item_type)) => match &**item_type {
+            IDLType::PrimT(prim_t) if *prim_t == PrimType::Nat8 => convert_bytes(value, options)
+                .unwrap_or_else(|_| convert_non_bytes_array(value, options)),
+            _ => JsonValue::Array(
+                value
+                    .iter()
+                    .map(|item| idl2json_with_weak_names(item, item_type, options))
+                    .collect(),
+            ),
+        },
+        (IDLValue::Vec(_value), _) => idl2json(idl, options), // Fallback for mismatched types
         (IDLValue::Record(value), IDLType::RecordT(record_types)) => JsonValue::Object(
             value
                 .iter()
-                .map(|field| convert_idl_field(field, record_types))
+                .map(|field| convert_idl_field(field, record_types, options))
                 .collect(),
         ),
-        (IDLValue::Record(_value), _) => idl2json(idl), // Fallback for mismatched types
+        (IDLValue::Record(_value), _) => idl2json(idl, options), // Fallback for mismatched types
         (IDLValue::Variant(field), IDLType::VariantT(record_types)) => JsonValue::Object(
-            vec![convert_idl_field(&field.0, record_types)]
+            vec![convert_idl_field(&field.0, record_types, options)]
                 .into_iter()
                 .collect(),
         ),
-        (IDLValue::Variant(_field), _) => idl2json(idl), // Fallback for mismatched types
+        (IDLValue::Variant(_field), _) => idl2json(idl, options), // Fallback for mismatched types
         (IDLValue::Principal(p), _) => JsonValue::String(p.to_string()),
         (IDLValue::Service(p), _) => JsonValue::String(p.to_string()),
         (IDLValue::Func(p, c), _) => JsonValue::Object(
@@ -86,7 +92,11 @@ pub fn idl2json_with_weak_names(idl: &IDLValue, idl_type: &IDLType) -> JsonValue
 ///
 /// - The key is obtained from the type, if possible, else is the raw key as given.
 /// - The value is a typed conversion, if the type is as specified, else it is converted without the benefit of type information.
-fn convert_idl_field(field: &IDLField, record_types: &[TypeField]) -> (String, JsonValue) {
+fn convert_idl_field(
+    field: &IDLField,
+    record_types: &[TypeField],
+    options: &Idl2JsonOptions,
+) -> (String, JsonValue) {
     let field_id = field.id.get_id();
     let field_type = record_types
         .iter()
@@ -95,8 +105,8 @@ fn convert_idl_field(field: &IDLField, record_types: &[TypeField]) -> (String, J
         .map(|field_type| {
             (
                 field_type.label.to_string(),
-                idl2json_with_weak_names(&field.val, &field_type.typ),
+                idl2json_with_weak_names(&field.val, &field_type.typ, options),
             )
         })
-        .unwrap_or_else(|| (field.id.to_string(), idl2json(&field.val)))
+        .unwrap_or_else(|| (field.id.to_string(), idl2json(&field.val, options)))
 }

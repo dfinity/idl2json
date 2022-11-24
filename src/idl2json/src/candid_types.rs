@@ -1,3 +1,4 @@
+//! Code for manipulating candid types.
 use candid::{
     parser::types::{IDLType, PrimType, TypeField},
     types::internal::{Field as InternalField, Type as InternalType},
@@ -9,6 +10,7 @@ use candid::{
 ///
 /// There may be an existing conversion function
 /// but I cannot see it.
+#[allow(clippy::unimplemented)]
 pub fn internal_candid_type_to_idl_type(internal_type: &InternalType) -> IDLType {
     match internal_type {
         InternalType::Null => IDLType::PrimT(PrimType::Null),
