@@ -6,7 +6,8 @@ on:
       - "*"
 
 jobs:
-    name: Release binary for ${{ matrix.name }}
+#    name: Release binary for ${{ matrix.name }}
+    name: Release binary for X
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
