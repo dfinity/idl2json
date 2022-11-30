@@ -5,7 +5,7 @@ use yaml2candid::Yaml2Candid;
 
 /// Converts YAML to Candid
 #[derive(Parser, Debug)]
-#[clap(name("yaml2candid"))]
+#[clap(name("yaml2candid"), version = concat!(env!("CARGO_PKG_VERSION"), "\ncandid ", env!("CARGO_CANDID_VERSION")))]
 struct Args {
     /// Path to the interface definition `.did` file.
     #[clap(short, long, required = true)]

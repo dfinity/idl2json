@@ -22,5 +22,5 @@ pub fn main() -> io::Result<()> {
 
 /// Converts Candid on stdin to JSON on stdout.
 #[derive(Parser, Debug)]
-#[clap(name("yaml2candid"), version = concat!(env!("CARGO_PKG_VERSION"), "\ncandid ", env!("CARGO_CANDID_VERSION")))]
+#[clap(name("idl2json"), version = concat!(env!("CARGO_PKG_VERSION"), "\ncandid ", env!("CARGO_CANDID_VERSION")))]
 struct Args {}
