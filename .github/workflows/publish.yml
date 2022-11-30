@@ -15,27 +15,28 @@ jobs:
         include:
           - os: ubuntu-latest
             name: linux
-            target_file: target/x86_64-unknown-linux-musl/release/{idl2json,yaml2candid}
+            target_dir: target/x86_64-unknown-linux-musl/release/
             asset_name: idl2json-linux-x86_64
             make_target: musl-static
-          - os: windows-latest
-            name: windows
-            target_file: target/release/{idl2json,yaml2candid}.exe
-            asset_name: idl2json-windows-x86_64
-            make_target: release
-            rust: 1.60.0
-          - os: macos-latest
-            name: macos
-            target_file: target/release/{idl2json,yaml2candid}
-            asset_name: idl2json-macos-x86_64
-            make_target: release
-            rust: 1.60.0
-          - os: ubuntu-latest
-            name: arm
-            target_file: target/arm-unknown-linux-gnueabihf/release/{idl2json,yaml2candid}
-            asset_name: idl2json-arm_32
-            make_target: unused
-            rust: 1.60.0
+            pack: tar
+#          - os: windows-latest
+#            name: windows
+#            target_dir: target/release/
+#            asset_name: idl2json-windows-x86_64
+#            make_target: release
+#            rust: 1.60.0
+#          - os: macos-latest
+#            name: macos
+#            target_file: target/release/{idl2json,yaml2candid}
+#            asset_name: idl2json-macos-x86_64
+#            make_target: release
+#            rust: 1.60.0
+#          - os: ubuntu-latest
+#            name: arm
+#            target_file: target/arm-unknown-linux-gnueabihf/release/{idl2json,yaml2candid}
+#            asset_name: idl2json-arm_32
+#            make_target: unused
+#            rust: 1.60.0
     steps:
       - uses: actions/checkout@master
 
@@ -68,11 +69,19 @@ jobs:
           command: build
           args: --target arm-unknown-linux-gnueabihf --features static-ssl --release --locked
 
+      - name: See the results
+        run: |
+          tree "${{ matrix.target_dir }}" -L 1
+      - name: tar the results
+        if: matrix.pack == 'tar'
+          cd "${{ matrix.target_dir }}"
+          tar -czvf "${{ matrix.asset_name }}.tar.gz" idl2json yaml2candid
+
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ matrix.target_file }}
+          file: "${{ matrix.target_dir }}.*"
           file_glob: true
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ github.ref }}
