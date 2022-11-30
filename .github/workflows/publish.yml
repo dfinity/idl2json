@@ -16,7 +16,7 @@ jobs:
           - os: ubuntu-latest
             name: linux
             target_dir: target/x86_64-unknown-linux-musl/release/
-            asset_name: idl2json-linux-x86_64
+            asset_name: idl2json-linux-x86_64.tar.gz
             make_target: musl-static
             pack: tar
 #          - os: windows-latest
@@ -75,14 +75,13 @@ jobs:
       - name: tar the results
         if: matrix.pack == 'tar'
         run: |
-          cd "${{ matrix.target_dir }}"
-          tar -czvf "${{ matrix.asset_name }}.tar.gz" idl2json yaml2candid
+          tar -C "${{ matrix.target_dir }}" -czvf "$PWD/${{ matrix.asset_name }}" idl2json yaml2candid
 
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: "${{ matrix.target_dir }}.*"
+          file: "${{ matrix.asset_name }}"
           file_glob: true
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ github.ref }}
