@@ -33,7 +33,7 @@ jobs:
             make_target: release
             rust: 1.60.0
             build: cargo
-            pack: gz
+            pack: zip
 #          - os: ubuntu-latest
 #            name: arm
 #            target_file: target/arm-unknown-linux-gnueabihf/release/{idl2json,yaml2candid}
