@@ -74,6 +74,7 @@ jobs:
           tree "${{ matrix.target_dir }}" -L 1
       - name: tar the results
         if: matrix.pack == 'tar'
+        run: |
           cd "${{ matrix.target_dir }}"
           tar -czvf "${{ matrix.asset_name }}.tar.gz" idl2json yaml2candid
 
