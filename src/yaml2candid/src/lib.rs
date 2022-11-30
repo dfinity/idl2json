@@ -50,7 +50,7 @@ impl Yaml2Candid {
     pub fn convert_str(&self, type_name: &str, yaml_str: &str) -> anyhow::Result<String> {
         let yaml_value: YamlValue = serde_yaml::from_str(yaml_str)?;
         let converted = self.convert(&IDLType::VarT(type_name.to_string()), &yaml_value)?;
-        Ok(format!("{:?}", converted))
+        Ok(converted.to_string())
     }
     /// Converts a YAML value into a Candid value of the given IDL type.
     ///

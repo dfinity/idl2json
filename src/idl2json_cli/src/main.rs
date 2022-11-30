@@ -1,5 +1,5 @@
 use candid::IDLArgs;
-use idl2json::idl_to_serde;
+use idl2json::{idl2json, Idl2JsonOptions};
 use std::io::{self, Read};
 
 /// Reads IDL from stdin, writes JSON to stdout.
@@ -10,7 +10,8 @@ fn main() -> io::Result<()> {
     let args: IDLArgs = buffer.parse().expect("Malformed input");
     println!(
         "{}",
-        serde_json::to_string(&idl_to_serde(&args.args[0])).expect("Cannot get it out")
+        serde_json::to_string(&idl2json(&args.args[0], &Idl2JsonOptions::default()))
+            .expect("Cannot get it out")
     );
 
     Ok(())
