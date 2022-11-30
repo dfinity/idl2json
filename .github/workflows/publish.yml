@@ -5,6 +5,8 @@ on:
     tags:
       - "*"
 
+shell: bash
+
 jobs:
   build:
     name: Release binary for ${{ matrix.name }}
