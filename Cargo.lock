@@ -632,6 +632,7 @@ name = "idl2json_cli"
 version = "0.8.1"
 dependencies = [
  "candid 0.8.4",
+ "clap",
  "idl2json",
  "serde_json",
 ]
