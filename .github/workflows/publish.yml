@@ -69,9 +69,6 @@ jobs:
           args: --target arm-unknown-linux-gnueabihf --features static-ssl --release --locked
 
       # ZIP
-      - name: See the results
-        run: |
-          tree "${{ matrix.target_dir }}" -L 1
       - name: tar the results
         if: matrix.pack == 'tar'
         run: |
