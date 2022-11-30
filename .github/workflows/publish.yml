@@ -5,7 +5,9 @@ on:
     tags:
       - "*"
 
-shell: bash
+defaults:
+  run:
+    shell: bash
 
 jobs:
   build:
