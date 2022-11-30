@@ -18,6 +18,7 @@ jobs:
             target_dir: target/x86_64-unknown-linux-musl/release/
             asset_name: idl2json-linux-x86_64.tar.gz
             make_target: musl-static
+            build: musl
             pack: tar
 #          - os: windows-latest
 #            name: windows
@@ -25,12 +26,14 @@ jobs:
 #            asset_name: idl2json-windows-x86_64
 #            make_target: release
 #            rust: 1.60.0
-#          - os: macos-latest
-#            name: macos
-#            target_file: target/release/{idl2json,yaml2candid}
-#            asset_name: idl2json-macos-x86_64
-#            make_target: release
-#            rust: 1.60.0
+          - os: macos-latest
+            name: macos
+            target_file: target/release/
+            asset_name: idl2json-macos-x86_64.zip
+            make_target: release
+            rust: 1.60.0
+            build: cargo
+            pack: gz
 #          - os: ubuntu-latest
 #            name: arm
 #            target_file: target/arm-unknown-linux-gnueabihf/release/{idl2json,yaml2candid}
@@ -40,8 +43,9 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: Install toolchain (Linux static)
-        if: matrix.name == 'linux'
+      # BUILD
+      - name: Static build with musl
+        if: matrix.build == 'musl'
         uses: mariodfinity/rust-musl-action@master
         with:
           args: make ${{ matrix.make_target }}
@@ -53,14 +57,9 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
           target: arm-unknown-linux-gnueabihf
-      - name: Install toolchain (Non-linux)
-        if: matrix.name != 'linux' && matrix.name != 'arm'
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.rust }}
-          override: true
-
+      - name: Build with cargo
+        if: matrix.build == 'cargo'
+        run: make ${{ matrix.make_target }}
       - name: Cross build
         if: matrix.name == 'arm'
         uses: actions-rs/cargo@v1
@@ -69,6 +68,7 @@ jobs:
           command: build
           args: --target arm-unknown-linux-gnueabihf --features static-ssl --release --locked
 
+      # ZIP
       - name: See the results
         run: |
           tree "${{ matrix.target_dir }}" -L 1
@@ -76,7 +76,14 @@ jobs:
         if: matrix.pack == 'tar'
         run: |
           tar -C "${{ matrix.target_dir }}" -czvf "$PWD/${{ matrix.asset_name }}" idl2json yaml2candid
+      - name: zip the results
+        if: matrix.pack == 'zip'
+        run: |
+          zipfile="$PWD/${{ matrix.asset_name }}"
+          cd "${{ matrix.target_dir }}"
+          zip "$zipfile" idl2json yaml2candid
 
+      # UPLOAD
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
