@@ -1,3 +1,10 @@
+//! Command line library for converting candid to JSON.
+#![warn(missing_docs)]
+#![deny(clippy::panic)]
+#![deny(clippy::unwrap_used)]
+#![deny(clippy::expect_used)]
+#![deny(clippy::unimplemented)]
+
 use anyhow::{anyhow, Context};
 use candid::{parser::types::IDLType, IDLArgs, IDLProg};
 use clap::Parser;
@@ -15,7 +22,7 @@ pub fn main(args: &Args) -> anyhow::Result<()> {
         io::stdin()
             .read_to_string(&mut buffer)
             .with_context(|| anyhow!("Failed to read string from stdin"))?;
-        let idl_args: IDLArgs = buffer.parse().expect("Malformed input");
+        let idl_args: IDLArgs = buffer.parse().with_context(|| anyhow!("Malformed input"))?;
         idl_args
     };
     let idl_value = idl_args
@@ -43,7 +50,7 @@ pub fn main(args: &Args) -> anyhow::Result<()> {
     };
     println!(
         "{}",
-        serde_json::to_string(&json_value).expect("Cannot get it out")
+        serde_json::to_string(&json_value).with_context(|| anyhow!("Cannot print to stderr"))?
     );
 
     Ok(())
