@@ -524,6 +524,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37ab347416e802de484e4d03c7316c48f1ecb56574dfd4a46a80f173ce1de04d"
 
 [[package]]
+name = "fn-error-context"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "236b4e4ae2b8be5f7a5652f6108c4a0f2627c569db4e7923333d31c7dbfed0fb"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -631,8 +642,10 @@ dependencies = [
 name = "idl2json_cli"
 version = "0.8.5"
 dependencies = [
+ "anyhow",
  "candid 0.8.4",
  "clap",
+ "fn-error-context",
  "idl2json",
  "serde_json",
  "toml",
