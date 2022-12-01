@@ -35,7 +35,7 @@ pub fn main(args: &Args) -> anyhow::Result<()> {
     let json_value = if let (Some(did), Some(typ)) = (&args.did, &args.typ) {
         let idl_type: IDLType = {
             let prog = {
-                let did_as_str = std::fs::read_to_string(&did)
+                let did_as_str = std::fs::read_to_string(did)
                     .with_context(|| anyhow!("Could not read did file '{}'.", did.display()))?;
                 IDLProg::from_str(&did_as_str)
                     .with_context(|| anyhow!("Failed to parse did file '{}'", did.display()))?
