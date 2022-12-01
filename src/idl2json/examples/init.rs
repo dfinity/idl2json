@@ -6,7 +6,7 @@ use candid::{
     },
     Decode, IDLProg,
 };
-use idl2json::{idl2json, idl2json_with_weak_names, Idl2JsonOptions};
+use idl2json::{idl2json, idl2json_with_weak_names, polyfill, Idl2JsonOptions};
 use std::str::FromStr;
 
 /// Converts some sample candid bytes to JSON using a .did file.
@@ -20,18 +20,7 @@ fn main() {
     // TODO: This is still unimplemented in candid, but should be available soon.
     //let rust = idl_to_rust(&prog, &Config::default()).expect("Could not compute rust");
     //println!("Rust: {rust}");
-    let idl_type = prog
-        .decs
-        .iter()
-        .find_map(|x| {
-            if let Dec::TypD(y) = x {
-                if y.id == type_name {
-                    return Some(y.typ.clone());
-                }
-            }
-            None
-        })
-        .expect("Failed to get idltype");
+    let idl_type = polyfill::idl_prog::get(&prog, type_name).expect("Failed to get idltype");
     let idl_type = IDLType::OptT(Box::new(idl_type));
     println!("Type: {:?}\n\n", &idl_type);
     let buffer = [

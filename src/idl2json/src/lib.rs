@@ -7,6 +7,7 @@
 
 mod bytes;
 pub mod candid_types;
+pub mod polyfill;
 mod typed_conversion;
 mod untyped_conversion;
 

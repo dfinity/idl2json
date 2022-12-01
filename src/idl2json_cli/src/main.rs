@@ -1,6 +1,8 @@
+use clap::Parser;
 use idl2json_cli as lib;
 
 /// Reads IDL from stdin, writes JSON to stdout.
 fn main() {
-    lib::main().expect("Failed to convert IDL to JSON");
+    let args = lib::Args::parse();
+    lib::main(&args).expect("Failed to convert IDL to JSON");
 }
