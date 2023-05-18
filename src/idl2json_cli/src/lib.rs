@@ -10,22 +10,17 @@ use candid::{parser::types::IDLType, IDLArgs, IDLProg};
 use clap::Parser;
 use idl2json::{idl2json, idl2json_with_weak_names, polyfill, Idl2JsonOptions};
 use std::{
-    io::{self, Read},
     path::PathBuf,
     str::FromStr,
 };
 
 /// Reads IDL from stdin, writes JSON to stdout.
-pub fn main(args: &Args) -> anyhow::Result<()> {
+pub fn main(args: &Args, idl_str: &str) -> anyhow::Result<String> {
     let idl_args = {
-        let mut buffer = String::new();
-        io::stdin()
-            .read_to_string(&mut buffer)
-            .with_context(|| anyhow!("Failed to read string from stdin"))?;
-        let idl_args: IDLArgs = buffer.parse().with_context(|| anyhow!("Malformed input"))?;
+        let idl_args: IDLArgs = idl_str.parse().with_context(|| anyhow!("Malformed input"))?;
         idl_args
     };
-    for idl_value in idl_args.args {
+    let json_structures: anyhow::Result<Vec<String>> = idl_args.args.iter().map(|idl_value| {
         let idl2json_options = Idl2JsonOptions::default();
 
         let json_value = if let (Some(did), Some(typ)) = (&args.did, &args.typ) {
@@ -44,18 +39,13 @@ pub fn main(args: &Args) -> anyhow::Result<()> {
         } else {
             idl2json(&idl_value, &idl2json_options)
         };
-        println!(
-            "{}",
-            serde_json::to_string(&json_value)
-                .with_context(|| anyhow!("Cannot print to stderr"))?
-        );
-    }
-
-    Ok(())
+        serde_json::to_string(&json_value).with_context(|| anyhow!("Cannot print to stderr"))
+    }).collect();
+    Ok(json_structures?.join("\n"))
 }
 
 /// Converts Candid on stdin to JSON on stdout.
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, Default)]
 #[clap(name("idl2json"), version = concat!(env!("CARGO_PKG_VERSION"), "\ncandid ", env!("CARGO_CANDID_VERSION")))]
 pub struct Args {
     /// A .did file containing type definitions
