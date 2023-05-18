@@ -1,6 +1,6 @@
 [package]
 name = "idl2json"
-version = "0.8.5"
+version = "0.8.6"
 authors = ["dfinity <sdk@dfinity.org>"]
 edition = "2018"
 license = "Apache-2.0"
