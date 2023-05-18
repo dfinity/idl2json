@@ -25,33 +25,31 @@ pub fn main(args: &Args) -> anyhow::Result<()> {
         let idl_args: IDLArgs = buffer.parse().with_context(|| anyhow!("Malformed input"))?;
         idl_args
     };
-    let idl_value = idl_args
-        .args
-        .get(0)
-        .ok_or_else(|| anyhow!("No value in input"))?;
+    for idl_value in idl_args.args {
+        let idl2json_options = Idl2JsonOptions::default();
 
-    let idl2json_options = Idl2JsonOptions::default();
-
-    let json_value = if let (Some(did), Some(typ)) = (&args.did, &args.typ) {
-        let idl_type: IDLType = {
-            let prog = {
-                let did_as_str = std::fs::read_to_string(did)
-                    .with_context(|| anyhow!("Could not read did file '{}'.", did.display()))?;
-                IDLProg::from_str(&did_as_str)
-                    .with_context(|| anyhow!("Failed to parse did file '{}'", did.display()))?
+        let json_value = if let (Some(did), Some(typ)) = (&args.did, &args.typ) {
+            let idl_type: IDLType = {
+                let prog = {
+                    let did_as_str = std::fs::read_to_string(did)
+                        .with_context(|| anyhow!("Could not read did file '{}'.", did.display()))?;
+                    IDLProg::from_str(&did_as_str)
+                        .with_context(|| anyhow!("Failed to parse did file '{}'", did.display()))?
+                };
+                polyfill::idl_prog::get(&prog, typ).ok_or_else(|| {
+                    anyhow!("Type '{typ}' not found in .did file '{}'.", did.display())
+                })?
             };
-            polyfill::idl_prog::get(&prog, typ).ok_or_else(|| {
-                anyhow!("Type '{typ}' not found in .did file '{}'.", did.display())
-            })?
+            idl2json_with_weak_names(&idl_value, &idl_type, &idl2json_options)
+        } else {
+            idl2json(&idl_value, &idl2json_options)
         };
-        idl2json_with_weak_names(idl_value, &idl_type, &idl2json_options)
-    } else {
-        idl2json(idl_value, &idl2json_options)
-    };
-    println!(
-        "{}",
-        serde_json::to_string(&json_value).with_context(|| anyhow!("Cannot print to stderr"))?
-    );
+        println!(
+            "{}",
+            serde_json::to_string(&json_value)
+                .with_context(|| anyhow!("Cannot print to stderr"))?
+        );
+    }
 
     Ok(())
 }
