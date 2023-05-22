@@ -39,9 +39,9 @@ pub fn main(args: &Args, idl_str: &str) -> anyhow::Result<String> {
                         anyhow!("Type '{typ}' not found in .did file '{}'.", did.display())
                     })?
                 };
-                idl2json_with_weak_names(&idl_value, &idl_type, &idl2json_options)
+                idl2json_with_weak_names(idl_value, &idl_type, &idl2json_options)
             } else {
-                idl2json(&idl_value, &idl2json_options)
+                idl2json(idl_value, &idl2json_options)
             };
             serde_json::to_string(&json_value).with_context(|| anyhow!("Cannot print to stderr"))
         })
