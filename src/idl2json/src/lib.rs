@@ -27,9 +27,10 @@ pub struct Idl2JsonOptions {
 }
 
 /// Options for how to represent `Vec<u8>`
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Copy, Clone, Eq, PartialEq, Default)]
 pub enum BytesFormat {
     /// Data is represented as an array of numbers: `[1,34,0]`
+    #[default]
     Numbers,
     /// Data is represented as hex: `"A4B7"`
     Hex,
@@ -39,10 +40,4 @@ pub enum BytesFormat {
     #[cfg(feature = "crypto")]
     /// Data is hashed:  "sha512:abbabababababababbababababab"
     Sha256,
-}
-
-impl Default for BytesFormat {
-    fn default() -> Self {
-        BytesFormat::Numbers
-    }
 }
