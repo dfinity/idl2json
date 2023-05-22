@@ -1,7 +1,7 @@
 //! Example of how to convert binary candid to JSON using a schema
 use candid::{
     parser::{
-        types::{Dec, IDLType},
+        types::{IDLType},
         value::IDLValue,
     },
     Decode, IDLProg,
