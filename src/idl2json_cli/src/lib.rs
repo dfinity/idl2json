@@ -18,16 +18,41 @@ pub fn main(args: &Args, idl_str: &str) -> anyhow::Result<String> {
         .parse()
         .with_context(|| anyhow!("Malformed input"))?;
     let idl2json_options = Idl2JsonOptions::default();
-    convert_all(&idl_args, args, &idl2json_options)
+    let idl_type = get_idl_type(args).context("Failed to determine optional type")?;
+    convert_all(&idl_args, &idl_type, &idl2json_options)
 }
 
 /// Candid typically comes as a tuple of values.  This converts a single value in such a tuple.
 fn convert_one(
     idl_value: &IDLValue,
-    args: &Args,
+    idl_type: &Option<IDLType>,
     idl2json_options: &Idl2JsonOptions,
 ) -> anyhow::Result<String> {
-    let json_value = if let (Some(did), Some(typ)) = (&args.did, &args.typ) {
+    let json_value = if let Some(idl_type) = idl_type {
+        idl2json_with_weak_names(idl_value, idl_type, idl2json_options)
+    } else {
+        idl2json(idl_value, idl2json_options)
+    };
+    serde_json::to_string(&json_value).with_context(|| anyhow!("Cannot print to stderr"))
+}
+
+/// Candid typically comes as a tuple of values.  This converts all such tuples
+fn convert_all(
+    idl_args: &IDLArgs,
+    idl_type: &Option<IDLType>,
+    idl2json_options: &Idl2JsonOptions,
+) -> anyhow::Result<String> {
+    let json_structures: anyhow::Result<Vec<String>> = idl_args
+        .args
+        .iter()
+        .map(|idl_value| convert_one(idl_value, idl_type, idl2json_options))
+        .collect();
+    Ok(json_structures?.join("\n"))
+}
+
+/// Get the IDL type, if specified
+fn get_idl_type(args: &Args) -> anyhow::Result<Option<IDLType>> {
+    if let (Some(did), Some(typ)) = (&args.did, &args.typ) {
         let idl_type: IDLType = {
             let prog = {
                 let did_as_str = std::fs::read_to_string(did)
@@ -39,25 +64,10 @@ fn convert_one(
                 anyhow!("Type '{typ}' not found in .did file '{}'.", did.display())
             })?
         };
-        idl2json_with_weak_names(idl_value, &idl_type, idl2json_options)
+        Ok(Some(idl_type))
     } else {
-        idl2json(idl_value, idl2json_options)
-    };
-    serde_json::to_string(&json_value).with_context(|| anyhow!("Cannot print to stderr"))
-}
-
-/// Candid typically comes as a tuple of values.  This converts all such tuples
-fn convert_all(
-    idl_args: &IDLArgs,
-    args: &Args,
-    idl2json_options: &Idl2JsonOptions,
-) -> anyhow::Result<String> {
-    let json_structures: anyhow::Result<Vec<String>> = idl_args
-        .args
-        .iter()
-        .map(|idl_value| convert_one(idl_value, args, idl2json_options))
-        .collect();
-    Ok(json_structures?.join("\n"))
+        Ok(None)
+    }
 }
 
 /// Converts Candid on stdin to JSON on stdout.
