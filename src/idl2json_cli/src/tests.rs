@@ -94,14 +94,12 @@ fn error_handling_should_be_correct() {
         args: Args,
         err: &'static str,
     }
-    let vectors = [
-        TestVector {
-            name: "Invalid candid on stdin",
-            stdin: "( this is not candid",
-            args: Args::default(),
-            err: "Malformed input",
-        },
-    ];
+    let vectors = [TestVector {
+        name: "Invalid candid on stdin",
+        stdin: "( this is not candid",
+        args: Args::default(),
+        err: "Malformed input",
+    }];
     for (index, vector) in vectors.iter().enumerate() {
         match main(&vector.args, vector.stdin) {
             Ok(json) => panic!(
