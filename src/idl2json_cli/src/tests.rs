@@ -1,3 +1,9 @@
+//! Tests for idl2json_cli.
+#![warn(missing_docs)]
+#![allow(clippy::panic)]
+#![allow(clippy::unwrap_used)]
+#![allow(clippy::expect_used)]
+
 use super::{main, Args};
 use anyhow::anyhow;
 use std::path::Path;
