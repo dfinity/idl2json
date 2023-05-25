@@ -82,7 +82,10 @@ fn conversion_with_options_should_be_correct() {
         // {"canister_creation_cycles_cost":["911"]}
         TestVector {
             stdin: "(record { 2_138_241_783 = opt (911 : int) })",
-            args: Args{typ: Some("record { canister_creation_cycles_cost: nat32; }".to_string()), ..Args::default()},
+            args: Args {
+                typ: Some("record { canister_creation_cycles_cost: nat32; }".to_string()),
+                ..Args::default()
+            },
             stdout: r#"{"canister_creation_cycles_cost":["911"]}"#,
         },
     ];
