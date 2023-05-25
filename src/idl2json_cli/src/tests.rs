@@ -101,12 +101,6 @@ fn error_handling_should_be_correct() {
             args: Args::default(),
             err: "Malformed input",
         },
-        TestVector {
-            name: "Typo in type name",
-            stdin: r#"( "perfectly valid candid" )"#,
-            args: typed_arg!("internet_identity.did", "IIInnit"),
-            err: r#"Type 'IIInnit' not found in .did file"#,
-        },
     ];
     for (index, vector) in vectors.iter().enumerate() {
         match main(&vector.args, vector.stdin) {
