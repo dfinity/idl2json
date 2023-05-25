@@ -90,6 +90,19 @@ fn conversion_with_options_should_be_correct() {
             },
             stdout: r#"{"canister_creation_cycles_cost":["911"]}"#,
         },
+        // We should be able to specify IDLTypes literally
+        // On the command line we should see:
+        // echo "(record{canister_creation_cycles_cost= opt 999;})" | didc encode | didc decode | tee /dev/stderr | target/debug/idl2json --did samples/internet_identity.did  --typ '(record { canister_creation_cycles_cost: nat32; })'
+        // (record { 2_138_241_783 = opt (999 : int) })
+        // [{"canister_creation_cycles_cost":["911"]}]
+        TestVector {
+            stdin: "(record { 2_138_241_783 = opt (42 : int) })",
+            args: Args {
+                typ: Some("(record { canister_creation_cycles_cost: nat32; })".to_string()),
+                ..Args::default()
+            },
+            stdout: r#"{"canister_creation_cycles_cost":["42"]}"#,
+        },
     ];
     for vector in vectors {
         eprintln!("{vector:#?}");

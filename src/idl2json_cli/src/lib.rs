@@ -10,7 +10,7 @@ mod tests;
 
 use anyhow::{anyhow, Context};
 use candid::parser::value::IDLValue;
-use candid::{parser::types::IDLType, IDLArgs, IDLProg};
+use candid::{parser::types::{IDLType, IDLTypes}, IDLArgs, IDLProg};
 use clap::Parser;
 use idl2json::{idl2json, idl2json_with_weak_names, Idl2JsonOptions};
 use std::{path::PathBuf, str::FromStr};
@@ -36,6 +36,7 @@ pub fn main(args: &Args, idl_str: &str) -> anyhow::Result<String> {
     };
     if let Some(idl_type) = &args.typ {
         if idl_type.trim().starts_with('(') {
+            let idl_types = IDLTypes::from_str(idl_type).context("Failed to parse type")?;
             unimplemented!()
         } else {
             let idl_type = IDLType::from_str(idl_type).context("Failed to parse type")?;
