@@ -85,22 +85,31 @@ fn error_handling_should_be_correct() {
     struct TestVector {
         name: &'static str,
         stdin: &'static str,
+        args: Args,
         err: &'static str,
     }
-    let args = Args::default();
-    let vectors = [TestVector {
-        name: "Invalid candid on stdin",
-        stdin: "( this is not candid",
-        err: "Malformed input",
-    }];
+    let vectors = [
+        TestVector {
+            name: "Invalid candid on stdin",
+            stdin: "( this is not candid",
+            args: Args::default(),
+            err: "Malformed input",
+        },
+        TestVector {
+            name: "Typo in type name",
+            stdin: r#"( "perfectly valid candid" )"#,
+            args: typed_arg!("internet_identity.did", "IIInnit"),
+            err: r#"Type 'IIInnit' not found in .did file"#,
+        },
+    ];
     for (index, vector) in vectors.iter().enumerate() {
-        match main(&args, vector.stdin) {
+        match main(&vector.args, vector.stdin) {
             Ok(json) => panic!(
                 "#{index} ({}) should have caused an error but returned: {json}",
                 vector.name
             ),
             Err(err) => {
-                let error_message = format!("{err}");
+                let error_message = format!("{err:?}");
                 assert!(
                     error_message.contains(vector.err),
                     "The error message for #{index} ({}) should contain '{}': '{}'",
