@@ -1,6 +1,9 @@
-use candid::parser::{
-    types::{IDLType, PrimType, TypeField},
-    value::{IDLField, IDLValue},
+use candid::{
+    parser::{
+        types::{IDLType, IDLTypes, PrimType, TypeField},
+        value::{IDLField, IDLValue},
+    },
+    IDLArgs,
 };
 use serde_json::value::Value as JsonValue;
 
@@ -16,6 +19,10 @@ use crate::{
 /// - Fields are never added, even if the schema suggests that some fields are missing.
 ///
 /// The data is preserved at all cost, the schema is applied only to make the data easier to understand and use.
+///
+/// Note: The textual format in parentheses `(  )` represents IDLArgs containing
+/// zero or more IDLValues.  Unless you definitely wish to convert a single value
+/// you may wish to consider `idl_args2json_with_weak_names` instead.
 pub fn idl2json_with_weak_names(
     idl: &IDLValue,
     idl_type: &IDLType,
@@ -109,4 +116,13 @@ fn convert_idl_field(
             )
         })
         .unwrap_or_else(|| (field.id.to_string(), idl2json(&field.val, options)))
+}
+
+/// Converts a candid IDLArgs to a serde JsonValue, with keys as names where possible.
+pub fn idl_args2json_with_weak_names(
+    _idl: &IDLArgs,
+    _idl_type: &IDLTypes,
+    _options: &Idl2JsonOptions,
+) -> JsonValue {
+    unimplemented!()
 }
