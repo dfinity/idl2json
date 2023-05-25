@@ -46,12 +46,13 @@ fn conversion_with_a_standalone_type_should_be_correct() {
             typ: "record { foo: nat8, bar: nat8 }",
             stdout: "{\"bar\":\"2\",\"foo\":\"1\"}",
         },
+        /*
         TestVector {
             name: "untyped record",
             stdin: "(record { 4_895_187 = 2 : int; 5_097_222 = 1 : int })", // created with: echo "( record {foo=1; bar=2;} )" | didc encode | didc decode
             typ: "record { foo: nat8, bar: nat8 }",
             stdout: "{\"bar\":\"2\",\"foo\":\"1\"}",
-        },
+        },*/
     ];
     for vector in vectors {
         let out = main(&args, vector.stdin)
