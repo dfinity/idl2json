@@ -94,7 +94,7 @@ jobs:
           path: tarpaulin-report.html
 
       - name: Check code coverage percentage
-        run: jq -e '.files | reduce .[] as $num ([0,0]; [.[0]+$num.coverable, .[1]+$num.covered]) | (.[1] * 100 / .[0]) >= 60' tarpaulin-report.json
+        run: jq -e '.files | reduce .[] as $num ([0,0]; [.[0]+$num.coverable, .[1]+$num.covered]) | (.[1] * 100 / .[0]) >= 69' tarpaulin-report.json
 
   may-merge:
     needs: ["check", "test", "fmt", "clippy"]
