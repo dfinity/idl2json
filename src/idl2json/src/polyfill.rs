@@ -13,8 +13,8 @@ pub mod idl_prog {
         get_type(prog, key)
     }
 
-    /// Polyfill for IDLProg.get(key), that gets the type of the given name.
-    pub fn get_type(prog: &IDLProg, key: &str) -> Option<IDLType> {
+    /// Gets the type of the service init arg.
+    pub fn get_init_arg_type(prog: &IDLProg, key: &str) -> Option<IDLType> {
         prog.decs.iter().find_map(|x| {
             if let Dec::TypD(y) = x {
                 if y.id == key {
@@ -26,8 +26,12 @@ pub mod idl_prog {
     }
 
     /// Gets the arguments for creating a service
-    pub fn get_service_arg(_prog: &IDLProg) -> Option<IDLTypes> {
-        unimplemented!()
+    pub fn get_service_arg(prog: &IDLProg) -> Option<IDLTypes> {
+        if let Some(IDLType::ClassT(args, _)) = &prog.actor {
+            Some(IDLTypes { args: args.clone() })
+        } else {
+            None
+        }
     }
     /// Gets the arguments and return values of a service method.
     ///
