@@ -1,3 +1,5 @@
+use std::iter;
+
 use candid::{
     parser::{
         types::{IDLType, IDLTypes, PrimType, TypeField},
@@ -121,8 +123,11 @@ fn convert_idl_field(
 /// Converts a candid IDLArgs to a serde JsonValue, with keys as names where possible.
 pub fn idl_args2json_with_weak_names(
     _idl: &IDLArgs,
-    _idl_type: &IDLTypes,
+    idl_types: &IDLTypes,
     _options: &Idl2JsonOptions,
 ) -> JsonValue {
+    /// If insufficient types are provided, we still include the remaining values interpreted with an empty type.
+    let extension_type = IDLType::PrimT(PrimType::Null);
+    let idl_type_extension = idl_types.args.iter().chain(iter::repeat(&extension_type));
     unimplemented!()
 }
