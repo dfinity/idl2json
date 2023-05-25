@@ -42,7 +42,7 @@ macro_rules! sample_file {
         .to_path_buf()
     };
 }
-/// Constructs idl2json_cli arguments using a did file in the samples directory.
+/// Constructs idl2json_cli arguments using a type and a did file in the samples directory.
 macro_rules! typed_arg {
     ($did_file:literal, $typ:literal) => {
         Args {
