@@ -11,6 +11,7 @@ pub mod polyfill;
 mod typed_conversion;
 mod untyped_conversion;
 
+use candid::IDLProg;
 pub use serde_json::Value as JsonValue;
 pub use typed_conversion::{
     get_fn_type, get_service_arg, get_type, get_type_from_any, idl2json_with_weak_names,
@@ -21,12 +22,14 @@ pub use untyped_conversion::{idl2json, idl_args2json};
 mod test;
 
 /// Options for idl2json conversions
-#[derive(Default, Clone, Eq, PartialEq)]
+#[derive(Default)]
 pub struct Idl2JsonOptions {
     /// How to represent `Vec<u8>`
     pub bytes_as: Option<BytesFormat>,
     /// How to represent `Vec<u8>` of at least some given length.
     pub long_bytes_as: Option<(usize, BytesFormat)>,
+    /// Type definitions
+    pub prog: Vec<IDLProg>,
 }
 
 /// Options for how to represent `Vec<u8>`
