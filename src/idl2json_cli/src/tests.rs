@@ -67,6 +67,7 @@ fn conversion_with_options_should_be_correct() {
         stdout: &'static str,
     }
     let vectors = [
+        // We should be able to use a named type in a did file:
         // On the command line we should see:
         // $ echo "(record{canister_creation_cycles_cost= opt 999;})" | didc encode | didc decode | tee /dev/stderr | idl2json --did samples/internet_identity.did  --typ InternetIdentityInit
         // (record { 2_138_241_783 = opt (999 : int) })
@@ -76,6 +77,7 @@ fn conversion_with_options_should_be_correct() {
             args: typed_arg!("internet_identity.did", "InternetIdentityInit"),
             stdout: r#"{"canister_creation_cycles_cost":["999"]}"#,
         },
+        // We should be able to specify a type literally.
         // On the command line we should see:
         // echo "(record{canister_creation_cycles_cost= opt 999;})" | didc encode | didc decode | tee /dev/stderr | target/debug/idl2json --did samples/internet_identity.did  --typ 'record { canister_creation_cycles_cost: nat32; }'
         // (record { 2_138_241_783 = opt (999 : int) })
