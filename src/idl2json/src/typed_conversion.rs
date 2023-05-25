@@ -31,6 +31,13 @@ pub fn idl2json_with_weak_names(
     options: &Idl2JsonOptions,
 ) -> JsonValue {
     match (idl, idl_type) {
+        (idl, IDLType::VarT(type_name)) => {
+            if let Some(resolved_type) = get_type_from_any(&options.prog, type_name) {
+                idl2json_with_weak_names(idl, &resolved_type, options)
+            } else {
+                idl2json(idl, options)
+            }
+        }
         (IDLValue::Bool(bool), _) => JsonValue::Bool(*bool),
         (IDLValue::Null, _) => JsonValue::Null,
         (IDLValue::Text(s), _) => JsonValue::String(s.clone()),
