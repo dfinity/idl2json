@@ -122,12 +122,20 @@ fn convert_idl_field(
 
 /// Converts a candid IDLArgs to a serde JsonValue, with keys as names where possible.
 pub fn idl_args2json_with_weak_names(
-    _idl: &IDLArgs,
+    idl: &IDLArgs,
     idl_types: &IDLTypes,
-    _options: &Idl2JsonOptions,
+    options: &Idl2JsonOptions,
 ) -> JsonValue {
-    /// If insufficient types are provided, we still include the remaining values interpreted with an empty type.
+    // If insufficient types are provided, this function includes the remaining values interpreted with a null type,
+    // yielding an untyped conversion for the remaining fields.
     let extension_type = IDLType::PrimT(PrimType::Null);
     let idl_type_extension = idl_types.args.iter().chain(iter::repeat(&extension_type));
-    unimplemented!()
+    // Matches each value with the corresponding type.
+    JsonValue::Array(
+        idl.args
+            .iter()
+            .zip(idl_type_extension)
+            .map(|(value, typ)| idl2json_with_weak_names(value, typ, options))
+            .collect(),
+    )
 }
