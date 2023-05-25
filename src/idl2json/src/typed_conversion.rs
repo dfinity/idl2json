@@ -32,9 +32,11 @@ pub fn idl2json_with_weak_names(
 ) -> JsonValue {
     match (idl, idl_type) {
         (idl, IDLType::VarT(type_name)) => {
+            eprintln!("Looking up type '{type_name}'");
             if let Some(resolved_type) = get_type_from_any(&options.prog, type_name) {
                 idl2json_with_weak_names(idl, &resolved_type, options)
             } else {
+                eprintln!("Warning: Type not found: '{type_name}'");
                 idl2json(idl, options)
             }
         }
