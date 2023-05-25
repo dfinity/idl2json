@@ -10,9 +10,14 @@ mod tests;
 
 use anyhow::{anyhow, Context};
 use candid::parser::value::IDLValue;
-use candid::{parser::types::{IDLType, IDLTypes}, IDLArgs, IDLProg};
+use candid::{
+    parser::types::{IDLType, IDLTypes},
+    IDLArgs, IDLProg,
+};
 use clap::Parser;
-use idl2json::{idl2json, idl2json_with_weak_names, Idl2JsonOptions};
+use idl2json::{
+    idl2json, idl2json_with_weak_names, idl_args2json_with_weak_names, Idl2JsonOptions,
+};
 use std::{path::PathBuf, str::FromStr};
 
 /// Reads IDL from stdin, writes JSON to stdout.
@@ -37,7 +42,12 @@ pub fn main(args: &Args, idl_str: &str) -> anyhow::Result<String> {
     if let Some(idl_type) = &args.typ {
         if idl_type.trim().starts_with('(') {
             let idl_types = IDLTypes::from_str(idl_type).context("Failed to parse type")?;
-            unimplemented!()
+            serde_json::to_string(&idl_args2json_with_weak_names(
+                &idl_args,
+                &idl_types,
+                &idl2json_options,
+            ))
+            .context("Failed to serialize to json")
         } else {
             let idl_type = IDLType::from_str(idl_type).context("Failed to parse type")?;
             eprintln!("Type: {idl_type:?}");

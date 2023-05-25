@@ -101,7 +101,7 @@ fn conversion_with_options_should_be_correct() {
                 typ: Some("(record { canister_creation_cycles_cost: nat32; })".to_string()),
                 ..Args::default()
             },
-            stdout: r#"{"canister_creation_cycles_cost":["42"]}"#,
+            stdout: r#"[{"canister_creation_cycles_cost":["42"]}]"#,
         },
     ];
     for vector in vectors {
