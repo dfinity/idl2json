@@ -5,6 +5,9 @@
 #![deny(clippy::expect_used)]
 #![deny(clippy::unimplemented)]
 
+#[cfg(test)]
+mod tests;
+
 use anyhow::{anyhow, Context};
 use candid::parser::value::IDLValue;
 use candid::{parser::types::IDLType, IDLArgs, IDLProg};
