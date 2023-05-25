@@ -13,10 +13,7 @@ mod untyped_conversion;
 
 use candid::IDLProg;
 pub use serde_json::Value as JsonValue;
-pub use typed_conversion::{
-    get_fn_type, get_service_arg, get_type, get_type_from_any, idl2json_with_weak_names,
-    idl_args2json_with_weak_names,
-};
+pub use typed_conversion::{idl2json_with_weak_names, idl_args2json_with_weak_names};
 pub use untyped_conversion::{idl2json, idl_args2json};
 #[cfg(test)]
 mod test;

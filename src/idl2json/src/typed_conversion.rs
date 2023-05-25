@@ -140,25 +140,9 @@ pub fn idl_args2json_with_weak_names(
     )
 }
 
-/// Get a type definition from an IDLProg.
-///
-/// Note: A canister .did file represents an IDLProg.
-pub fn get_type(_name: &str, _prog: &IDLProg) -> Option<IDLType> {
-    unimplemented!()
-}
 /// Find a type in any of a list of IDLProgs.
 ///
 /// Note: A canister .did file represents an IDLProg.  That canister .did file may depend on definitions made elsewhere.
-pub fn get_type_from_any(name: &str, progs: &[IDLProg]) -> Option<IDLType> {
-    progs.iter().find_map(|prog| get_type(name, prog))
-}
-/// Gets the arguments for creating a service
-pub fn get_service_arg(_prog: &IDLProg) -> Option<IDLTypes> {
-    unimplemented!()
-}
-/// Gets the arguments and return values of a service method.
-///
-/// Note: In a canister .did file there is typically a service section containing these service methods.
-pub fn get_fn_type(_fn_name: &str, _prog: &IDLProg) -> Option<(IDLTypes, IDLTypes)> {
-    unimplemented!()
+pub fn get_type_from_any(progs: &[IDLProg], name: &str) -> Option<IDLType> {
+    progs.iter().find_map(|prog| crate::polyfill::idl_prog::get_type(prog, name))
 }
