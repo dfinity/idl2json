@@ -151,5 +151,7 @@ pub fn idl_args2json_with_weak_names(
 ///
 /// Note: A canister .did file represents an IDLProg.  That canister .did file may depend on definitions made elsewhere.
 pub fn get_type_from_any(progs: &[IDLProg], name: &str) -> Option<IDLType> {
-    progs.iter().find_map(|prog| crate::polyfill::idl_prog::get_type(prog, name))
+    progs
+        .iter()
+        .find_map(|prog| crate::polyfill::idl_prog::get_type(prog, name))
 }

@@ -65,7 +65,11 @@ fn get_idl_type(args: &Args) -> anyhow::Result<Option<IDLType>> {
             })?
         };
         Ok(Some(idl_type))
-    } else {
+    } else if let Some( typ ) = &args.typ {
+        let idl_type = IDLType::from_str(typ)?;
+        eprintln!("Type: {idl_type:?}");
+        Ok(Some(idl_type))
+    }else {
         Ok(None)
     }
 }
