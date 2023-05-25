@@ -81,12 +81,9 @@ fn conversion_with_options_should_be_correct() {
         // (record { 2_138_241_783 = opt (999 : int) })
         // {"canister_creation_cycles_cost":["911"]}
         TestVector {
-            stdin: "(record { 2_138_241_783 = opt (999 : int) })",
-            args: typed_arg!(
-                "internet_identity.did",
-                "record { canister_creation_cycles_cost: nat32; }"
-            ),
-            stdout: r#"{"canister_creation_cycles_cost":["999"]"#,
+            stdin: "(record { 2_138_241_783 = opt (911 : int) })",
+            args: Args{typ: Some("record { canister_creation_cycles_cost: nat32; }".to_string()), ..Args::default()},
+            stdout: r#"{"canister_creation_cycles_cost":["911"]}"#,
         },
     ];
     for vector in vectors {
