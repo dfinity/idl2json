@@ -309,7 +309,26 @@ fn types_should_be_represented_correctly() {
             val: IDLValue::Nat(candid::Nat(num_bigint::BigUint::from(9999998u64))),
             json: r#""9_999_998""#,
         },
-
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Nat8),
+            val: IDLValue::Nat8(8),
+            json: r#"8"#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Nat16),
+            val: IDLValue::Nat16(16),
+            json: r#"16"#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Nat32),
+            val: IDLValue::Nat32(32),
+            json: r#"32"#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Nat64),
+            val: IDLValue::Nat8(64),
+            json: r#"64"#,
+        },
         TestVector {
             typ: IDLType::PrimT(PrimType::Float32),
             val: IDLValue::Float32(91.0),
