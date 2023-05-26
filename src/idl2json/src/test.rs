@@ -303,7 +303,6 @@ fn types_should_be_represented_correctly() {
             val: IDLValue::Text("Hi there".to_string()),
             json: r#""Hi there""#,
         },
-
         TestVector {
             typ: IDLType::PrimT(PrimType::Nat),
             val: IDLValue::Nat(candid::Nat(num_bigint::BigUint::from(9999998u64))),
@@ -311,23 +310,53 @@ fn types_should_be_represented_correctly() {
         },
         TestVector {
             typ: IDLType::PrimT(PrimType::Nat8),
-            val: IDLValue::Nat8(8),
-            json: r#"8"#,
+            val: IDLValue::Nat8(u8::MAX),
+            json: r#"255"#,
         },
         TestVector {
             typ: IDLType::PrimT(PrimType::Nat16),
-            val: IDLValue::Nat16(16),
-            json: r#"16"#,
+            val: IDLValue::Nat16(u16::MAX),
+            json: r#"65535"#,
         },
         TestVector {
             typ: IDLType::PrimT(PrimType::Nat32),
-            val: IDLValue::Nat32(32),
-            json: r#"32"#,
+            val: IDLValue::Nat32(u32::MAX),
+            json: r#"4294967295"#,
         },
         TestVector {
             typ: IDLType::PrimT(PrimType::Nat64),
-            val: IDLValue::Nat8(64),
-            json: r#"64"#,
+            val: IDLValue::Nat64(u64::MAX),
+            json: r#""18446744073709551615""#, // Note: quotes as this is too big for JSON.
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Nat64),
+            val: IDLValue::Nat64(1),
+            json: r#""1""#, // Note: Small u64s are also given as strings, for better or worse.
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Int8),
+            val: IDLValue::Int8(i8::MIN),
+            json: r#"-128"#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Int16),
+            val: IDLValue::Int16(i16::MIN),
+            json: r#"-32768"#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Int32),
+            val: IDLValue::Int32(i32::MIN),
+            json: r#"-2147483648"#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Int64),
+            val: IDLValue::Int64(i64::MIN),
+            json: r#""-9223372036854775808""#, // Note: Quotes as this is too small for JSON.
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Int64),
+            val: IDLValue::Int64(-1),
+            json: r#""-1""#, // Note: Small i64s are also in quotes.
         },
         TestVector {
             typ: IDLType::PrimT(PrimType::Float32),
