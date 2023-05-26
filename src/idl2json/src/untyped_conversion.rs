@@ -67,7 +67,7 @@ pub(crate) fn convert_non_bytes_array(value: &[IDLValue], options: &Idl2JsonOpti
 
 /// Converts a candid IDLArgs to a serde JsonValue, without type information.
 ///
-/// Note: The textual format `( )` containing zero or more vaues represents an IDLArgs.
+/// Note: The textual format `( )` containing zero or more values represents an IDLArgs.
 pub fn idl_args2json(args: &IDLArgs, options: &Idl2JsonOptions) -> JsonValue {
     convert_non_bytes_array(&args.args, options)
 }
