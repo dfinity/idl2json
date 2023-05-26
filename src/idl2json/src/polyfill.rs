@@ -7,13 +7,13 @@ pub mod idl_prog {
         IDLProg,
     };
 
-    /// Deprecated; please use `get_type(..)` instead.
-    /// TODO: Use the rust deprecated syntax
+    /// Gets a type defined in a program declarations section.
+    #[deprecated(since="0.8.6", note="Please use `get_type()` instead.")]
     pub fn get(prog: &IDLProg, key: &str) -> Option<IDLType> {
         get_type(prog, key)
     }
 
-    /// Gets a type declared in any of the program declaration sections.
+    /// Gets a type defined in a program declarations section.
     pub fn get_type(prog: &IDLProg, key: &str) -> Option<IDLType> {
         prog.decs.iter().find_map(|x| {
             if let Dec::TypD(y) = x {

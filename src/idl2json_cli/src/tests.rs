@@ -78,6 +78,16 @@ fn conversion_with_options_should_be_correct() {
             args: typed_arg!("internet_identity.did", "InternetIdentityInit"),
             stdout: r#"{"canister_creation_cycles_cost":["999"]}"#,
         },
+        // If a type name cannot be found, conversion should proceed on a best effort basis.
+        // On the command line we should see:
+        // $ echo "(record{canister_creation_cycles_cost= opt 999;})" | didc encode | didc decode | tee /dev/stderr | target/debug/idl2json --did samples/internet_identity.did  --typ IInnit
+        // (record { 2_138_241_783 = opt (999 : int) })
+        // {"2_138_241_783":["999"]}
+        TestVector {
+            stdin: "(record { 2_138_241_783 = opt (999 : int) })",
+            args: typed_arg!("internet_identity.did", "IInnit"),
+            stdout: r#"{"2_138_241_783":["999"]}"#,
+        },
         // We should be able to specify a type literally.
         // On the command line we should see:
         // echo "(record{canister_creation_cycles_cost= opt 999;})" | didc encode | didc decode | tee /dev/stderr | target/debug/idl2json --did samples/internet_identity.did  --typ 'record { canister_creation_cycles_cost: nat32; }'
