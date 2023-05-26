@@ -120,7 +120,6 @@ fn conversion_with_options_should_be_correct() {
         },
     ];
     for vector in vectors {
-        eprintln!("{vector:#?}");
         let out = main(&vector.args, vector.stdin)
             .map_err(|e| anyhow!("Failed to parse: {} due to: {e}", vector.stdin))
             .unwrap();

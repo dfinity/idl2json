@@ -72,7 +72,6 @@ pub fn main(args: &Args, idl_str: &str) -> anyhow::Result<String> {
             .context("Failed to serialize to json")
         } else {
             let idl_type = IDLType::from_str(idl_type).context("Failed to parse type")?;
-            eprintln!("Type: {idl_type:?}");
             convert_all(&idl_args, &Some(idl_type), &idl2json_options)
         }
     } else {
