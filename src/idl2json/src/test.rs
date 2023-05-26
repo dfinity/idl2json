@@ -278,3 +278,60 @@ fn sample_binaries_are_parsed_with_changed_idl_type() {
         }
     }
 }
+
+/// Verifies that every type is represented in JSON as expected
+#[test]
+fn types_should_be_represented_correctly() {
+    struct TestVector {
+        typ: IDLType,
+        val: IDLValue,
+        json: &'static str,
+    }
+    let test_vectors = vec![
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Bool),
+            val: IDLValue::Bool(true),
+            json: "true",
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Null),
+            val: IDLValue::Null,
+            json: "null",
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Text),
+            val: IDLValue::Text("Hi there".to_string()),
+            json: r#""Hi there""#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Float32),
+            val: IDLValue::Float32(91.0),
+            json: r#"91.0"#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Float64),
+            val: IDLValue::Float64(91.0),
+            json: r#"91.0"#,
+        },
+    ];
+    let options = Idl2JsonOptions::default();
+    for TestVector { typ, val, json } in test_vectors {
+        {
+            let actual_json =
+                serde_json::to_string(&idl2json(&val, &options)).expect("Failed to serialize JSON");
+            assert_eq!(
+                json, actual_json,
+                "Failed to get expected representation for type: {typ:?}"
+            );
+        }
+        {
+            let actual_json =
+                serde_json::to_string(&idl2json_with_weak_names(&val, &typ, &options))
+                    .expect("Failed to serialize JSON");
+            assert_eq!(
+                json, actual_json,
+                "Failed to get expected representation for type, when weak names are used: {typ:?}"
+            );
+        }
+    }
+}
