@@ -135,12 +135,23 @@ fn error_handling_should_be_correct() {
         args: Args,
         err: &'static str,
     }
-    let vectors = [TestVector {
-        name: "Invalid candid on stdin",
-        stdin: "( this is not candid",
-        args: Args::default(),
-        err: "Malformed input",
-    }];
+    let vectors = [
+        TestVector {
+            name: "Invalid candid on stdin",
+            stdin: "( this is not candid",
+            args: Args::default(),
+            err: "Malformed input",
+        },
+        TestVector {
+            name: "Request init args without supplying a did file",
+            stdin: r#"("Perfictly  valid candid")"#,
+            args: Args {
+                init: true,
+                ..Args::default()
+            },
+            err: "Please specify which .did file to use.",
+        },
+    ];
     for (index, vector) in vectors.iter().enumerate() {
         match main(&vector.args, vector.stdin) {
             Ok(json) => panic!(
