@@ -303,6 +303,13 @@ fn types_should_be_represented_correctly() {
             val: IDLValue::Text("Hi there".to_string()),
             json: r#""Hi there""#,
         },
+
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Nat),
+            val: IDLValue::Nat(candid::Nat(num_bigint::BigUint::from(9999998u64))),
+            json: r#""9_999_998""#,
+        },
+
         TestVector {
             typ: IDLType::PrimT(PrimType::Float32),
             val: IDLValue::Float32(91.0),
