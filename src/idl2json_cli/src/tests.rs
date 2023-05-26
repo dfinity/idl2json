@@ -54,6 +54,7 @@ macro_rules! typed_arg {
         Args {
             did: vec![sample_file!($did_file)],
             typ: Some($typ.to_string()),
+            init: false,
         }
     };
 }
@@ -102,6 +103,20 @@ fn conversion_with_options_should_be_correct() {
                 ..Args::default()
             },
             stdout: r#"[{"canister_creation_cycles_cost":["42"]}]"#,
+        },
+        // We shoudl be able to parse a service init type.
+        // On the command line we should see:
+        // $ echo "(opt record{canister_creation_cycles_cost= opt 6974;})" | didc encode | didc decode | tee /dev/stderr | target/debug/idl2json --did samples/internet_identity.did  --init
+        // (opt record { 2_138_241_783 = opt (6_974 : int) })
+        // [[{"canister_creation_cycles_cost":["6_974"]}]]
+        TestVector {
+            stdin: "(opt record { 2_138_241_783 = opt (6_974 : int) })",
+            args: Args {
+                did: vec![sample_file!("internet_identity.did")],
+                typ: None,
+                init: true,
+            },
+            stdout: r#"[[{"canister_creation_cycles_cost":["6_974"]}]]"#,
         },
     ];
     for vector in vectors {

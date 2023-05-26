@@ -14,7 +14,7 @@ pub mod idl_prog {
     }
 
     /// Gets the type of the service init arg.
-    pub fn get_init_arg_type(prog: &IDLProg, key: &str) -> Option<IDLType> {
+    pub fn get_type(prog: &IDLProg, key: &str) -> Option<IDLType> {
         prog.decs.iter().find_map(|x| {
             if let Dec::TypD(y) = x {
                 if y.id == key {
@@ -25,18 +25,14 @@ pub mod idl_prog {
         })
     }
 
-    /// Gets the arguments for creating a service
-    pub fn get_service_arg(prog: &IDLProg) -> Option<IDLTypes> {
+    /// Gets the arguments for creating a service.
+    ///
+    /// This will return None if the prog contains no service aka actor of type ClassT.
+    pub fn get_init_arg_type(prog: &IDLProg) -> Option<IDLTypes> {
         if let Some(IDLType::ClassT(args, _)) = &prog.actor {
             Some(IDLTypes { args: args.clone() })
         } else {
             None
         }
-    }
-    /// Gets the arguments and return values of a service method.
-    ///
-    /// Note: In a canister .did file there is typically a service section containing these service methods.
-    pub fn get_fn_type(_fn_name: &str, _prog: &IDLProg) -> Option<(IDLTypes, IDLTypes)> {
-        unimplemented!()
     }
 }

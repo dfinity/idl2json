@@ -16,7 +16,7 @@ use candid::{
 };
 use clap::Parser;
 use idl2json::{
-    idl2json, idl2json_with_weak_names, idl_args2json_with_weak_names, Idl2JsonOptions,
+    idl2json, idl2json_with_weak_names, idl_args2json_with_weak_names, polyfill, Idl2JsonOptions,
 };
 use std::{path::PathBuf, str::FromStr};
 
@@ -25,21 +25,43 @@ pub fn main(args: &Args, idl_str: &str) -> anyhow::Result<String> {
     let idl_args: IDLArgs = idl_str
         .parse()
         .with_context(|| anyhow!("Malformed input"))?;
-    let progs: anyhow::Result<Vec<IDLProg>> = args
-        .did
-        .iter()
-        .map(|did| {
-            let did_as_str = std::fs::read_to_string(did)
-                .with_context(|| anyhow!("Could not read did file '{}'.", did.display()))?;
-            IDLProg::from_str(&did_as_str)
-                .with_context(|| anyhow!("Failed to parse did file '{}'", did.display()))
-        })
-        .collect();
-    let idl2json_options = Idl2JsonOptions {
-        prog: progs?,
-        ..Idl2JsonOptions::default()
+    let idl2json_options = {
+        let progs: anyhow::Result<Vec<IDLProg>> = args
+            .did
+            .iter()
+            .map(|did| {
+                let did_as_str = std::fs::read_to_string(did)
+                    .with_context(|| anyhow!("Could not read did file '{}'.", did.display()))?;
+                IDLProg::from_str(&did_as_str)
+                    .with_context(|| anyhow!("Failed to parse did file '{}'", did.display()))
+            })
+            .collect();
+        let progs = progs?;
+
+        Idl2JsonOptions {
+            prog: progs,
+            ..Idl2JsonOptions::default()
+        }
     };
-    if let Some(idl_type) = &args.typ {
+    // Decide what to do
+    if args.init {
+        // Use the type of the .did file init arg.
+        // - If multiple did files are provided, the first is used.
+        // - Clap should reject commands without a --did file.
+        let idl_types = polyfill::idl_prog::get_init_arg_type(
+            idl2json_options
+                .prog
+                .get(0)
+                .context("Please specify which .did file to use.")?,
+        )
+        .context("Failed to get the service argument from the did file.")?;
+        serde_json::to_string(&idl_args2json_with_weak_names(
+            &idl_args,
+            &idl_types,
+            &idl2json_options,
+        ))
+        .context("Failed to serialize to json")
+    } else if let Some(idl_type) = &args.typ {
         if idl_type.trim().starts_with('(') {
             let idl_types = IDLTypes::from_str(idl_type).context("Failed to parse type")?;
             serde_json::to_string(&idl_args2json_with_weak_names(
@@ -96,4 +118,7 @@ pub struct Args {
     /// The name of a type in the provided .did file
     #[clap(short, long)]
     typ: Option<String>,
+    /// Use the service init argument type from the did file
+    #[clap(short, long, requires("did"))]
+    init: bool,
 }
