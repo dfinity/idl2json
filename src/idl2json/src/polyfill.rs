@@ -13,7 +13,7 @@ pub mod idl_prog {
         get_type(prog, key)
     }
 
-    /// Gets the type of the service init arg.
+    /// Gets a type declared in any of the program declaration sections.
     pub fn get_type(prog: &IDLProg, key: &str) -> Option<IDLType> {
         prog.decs.iter().find_map(|x| {
             if let Dec::TypD(y) = x {
