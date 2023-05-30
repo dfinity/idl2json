@@ -25,7 +25,16 @@ pub struct Idl2JsonOptions {
     pub bytes_as: Option<BytesFormat>,
     /// How to represent `Vec<u8>` of at least some given length.
     pub long_bytes_as: Option<(usize, BytesFormat)>,
-    /// Type definitions
+    /// Type definitions.
+    ///
+    /// Note:
+    /// - An `IDLProg`  corresponds to a parsed `.did` file.
+    /// - Typically either no `IDLProg` is available or one `IDLProg`
+    ///   is provided, corresponding to the `.did` file of a canister
+    ///   and that one `.did` file has all required definitions.
+    /// - In rare cases, multiple IDLProgs are needed.  If so,
+    ///   `idl2json` will use the first match it finds.  It is the
+    ///   caller's responsibility to ensure that there are no conflicting definitions.
     pub prog: Vec<IDLProg>,
 }
 
