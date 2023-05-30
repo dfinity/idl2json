@@ -1,6 +1,11 @@
-use candid::parser::{
-    types::{IDLType, PrimType, TypeField},
-    value::{IDLField, IDLValue},
+use std::iter;
+
+use candid::{
+    parser::{
+        types::{IDLType, IDLTypes, PrimType, TypeField},
+        value::{IDLField, IDLValue},
+    },
+    IDLArgs, IDLProg,
 };
 use serde_json::value::Value as JsonValue;
 
@@ -16,12 +21,25 @@ use crate::{
 /// - Fields are never added, even if the schema suggests that some fields are missing.
 ///
 /// The data is preserved at all cost, the schema is applied only to make the data easier to understand and use.
+///
+/// Note: The textual format in parentheses `(  )` represents IDLArgs containing
+/// zero or more IDLValues.  Unless you definitely wish to convert a single value
+/// you may wish to consider `idl_args2json_with_weak_names` instead.
 pub fn idl2json_with_weak_names(
     idl: &IDLValue,
     idl_type: &IDLType,
     options: &Idl2JsonOptions,
 ) -> JsonValue {
     match (idl, idl_type) {
+        (idl, IDLType::VarT(type_name)) => {
+            if let Some(resolved_type) = get_type_from_any(&options.prog, type_name) {
+                idl2json_with_weak_names(idl, &resolved_type, options)
+            } else {
+                // TODO: Return a set of warnings.  Under the "best effort" mantra, we proceed as
+                // best we can but it would be nice to provide some feedback.
+                idl2json(idl, options)
+            }
+        }
         (IDLValue::Bool(bool), _) => JsonValue::Bool(*bool),
         (IDLValue::Null, _) => JsonValue::Null,
         (IDLValue::Text(s), _) => JsonValue::String(s.clone()),
@@ -109,4 +127,33 @@ fn convert_idl_field(
             )
         })
         .unwrap_or_else(|| (field.id.to_string(), idl2json(&field.val, options)))
+}
+
+/// Converts a candid IDLArgs to a serde JsonValue, with keys as names where possible.
+pub fn idl_args2json_with_weak_names(
+    idl: &IDLArgs,
+    idl_types: &IDLTypes,
+    options: &Idl2JsonOptions,
+) -> JsonValue {
+    // If insufficient types are provided, this function includes the remaining values interpreted with a null type,
+    // yielding an untyped conversion for the remaining fields.
+    let extension_type = IDLType::PrimT(PrimType::Null);
+    let idl_type_extension = idl_types.args.iter().chain(iter::repeat(&extension_type));
+    // Matches each value with the corresponding type.
+    JsonValue::Array(
+        idl.args
+            .iter()
+            .zip(idl_type_extension)
+            .map(|(value, typ)| idl2json_with_weak_names(value, typ, options))
+            .collect(),
+    )
+}
+
+/// Find a type in any of a list of IDLProgs.
+///
+/// Note: A canister .did file represents an IDLProg.  That canister .did file may depend on definitions made elsewhere.
+pub fn get_type_from_any(progs: &[IDLProg], name: &str) -> Option<IDLType> {
+    progs
+        .iter()
+        .find_map(|prog| crate::polyfill::idl_prog::get_type(prog, name))
 }

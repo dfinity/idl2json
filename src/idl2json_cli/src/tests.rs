@@ -52,8 +52,9 @@ macro_rules! sample_file {
 macro_rules! typed_arg {
     ($did_file:literal, $typ:literal) => {
         Args {
-            did: Some(sample_file!($did_file)),
+            did: vec![sample_file!($did_file)],
             typ: Some($typ.to_string()),
+            init: false,
         }
     };
 }
@@ -67,6 +68,7 @@ fn conversion_with_options_should_be_correct() {
         stdout: &'static str,
     }
     let vectors = [
+        // We should be able to use a named type in a did file:
         // On the command line we should see:
         // $ echo "(record{canister_creation_cycles_cost= opt 999;})" | didc encode | didc decode | tee /dev/stderr | idl2json --did samples/internet_identity.did  --typ InternetIdentityInit
         // (record { 2_138_241_783 = opt (999 : int) })
@@ -76,9 +78,58 @@ fn conversion_with_options_should_be_correct() {
             args: typed_arg!("internet_identity.did", "InternetIdentityInit"),
             stdout: r#"{"canister_creation_cycles_cost":["999"]}"#,
         },
+        // If a type name cannot be found, conversion should proceed on a best effort basis.
+        // On the command line we should see:
+        // $ echo "(record{canister_creation_cycles_cost= opt 999;})" | didc encode | didc decode | tee /dev/stderr | target/debug/idl2json --did samples/internet_identity.did  --typ IInnit
+        // (record { 2_138_241_783 = opt (999 : int) })
+        // {"2_138_241_783":["999"]}
+        TestVector {
+            stdin: "(record { 2_138_241_783 = opt (999 : int) })",
+            args: typed_arg!("internet_identity.did", "IInnit"),
+            stdout: r#"{"2_138_241_783":["999"]}"#,
+        },
+        // We should be able to specify a type literally.
+        // On the command line we should see:
+        // echo "(record{canister_creation_cycles_cost= opt 999;})" | didc encode | didc decode | tee /dev/stderr | target/debug/idl2json --did samples/internet_identity.did  --typ 'record { canister_creation_cycles_cost: nat32; }'
+        // (record { 2_138_241_783 = opt (999 : int) })
+        // {"canister_creation_cycles_cost":["911"]}
+        TestVector {
+            stdin: "(record { 2_138_241_783 = opt (911 : int) })",
+            args: Args {
+                typ: Some("record { canister_creation_cycles_cost: nat32; }".to_string()),
+                ..Args::default()
+            },
+            stdout: r#"{"canister_creation_cycles_cost":["911"]}"#,
+        },
+        // We should be able to specify IDLTypes literally
+        // On the command line we should see:
+        // echo "(record{canister_creation_cycles_cost= opt 999;})" | didc encode | didc decode | tee /dev/stderr | target/debug/idl2json --did samples/internet_identity.did  --typ '(record { canister_creation_cycles_cost: nat32; })'
+        // (record { 2_138_241_783 = opt (999 : int) })
+        // [{"canister_creation_cycles_cost":["911"]}]
+        TestVector {
+            stdin: "(record { 2_138_241_783 = opt (42 : int) })",
+            args: Args {
+                typ: Some("(record { canister_creation_cycles_cost: nat32; })".to_string()),
+                ..Args::default()
+            },
+            stdout: r#"[{"canister_creation_cycles_cost":["42"]}]"#,
+        },
+        // We shoudl be able to parse a service init type.
+        // On the command line we should see:
+        // $ echo "(opt record{canister_creation_cycles_cost= opt 6974;})" | didc encode | didc decode | tee /dev/stderr | target/debug/idl2json --did samples/internet_identity.did  --init
+        // (opt record { 2_138_241_783 = opt (6_974 : int) })
+        // [[{"canister_creation_cycles_cost":["6_974"]}]]
+        TestVector {
+            stdin: "(opt record { 2_138_241_783 = opt (6_974 : int) })",
+            args: Args {
+                did: vec![sample_file!("internet_identity.did")],
+                typ: None,
+                init: true,
+            },
+            stdout: r#"[[{"canister_creation_cycles_cost":["6_974"]}]]"#,
+        },
     ];
     for vector in vectors {
-        eprintln!("{vector:#?}");
         let out = main(&vector.args, vector.stdin)
             .map_err(|e| anyhow!("Failed to parse: {} due to: {e}", vector.stdin))
             .unwrap();
@@ -102,10 +153,13 @@ fn error_handling_should_be_correct() {
             err: "Malformed input",
         },
         TestVector {
-            name: "Typo in type name",
-            stdin: r#"( "perfectly valid candid" )"#,
-            args: typed_arg!("internet_identity.did", "IIInnit"),
-            err: r#"Type 'IIInnit' not found in .did file"#,
+            name: "Request init args without supplying a did file",
+            stdin: r#"("Perfictly  valid candid")"#,
+            args: Args {
+                init: true,
+                ..Args::default()
+            },
+            err: "Please specify which .did file to use.",
         },
     ];
     for (index, vector) in vectors.iter().enumerate() {

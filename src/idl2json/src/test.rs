@@ -88,7 +88,7 @@ fn test_vector() -> BinaryTestVector {
     22, 174, 254, 224, 59, 183, 254, 184, 33, 174, 244, 52, 103, 82, 105, 116, 244, 112, 205,
     75, 7, 1, 0, 16, 165, 212, 232, 0, 0, 0,
     ],  json_options: vec![
-    ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Numbers), long_bytes_as: None },
+    ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Numbers), long_bytes_as: None, ..Idl2JsonOptions::default() },
         r#"[{
             "2_138_241_783":["1000000000000"],
             "451_920_964":[[246,145,242,105,221,102,170,79,196,78,105,22,174,254,224,59,183,254,184,33,174,244,52,103,82,105,116,244,112,205,75,7]]
@@ -102,7 +102,7 @@ fn test_vector() -> BinaryTestVector {
             "archive_module_hash":[[246,145,242,105,221,102,170,79,196,78,105,22,174,254,224,59,183,254,184,33,174,244,52,103,82,105,116,244,112,205,75,7]]
         }]"#.to_string()
     ),
-    ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Hex), long_bytes_as: None },
+    ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Hex), long_bytes_as: None, ..Idl2JsonOptions::default() },
         r#"[{
             "2_138_241_783":["1000000000000"],
             "451_920_964":["f691f269dd66aa4fc44e6916aefee03bb7feb821aef43467526974f470cd4b07"]
@@ -116,7 +116,7 @@ fn test_vector() -> BinaryTestVector {
             "archive_module_hash":["f691f269dd66aa4fc44e6916aefee03bb7feb821aef43467526974f470cd4b07"]
         }]"#.to_string()
     ),
-    ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Sha256), long_bytes_as: None },
+    ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Sha256), long_bytes_as: None, ..Idl2JsonOptions::default() },
         r#"[{
             "2_138_241_783":["1000000000000"],
             "451_920_964":["Bytes with sha256: ac0c88f389e4af11790089d940f8483905e8766de960ccd847d0500b4caf6acf"]}]"#.to_string(),
@@ -129,7 +129,7 @@ fn test_vector() -> BinaryTestVector {
             "archive_module_hash":["Bytes with sha256: ac0c88f389e4af11790089d940f8483905e8766de960ccd847d0500b4caf6acf"]
         }]"#.to_string()
     ),
-        ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Sha256), long_bytes_as: Some((1000, BytesFormat::Hex)) },
+        ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Sha256), long_bytes_as: Some((1000, BytesFormat::Hex)), ..Idl2JsonOptions::default() },
         r#"[
             {"2_138_241_783":["1000000000000"],
             "451_920_964":["Bytes with sha256: ac0c88f389e4af11790089d940f8483905e8766de960ccd847d0500b4caf6acf"]
@@ -143,7 +143,7 @@ fn test_vector() -> BinaryTestVector {
             "archive_module_hash":["Bytes with sha256: ac0c88f389e4af11790089d940f8483905e8766de960ccd847d0500b4caf6acf"]
         }]"#.to_string()
         ),
-         ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Sha256), long_bytes_as: Some((5, BytesFormat::Hex)) },
+         ( Idl2JsonOptions{ bytes_as: Some(BytesFormat::Sha256), long_bytes_as: Some((5, BytesFormat::Hex)), ..Idl2JsonOptions::default() },
          r#"[{
             "2_138_241_783":["1000000000000"],
             "451_920_964":["f691f269dd66aa4fc44e6916aefee03bb7feb821aef43467526974f470cd4b07"]
@@ -274,6 +274,118 @@ fn sample_binaries_are_parsed_with_changed_idl_type() {
             panic!(
                 "Mismatched JSON:\nExpected: {expected_json_string}\nGot:      {}",
                 serde_json::to_string(&json_value).expect("Failed to stringify JSON")
+            );
+        }
+    }
+}
+
+/// Verifies that every type is represented in JSON as expected
+#[test]
+fn types_should_be_represented_correctly() {
+    struct TestVector {
+        typ: IDLType,
+        val: IDLValue,
+        json: &'static str,
+    }
+    let test_vectors = vec![
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Bool),
+            val: IDLValue::Bool(true),
+            json: "true",
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Null),
+            val: IDLValue::Null,
+            json: "null",
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Text),
+            val: IDLValue::Text("Hi there".to_string()),
+            json: r#""Hi there""#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Nat),
+            val: IDLValue::Nat(candid::Nat(num_bigint::BigUint::from(9999998u64))),
+            json: r#""9_999_998""#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Nat8),
+            val: IDLValue::Nat8(u8::MAX),
+            json: r#"255"#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Nat16),
+            val: IDLValue::Nat16(u16::MAX),
+            json: r#"65535"#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Nat32),
+            val: IDLValue::Nat32(u32::MAX),
+            json: r#"4294967295"#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Nat64),
+            val: IDLValue::Nat64(u64::MAX),
+            json: r#""18446744073709551615""#, // Note: quotes as this is too big for JSON.
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Nat64),
+            val: IDLValue::Nat64(1),
+            json: r#""1""#, // Note: Small u64s are also given as strings, for better or worse.
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Int8),
+            val: IDLValue::Int8(i8::MIN),
+            json: r#"-128"#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Int16),
+            val: IDLValue::Int16(i16::MIN),
+            json: r#"-32768"#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Int32),
+            val: IDLValue::Int32(i32::MIN),
+            json: r#"-2147483648"#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Int64),
+            val: IDLValue::Int64(i64::MIN),
+            json: r#""-9223372036854775808""#, // Note: Quotes as this is too small for JSON.
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Int64),
+            val: IDLValue::Int64(-1),
+            json: r#""-1""#, // Note: Small i64s are also in quotes.
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Float32),
+            val: IDLValue::Float32(91.0),
+            json: r#"91.0"#,
+        },
+        TestVector {
+            typ: IDLType::PrimT(PrimType::Float64),
+            val: IDLValue::Float64(91.0),
+            json: r#"91.0"#,
+        },
+    ];
+    let options = Idl2JsonOptions::default();
+    for TestVector { typ, val, json } in test_vectors {
+        {
+            let actual_json =
+                serde_json::to_string(&idl2json(&val, &options)).expect("Failed to serialize JSON");
+            assert_eq!(
+                json, actual_json,
+                "Failed to get expected representation for type: {typ:?}"
+            );
+        }
+        {
+            let actual_json =
+                serde_json::to_string(&idl2json_with_weak_names(&val, &typ, &options))
+                    .expect("Failed to serialize JSON");
+            assert_eq!(
+                json, actual_json,
+                "Failed to get expected representation for type, when weak names are used: {typ:?}"
             );
         }
     }
