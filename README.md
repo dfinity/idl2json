@@ -15,6 +15,20 @@ There is sample output to play with without dfx:
 <samples/proposal.idl ./target/debug/idl2json
 ```
 
+# Install
+
+## With `cargo` binstall
+`cargo binstall` will install a pre-built binary, if available, else compile from source:
+```
+cargo binstall idl2json_cli --no-confirm
+```
+
+## With `cargo` install
+`cargo install` will download, compile and install:
+```
+cargo install idl2json_cli
+```
+
 # Build
 
 Build with any of the following methods.  The binary executable will be at `idl2json/target/{debug,release}/idl2json` (depending on whether `cargo build --release` is used).
