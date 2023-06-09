@@ -640,6 +640,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "idl2json"
+version = "0.8.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bf11030b782c30770c97e6dfdd9d8192684f26eee65359360d9664d8373547c0"
+dependencies = [
+ "candid 0.8.4",
+ "serde_json",
+ "sha2 0.10.6",
+]
+
+[[package]]
 name = "idl2json_cli"
 version = "0.8.6"
 dependencies = [
@@ -647,7 +658,7 @@ dependencies = [
  "candid 0.8.4",
  "clap",
  "fn-error-context",
- "idl2json",
+ "idl2json 0.8.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json",
  "toml",
 ]
