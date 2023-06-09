@@ -1,6 +1,11 @@
 use toml::{self, Value as TomlValue};
 
 fn main() {
+    // The Cargo.lock file can be in any of the following locations:
+    // * The current directory, when built by `cargo install`.
+    // * The grandparent directory, when built by `cargo build`.
+    // * The great-grandparent directory, when publishing to crates.io.
+    // * ... and probably many others that I haven't encountered yet.
     let cargo_lock = (0..6)
         .find_map(|depth| {
             std::fs::read_to_string(format!("{}Cargo.lock", "../".repeat(depth))).ok()
