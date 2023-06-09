@@ -3,9 +3,7 @@ on:
     branches:
       - main
   pull_request:
-
 name: Continuous integration
-
 jobs:
   check:
     name: Check
@@ -20,7 +18,6 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: check
-
   test:
     name: Test Suite
     runs-on: ubuntu-latest
@@ -34,8 +31,6 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
-
-
   fmt:
     name: Rustfmt
     runs-on: ubuntu-latest
@@ -51,7 +46,6 @@ jobs:
         with:
           command: fmt
           args: --all -- --check
-
   clippy:
     name: Clippy
     runs-on: ubuntu-latest
@@ -73,29 +67,24 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
       - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
-
       - name: Run cargo-tarpaulin
         uses: actions-rs/tarpaulin@v0.1
         with:
           version: '0.16.0'
           args: '--out Json -- --test-threads 1'
           out-type: 'Html'
-
       - name: Archive code coverage results
         uses: actions/upload-artifact@v1
         with:
           name: code-coverage-report
           path: tarpaulin-report.html
-
       - name: Check code coverage percentage
         run: jq -e '.files | reduce .[] as $num ([0,0]; [.[0]+$num.coverable, .[1]+$num.covered]) | (.[1] * 100 / .[0]) >= 73' tarpaulin-report.json
-
   may-merge:
     needs: ["check", "test", "fmt", "clippy"]
     runs-on: ubuntu-20.04

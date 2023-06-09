@@ -1,14 +1,11 @@
 name: Release
-
 on:
   push:
     tags:
       - "*"
-
 defaults:
   run:
     shell: bash
-
 jobs:
   build:
     name: Release binary for ${{ matrix.name }}
@@ -25,12 +22,12 @@ jobs:
             make_target: musl-static
             build: musl
             pack: tar
-#          - os: windows-latest
-#            name: windows
-#            target_dir: target/release/
-#            asset_name: idl2json-windows-x86_64
-#            make_target: release
-#            rust: 1.60.0
+            #          - os: windows-latest
+            #            name: windows
+            #            target_dir: target/release/
+            #            asset_name: idl2json-windows-x86_64
+            #            make_target: release
+            #            rust: 1.60.0
           - os: macos-latest
             name: macos
             target_dir: target/release/
@@ -40,15 +37,14 @@ jobs:
             rust: 1.60.0
             build: cargo
             pack: zip
-#          - os: ubuntu-latest
-#            name: arm
-#            target_file: target/arm-unknown-linux-gnueabihf/release/{idl2json,yaml2candid}
-#            asset_name: idl2json-arm_32
-#            make_target: unused
-#            rust: 1.60.0
+            #          - os: ubuntu-latest
+            #            name: arm
+            #            target_file: target/arm-unknown-linux-gnueabihf/release/{idl2json,yaml2candid}
+            #            asset_name: idl2json-arm_32
+            #            make_target: unused
+            #            rust: 1.60.0
     steps:
       - uses: actions/checkout@master
-
       # BUILD
       - name: Static build with musl
         if: matrix.build == 'musl'
@@ -73,7 +69,6 @@ jobs:
           use-cross: true
           command: build
           args: --target arm-unknown-linux-gnueabihf --features static-ssl --release --locked
-
       # ZIP
       - name: tar the results
         if: matrix.pack == 'tar'
@@ -87,7 +82,6 @@ jobs:
           zip "$zipfile" idl2json yaml2candid
       - name: Support the old download location
         run: cp "${{ matrix.asset_name }}" "${{ matrix.old_name }}"
-
       # UPLOAD
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
