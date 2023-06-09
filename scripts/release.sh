@@ -74,6 +74,15 @@ wait_for_response() {
     done
 }
 
+update_version() {
+    for path in src/*/Cargo.toml ; do
+        echo "... updating version in $path"
+        # update first version in $path to be NEW_VERSION
+        awk 'NR==1,/^version = ".*"/{sub(/^version = ".*"/, "version = \"'"$NEW_VERSION"'\"")} 1' <"$path" | sponge "$path"
+	awk -v version="$NEW_VERSION" '/^idl2json *=/{sub(/^idl2json *= *"[0-9.]+"/, "idl2json = \"" version "\"")}{print $0}' <"$path" | sponge "$path"
+    done
+}
+
 build_release_branch() {
 
     announce "Building branch $BRANCH for release $NEW_VERSION"
@@ -85,11 +94,7 @@ build_release_branch() {
     $DRY_RUN_ECHO git switch -c "$BRANCH"
 
     echo "Updating version in src/*/Cargo.toml to $NEW_VERSION"
-    for path in src/*/Cargo.toml ; do
-        echo "... updating version in $path"
-        # update first version in $path to be NEW_VERSION
-        awk 'NR==1,/^version = ".*"/{sub(/^version = ".*"/, "version = \"'"$NEW_VERSION"'\"")} 1' <"$path" | sponge "$path"
-    done
+    update_version
 
     echo "Building with cargo."
     # not --locked, because Cargo.lock needs to be updated with the new version
