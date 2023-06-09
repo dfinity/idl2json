@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euxo pipefail
+
+package="$1" # idl2json or idl2json_cli
+
+echo "Dry run"
+cargo publish --dry-run -p "$package" -vvv
+read -n 1 -p "Is that OK? (y/n)? " answer
+[[ "${answer,,}" = "y" ]] || exit 1
+
+echo "The following files will be published:"
+cargo package --list -p "$package"
+read -n 1 -p "Is that OK? (y/n)? " answer
+[[ "${answer,,}" = "y" ]] || exit 1
+
+echo "Publish"
+read -n 1 -p "OK to publish? (y/n)? " answer
+[[ "${answer,,}" = "y" ]] || exit 1
+cargo publish -p "$package"
