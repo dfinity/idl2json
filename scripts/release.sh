@@ -118,12 +118,12 @@ build_release_branch() {
 }
 
 tag_release_commit() {
-    announce 'Tagging release commit as $NEW_VERSION'
+    announce "Tagging release commit as $NEW_VERSION"
 
     echo "Finding the release commit"
     $DRY_RUN_ECHO git fetch
     COMMIT_TITLE="${NEW_VERSION/-/.}"
-    $DRY_RUN_ECHO git checkout "$(git log origin/main --oneline | grep "$COMMIT_TITLE" | awk '{print $1}')"
+    $DRY_RUN_ECHO git checkout "$(git log origin/main --oneline | grep "$COMMIT_TITLE" | awk '{print $1; exit 0}')"
     $DRY_RUN_ECHO git show | grep -q "$COMMIT_TITLE" || {
       echo "ERROR: Failed to check out the release commit"
     }
