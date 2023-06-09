@@ -8,7 +8,6 @@ defaults:
     shell: bash
 jobs:
   build:
-    needs: publish
     name: Release binary for ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -91,6 +90,7 @@ jobs:
           file: "${{ matrix.asset_name }}"
           tag: "v${{ github.ref }}"
   publish:
+    needs: build
     name: Publish to crates.io
     runs-on: ubuntu-latest
     strategy:
@@ -104,4 +104,4 @@ jobs:
       - name: Publish ${{ matrix.package }}
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-          run: cargo publish -p "${{ matrix.package }}" --no-verify
+          run: cargo publish -p "${{ matrix.package }}"
