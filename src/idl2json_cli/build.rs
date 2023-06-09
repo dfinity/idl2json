@@ -1,7 +1,7 @@
 use toml::{self, Value as TomlValue};
 
 fn main() {
-    let cargo_lock = (2..6)
+    let cargo_lock = (0..6)
         .find_map(|depth| {
             std::fs::read_to_string(format!("{}Cargo.lock", "../".repeat(depth))).ok()
         })
