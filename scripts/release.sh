@@ -120,23 +120,18 @@ build_release_branch() {
 tag_release_commit() {
     announce 'Tagging release commit'
 
-    echo "Switching to the release branch."
-    $DRY_RUN_ECHO git switch "$FINAL_RELEASE_BRANCH"
+    echo "Finding the release commit"
+    $DRY_RUN_ECHO git fetch
+    $DRY_RUN_ECHO COMMIT_TITLE="Release $NEW_VERSION"
+    $DRY_RUN_ECHO git checkout "$(git log origin/main --oneline | grep "$COMMIT_TITLE" | awk '{print $1}')"
+    $DRY_RUN_ECHO gist show | grep -q "$COMMIT_TITLE" || {
+      echo "ERROR: Failed to check out the release commit"
+    }
 
-    $DRY_RUN_ECHO git branch --set-upstream-to=origin/"$FINAL_RELEASE_BRANCH" "$FINAL_RELEASE_BRANCH"
-
-    echo "Pulling the remote branch"
-    $DRY_RUN_ECHO git pull
-
-    echo "Creating a new tag $NEW_VERSION"
-    $DRY_RUN_ECHO git tag --annotate "$NEW_VERSION" --message "Release: $NEW_VERSION"
-
-    echo "Displaying tags"
-    git log -1
-    git describe --always
+    $DRY_RUN_ECHO git tag "$NEW_VERSION"
 
     echo "Pushing tag $NEW_VERSION"
-    $DRY_RUN_ECHO git push origin "$NEW_VERSION"
+    $DRY_RUN_ECHO git push origin "tags/$NEW_VERSION"
 }
 
 {
