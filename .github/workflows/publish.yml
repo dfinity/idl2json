@@ -20,7 +20,8 @@ jobs:
           - os: ubuntu-latest
             name: linux
             target_dir: target/x86_64-unknown-linux-musl/release/
-            asset_name: idl2json-linux-x86_64.tar.gz
+            asset_name: idl2json_cli-x86_64-unknown-linux-musl.tar.gz
+            old_name: idl2json-linux-x86_64.tar.gz
             make_target: musl-static
             build: musl
             pack: tar
@@ -33,7 +34,8 @@ jobs:
           - os: macos-latest
             name: macos
             target_dir: target/release/
-            asset_name: idl2json-macos-x86_64.zip
+            asset_name: idl2json_cli-x86_64-apple-darwin.zip
+            old_name: idl2json-macos-x86_64.zip
             make_target: release
             rust: 1.60.0
             build: cargo
@@ -83,6 +85,8 @@ jobs:
           zipfile="$PWD/${{ matrix.asset_name }}"
           cd "${{ matrix.target_dir }}"
           zip "$zipfile" idl2json yaml2candid
+      - name: Support the old download location
+        run: cp "${{ matrix.asset_name }}" "${{ matrix.old_name }}"
 
       # UPLOAD
       - name: Upload binaries to release
