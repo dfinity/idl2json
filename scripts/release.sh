@@ -79,7 +79,7 @@ update_version() {
         echo "... updating version in $path"
         # update first version in $path to be NEW_VERSION
         awk 'NR==1,/^version = ".*"/{sub(/^version = ".*"/, "version = \"'"$NEW_VERSION"'\"")} 1' <"$path" | sponge "$path"
-	awk -v version="$NEW_VERSION" '/^idl2json *=/{sub(/^idl2json *= *"[0-9.]+"/, "idl2json = \"" version "\"")}{print $0}' <"$path" | sponge "$path"
+	awk -v version="$NEW_VERSION" '/^idl2json *=/{sub(/^idl2json *= *"[^"]+"/, "idl2json = \"" version "\""); sub(/version *= *"[^"]+"/, "version = \"" version "\"")}{print $0}' <"$path" | sponge "$path"
     done
 }
 
