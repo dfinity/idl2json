@@ -1,13 +1,13 @@
 [package]
 name = "yaml2candid_cli"
-version = "0.8.7-beta.2"
+version = "0.8.7"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 clap = { version = "3.1.6", features = [ "derive" ] }
-yaml2candid = { path = "../yaml2candid", version = "0.8.7-beta.2" }
+yaml2candid = { path = "../yaml2candid", version = "0.8.7" }
 
 [build-dependencies]
 toml = "0.5.9"
