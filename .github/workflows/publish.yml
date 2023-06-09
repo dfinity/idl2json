@@ -44,7 +44,7 @@ jobs:
             #            make_target: unused
             #            rust: 1.60.0
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
       # BUILD
       - name: Static build with musl
         if: matrix.build == 'musl'
@@ -99,7 +99,7 @@ jobs:
         include:
           - package: idl2json
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Publish ${{ matrix.package }}
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
@@ -114,7 +114,7 @@ jobs:
         include:
           - package: idl2json_cli
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Publish ${{ matrix.package }}
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
