@@ -1,8 +1,11 @@
 use toml::{self, Value as TomlValue};
 
 fn main() {
-    let cargo_lock =
-        std::fs::read_to_string("../../Cargo.lock").expect("Failed to read Cargo.lock");
+    let cargo_lock = (2..6)
+        .find_map(|depth| {
+            std::fs::read_to_string(format!("{}Cargo.lock", "../".repeat(depth))).ok()
+        })
+        .expect("Failed to read Cargo.lock in idl2json_cli build.rs");
     let cargo_lock: TomlValue =
         toml::from_str(&cargo_lock).expect("Failed to parse Cargo.lock as toml");
     let cargo_lock = if let TomlValue::Array(entries) = &cargo_lock["package"] {

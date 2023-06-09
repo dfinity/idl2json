@@ -28,4 +28,5 @@ idl2json = "0.8.6"
 anyhow = "1"
 
 [build-dependencies]
+anyhow = "1"
 toml = "0.5.9"
