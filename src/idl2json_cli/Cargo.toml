@@ -1,6 +1,6 @@
 [package]
 name = "idl2json_cli"
-version = "0.8.6"
+version = "0.8.7"
 authors = ["dfinity <sdk@dfinity.org>"]
 edition = "2021"
 description = "Converts the candid interface description language to JSON."
