@@ -1,7 +1,17 @@
 [package]
 name = "idl2json_cli"
 version = "0.8.6"
+authors = ["dfinity <sdk@dfinity.org>"]
 edition = "2021"
+description = "Converts the candid interface description language to JSON."
+homepage = "https://github.com/dfinity/idl2json"
+documentation = "https://docs.rs/idl2json"
+repository = "https://github.com/dfinity/idl2json"
+license = "Apache-2.0"
+readme = "../../README.md"
+
+categories = ["encoding", "parsing"]
+keywords = ["internet-computer", "idl", "candid", "dfinity", "json"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
