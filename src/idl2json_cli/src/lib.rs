@@ -16,7 +16,8 @@ use candid::{
 };
 use clap::Parser;
 use idl2json::{
-    idl2json, idl2json_with_weak_names, idl_args2json_with_weak_names, polyfill, Idl2JsonOptions, BytesFormat
+    idl2json, idl2json_with_weak_names, idl_args2json_with_weak_names, polyfill, BytesFormat,
+    Idl2JsonOptions,
 };
 use std::{path::PathBuf, str::FromStr};
 
