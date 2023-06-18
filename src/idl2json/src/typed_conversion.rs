@@ -30,7 +30,11 @@ pub fn idl2json_with_weak_names(
     idl_type: &IDLType,
     options: &Idl2JsonOptions,
 ) -> JsonValue {
-    match (idl, idl_type) {
+        let mut typ_str = format!("{idl_type:?}");
+        typ_str.truncate(40);
+        let mut idl_str = format!("{idl:?}");
+        idl_str.truncate(60);
+    let ans = match (idl, idl_type) {
         (idl, IDLType::VarT(type_name)) => {
             if let Some(resolved_type) = get_type_from_any(&options.prog, type_name) {
                 idl2json_with_weak_names(idl, &resolved_type, options)
@@ -103,7 +107,11 @@ pub fn idl2json_with_weak_names(
                 .unwrap_or_else(|| JsonValue::String("NaN".to_string()))
         }
         (IDLValue::Reserved, _) => JsonValue::String(idl.to_string()),
-    }
+    };
+    let mut ans_str = format!("{ans:?}");
+    ans_str.truncate(60);
+eprintln!("{typ_str}  ==> {idl_str} ==> {ans_str}");
+ans
 }
 
 /// Returns a typed IDLField as a (key, value) pair.
