@@ -22,7 +22,6 @@ use std::{path::PathBuf, str::FromStr};
 
 /// Reads IDL from stdin, writes JSON to stdout.
 pub fn main(args: &Args, idl_str: &str) -> anyhow::Result<String> {
-    eprintln!("{args:?}");
     let idl_args: IDLArgs = idl_str
         .parse()
         .with_context(|| anyhow!("Malformed input"))?;
