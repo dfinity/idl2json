@@ -16,7 +16,8 @@ use candid::{
 };
 use clap::Parser;
 use idl2json::{
-    idl2json, idl2json_with_weak_names, idl_args2json_with_weak_names, polyfill, Idl2JsonOptions,
+    idl2json, idl2json_with_weak_names, idl_args2json_with_weak_names, polyfill, BytesFormat,
+    Idl2JsonOptions,
 };
 use std::{path::PathBuf, str::FromStr};
 
@@ -40,6 +41,7 @@ pub fn main(args: &Args, idl_str: &str) -> anyhow::Result<String> {
 
         Idl2JsonOptions {
             prog: progs,
+            bytes_as: args.bytes_as,
             ..Idl2JsonOptions::default()
         }
     };
@@ -120,4 +122,7 @@ pub struct Args {
     /// Use the service init argument type from the did file
     #[clap(short, long, requires("did"))]
     init: bool,
+    /// How to display bytes
+    #[clap(short, long, arg_enum)]
+    bytes_as: Option<BytesFormat>,
 }
