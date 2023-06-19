@@ -4,7 +4,7 @@
 #![allow(clippy::unwrap_used)]
 #![allow(clippy::expect_used)]
 
-use super::{main, Args};
+use super::{main, Args, BytesFormat};
 use anyhow::anyhow;
 use std::path::Path;
 
@@ -55,6 +55,7 @@ macro_rules! typed_arg {
             did: vec![sample_file!($did_file)],
             typ: Some($typ.to_string()),
             init: false,
+            bytes_as: Some(BytesFormat::Numbers),
         }
     };
 }
@@ -125,6 +126,7 @@ fn conversion_with_options_should_be_correct() {
                 did: vec![sample_file!("internet_identity.did")],
                 typ: None,
                 init: true,
+                bytes_as: None,
             },
             stdout: r#"[[{"canister_creation_cycles_cost":["6_974"]}]]"#,
         },
