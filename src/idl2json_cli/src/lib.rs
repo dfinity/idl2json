@@ -42,6 +42,7 @@ pub fn main(args: &Args, idl_str: &str) -> anyhow::Result<String> {
         Idl2JsonOptions {
             prog: progs,
             bytes_as: args.bytes_as,
+            compact: args.compact,
             ..Idl2JsonOptions::default()
         }
     };
@@ -92,7 +93,12 @@ fn convert_one(
     } else {
         idl2json(idl_value, idl2json_options)
     };
-    serde_json::to_string(&json_value).with_context(|| anyhow!("Cannot print to stderr"))
+    (if idl2json_options.compact {
+        serde_json::to_string
+    } else {
+        serde_json::to_string_pretty
+    })(&json_value)
+    .with_context(|| anyhow!("Cannot print to stderr"))
 }
 
 /// Candid typically comes as a tuple of values.  This converts all such tuples
@@ -125,4 +131,7 @@ pub struct Args {
     /// How to display bytes
     #[clap(short, long, arg_enum)]
     bytes_as: Option<BytesFormat>,
+    /// Print compact output
+    #[clap(short, long)]
+    compact: bool,
 }

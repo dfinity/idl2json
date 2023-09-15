@@ -36,6 +36,8 @@ pub struct Idl2JsonOptions {
     ///   `idl2json` will use the first match it finds.  It is the
     ///   caller's responsibility to ensure that there are no conflicting definitions.
     pub prog: Vec<IDLProg>,
+    /// Compact JSON, without formatting whitespace.
+    pub compact: bool,
 }
 
 /// Options for how to represent `Vec<u8>`
