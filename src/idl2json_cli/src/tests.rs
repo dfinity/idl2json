@@ -56,6 +56,7 @@ macro_rules! typed_arg {
             typ: Some($typ.to_string()),
             init: false,
             bytes_as: Some(BytesFormat::Numbers),
+            compact: true,
         }
     };
 }
@@ -98,6 +99,7 @@ fn conversion_with_options_should_be_correct() {
             stdin: "(record { 2_138_241_783 = opt (911 : int) })",
             args: Args {
                 typ: Some("record { canister_creation_cycles_cost: nat32; }".to_string()),
+                compact: true,
                 ..Args::default()
             },
             stdout: r#"{"canister_creation_cycles_cost":["911"]}"#,
@@ -111,6 +113,7 @@ fn conversion_with_options_should_be_correct() {
             stdin: "(record { 2_138_241_783 = opt (42 : int) })",
             args: Args {
                 typ: Some("(record { canister_creation_cycles_cost: nat32; })".to_string()),
+                compact: true,
                 ..Args::default()
             },
             stdout: r#"[{"canister_creation_cycles_cost":["42"]}]"#,
@@ -127,6 +130,7 @@ fn conversion_with_options_should_be_correct() {
                 typ: None,
                 init: true,
                 bytes_as: None,
+                compact: true,
             },
             stdout: r#"[[{"canister_creation_cycles_cost":["6_974"]}]]"#,
         },
