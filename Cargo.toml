@@ -6,3 +6,5 @@ members = [
   "src/yaml2candid",
   "src/yaml2candid_cli",
 ]
+
+resolver = "2"
