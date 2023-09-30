@@ -4,7 +4,7 @@
 #![deny(clippy::unwrap_used)]
 use anyhow::{anyhow, bail, Context};
 use candid::parser::types::{Dec, IDLType};
-use candid::parser::value::{IDLField, IDLValue, VariantValue};
+use candid::types::value::{IDLField, IDLValue, VariantValue};
 use candid::IDLProg;
 use serde_yaml::Value as YamlValue;
 use std::path::Path;

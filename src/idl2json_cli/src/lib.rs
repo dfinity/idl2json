@@ -9,7 +9,7 @@
 mod tests;
 
 use anyhow::{anyhow, Context};
-use candid::parser::value::IDLValue;
+use candid::types::value::IDLValue;
 use candid::{
     parser::types::{IDLType, IDLTypes},
     IDLArgs, IDLProg,

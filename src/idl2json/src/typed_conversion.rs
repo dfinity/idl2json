@@ -1,10 +1,8 @@
 use std::iter;
 
 use candid::{
-    parser::{
-        types::{IDLType, IDLTypes, PrimType, TypeField},
-        value::{IDLField, IDLValue},
-    },
+    parser::types::{IDLType, IDLTypes, PrimType, TypeField},
+    types::value::{IDLField, IDLValue},
     IDLArgs, IDLProg,
 };
 use serde_json::value::Value as JsonValue;
