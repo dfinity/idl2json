@@ -579,7 +579,7 @@ dependencies = [
 
 [[package]]
 name = "idl2json"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "candid",
  "clap",
@@ -592,7 +592,7 @@ dependencies = [
 
 [[package]]
 name = "idl2json_cli"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "anyhow",
  "candid",
@@ -1617,7 +1617,7 @@ checksum = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538"
 
 [[package]]
 name = "yaml2candid"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "anyhow",
  "candid",
@@ -1627,7 +1627,7 @@ dependencies = [
 
 [[package]]
 name = "yaml2candid_cli"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "clap",
  "toml",
