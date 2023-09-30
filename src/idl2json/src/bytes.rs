@@ -1,5 +1,5 @@
 use crate::{BytesFormat, Idl2JsonOptions};
-use candid::parser::value::IDLValue;
+use candid::types::value::IDLValue;
 use serde_json::value::Value as JsonValue;
 use sha2::{Digest, Sha256};
 

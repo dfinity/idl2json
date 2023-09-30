@@ -1,4 +1,4 @@
-use candid::parser::value::IDLValue;
+use candid::types::value::IDLValue;
 use candid::IDLArgs;
 use serde_json::value::Value as JsonValue;
 

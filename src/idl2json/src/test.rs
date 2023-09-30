@@ -5,11 +5,10 @@ use crate::{
     BytesFormat, Idl2JsonOptions, JsonValue,
 };
 use candid::{
-    parser::{
-        types::{IDLType, PrimType, TypeField},
-        value::IDLValue,
-    },
+    parser::types::IDLType,
+    parser::types::{PrimType, TypeField},
     types::internal::Label,
+    types::value::IDLValue,
     CandidType, Decode, Deserialize, IDLArgs,
 };
 use serde::Serialize;
