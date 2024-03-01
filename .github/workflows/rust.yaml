@@ -79,7 +79,7 @@ jobs:
           args: '--out Json -- --test-threads 1'
           out-type: 'Html'
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
           path: tarpaulin-report.html
