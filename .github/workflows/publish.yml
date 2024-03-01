@@ -92,7 +92,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: "${{ matrix.asset_name }}"
-          tag: "v${{ github.ref }}"
+          tag: "${{ github.ref }}"
   publish_idl2json:
     needs: build
     name: Publish idl2json to crates.io
