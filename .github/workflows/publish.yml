@@ -24,6 +24,7 @@ jobs:
       - name: Create a draft release
   build:
     name: Release binary for ${{ matrix.name }}
+    needs: parameters
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
