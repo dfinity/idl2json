@@ -38,7 +38,7 @@ jobs:
           #- name: Create a draft release if there isn't one already
   build:
     name: Release binary for ${{ matrix.name }}
-    needs: parameters
+    needs: setup
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
