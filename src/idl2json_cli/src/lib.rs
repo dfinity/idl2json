@@ -54,7 +54,7 @@ pub fn main(args: &Args, idl_str: &str) -> anyhow::Result<String> {
         let idl_types = polyfill::idl_prog::get_init_arg_type(
             idl2json_options
                 .prog
-                .get(0)
+                .first()
                 .context("Please specify which .did file to use.")?,
         )
         .context("Failed to get the service argument from the did file.")?;
