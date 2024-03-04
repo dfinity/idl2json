@@ -31,6 +31,7 @@ jobs:
               echo "$var=${!var}"
             done
           ) | tee -a $GITHUB_OUTPUT
+          echo "::notice::Creating release '$GIT_TAG'..."
       - name: Dry run
         run: cargo publish -p idl2json --dry-run --locked
       - name: Tag this commit
