@@ -162,9 +162,6 @@ jobs:
         include:
           - package: idl2json
     steps:
-      - name: Stop, we are just testing
-        run: |
-                false
       - uses: actions/checkout@v4
       - name: Publish ${{ matrix.package }}
         env:
@@ -180,10 +177,6 @@ jobs:
         include:
           - package: idl2json_cli
     steps:
-      - name: Stop, we are just testing
-        run: |
-                echo SEMANTIC_VERSION="${{ needs.setup.outputs.SEMANTIC_VERSION }}"
-                false
       - uses: actions/checkout@v4
       - name: Publish ${{ matrix.package }}
         env:
