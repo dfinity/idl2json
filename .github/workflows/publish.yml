@@ -176,7 +176,7 @@ jobs:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: cargo publish -p "${{ matrix.package }}" --locked
   bublish_github_release:
-    needs: ["publish_idl2json", "publish_idl2json_cli"]
+    needs: ["setup", "publish_idl2json", "publish_idl2json_cli"]
     name: Publish GitHub release
     runs-on: ubuntu-latest
     steps:
