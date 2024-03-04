@@ -42,7 +42,7 @@ pub fn idl2json_with_weak_names(
         (IDLValue::Null, _) => JsonValue::Null,
         (IDLValue::Text(s), _) => JsonValue::String(s.clone()),
         (IDLValue::Number(s), _) => JsonValue::String(s.clone()), // Unspecified number type
-        (IDLValue::Float64(f), _) => serde_json::Number::from_f64(f)
+        (IDLValue::Float64(f), _) => serde_json::Number::from_f64(*f)
             .map(JsonValue::Number)
             .unwrap_or_else(|| JsonValue::String("NaN".to_string())),
         (IDLValue::Opt(value), IDLType::OptT(opt_type)) => {
