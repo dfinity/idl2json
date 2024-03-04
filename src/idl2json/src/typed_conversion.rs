@@ -38,7 +38,7 @@ pub fn idl2json_with_weak_names(
                 idl2json(idl, options)
             }
         }
-        (IDLValue::Bool(bool), _) => JsonValue::Bool(bool),
+        (IDLValue::Bool(bool), _) => JsonValue::Bool(*bool),
         (IDLValue::Null, _) => JsonValue::Null,
         (IDLValue::Text(s), _) => JsonValue::String(s.clone()),
         (IDLValue::Number(s), _) => JsonValue::String(s.clone()), // Unspecified number type
@@ -46,7 +46,7 @@ pub fn idl2json_with_weak_names(
             .map(JsonValue::Number)
             .unwrap_or_else(|| JsonValue::String("NaN".to_string())),
         (IDLValue::Opt(value), IDLType::OptT(opt_type)) => {
-            JsonValue::Array(vec![idl2json_with_weak_names(value, opt_type, options)])
+            JsonValue::Array(vec![idl2json_with_weak_names(&value, opt_type, options)])
         }
         (IDLValue::Opt(_value), _) => idl2json(idl, options), // Fallback for mismatched types
         (IDLValue::Vec(value), IDLType::VecT(item_type)) => match &**item_type {
@@ -86,17 +86,17 @@ pub fn idl2json_with_weak_names(
         (IDLValue::None, _) => JsonValue::Array(vec![]),
         (IDLValue::Int(i), _) => JsonValue::String(i.to_string()),
         (IDLValue::Nat(i), _) => JsonValue::String(i.to_string()),
-        (IDLValue::Nat8(i), _) => JsonValue::Number(serde_json::Number::from(i)),
-        (IDLValue::Nat16(i), _) => JsonValue::Number(serde_json::Number::from(i)),
-        (IDLValue::Nat32(i), _) => JsonValue::Number(serde_json::Number::from(i)),
+        (IDLValue::Nat8(i), _) => JsonValue::Number(serde_json::Number::from(*i)),
+        (IDLValue::Nat16(i), _) => JsonValue::Number(serde_json::Number::from(*i)),
+        (IDLValue::Nat32(i), _) => JsonValue::Number(serde_json::Number::from(*i)),
         (IDLValue::Nat64(i), _) => JsonValue::String(i.to_string()),
-        (IDLValue::Int8(i), _) => JsonValue::Number(serde_json::Number::from(i)),
-        (IDLValue::Int16(i), _) => JsonValue::Number(serde_json::Number::from(i)),
-        (IDLValue::Int32(i), _) => JsonValue::Number(serde_json::Number::from(i)),
+        (IDLValue::Int8(i), _) => JsonValue::Number(serde_json::Number::from(*i)),
+        (IDLValue::Int16(i), _) => JsonValue::Number(serde_json::Number::from(*i)),
+        (IDLValue::Int32(i), _) => JsonValue::Number(serde_json::Number::from(*i)),
         (IDLValue::Int64(i), _) => JsonValue::String(i.to_string()),
         (IDLValue::Float32(f), _) => {
             // As far as I can see, JsonValue does not have an explicit NaN type so we provide NaN as a string.
-            serde_json::Number::from_f64(f as f64)
+            serde_json::Number::from_f64(*f as f64)
                 .map(JsonValue::Number)
                 .unwrap_or_else(|| JsonValue::String("NaN".to_string()))
         }
