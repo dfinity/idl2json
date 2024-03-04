@@ -1,6 +1,6 @@
 [package]
 name = "idl2json_cli"
-version = "0.9.3"
+version = { workspace = true }
 authors = ["dfinity <sdk@dfinity.org>"]
 edition = "2021"
 description = "Converts the candid interface description language to JSON."
@@ -24,7 +24,7 @@ candid = { workspace = true }
 clap = { version = "3.1.6", features = [ "derive" ] }
 fn-error-context = "0.2.1"
 serde_json = "^1.0"
-idl2json = { path = "../idl2json", version = "0.9.3", features = ["clap", "crypto"] }
+idl2json = { workspace = true, features = ["clap", "crypto"] }
 anyhow = "1"
 
 [build-dependencies]
