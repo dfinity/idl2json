@@ -6,7 +6,6 @@ on:
         description: |
           The semantic version pre-release string.
           E.g. in `v1.2.3-beta.2` the pre-release string is `beta.3`.
-        default: "testing.1"
         required: false
   push:
     tags:
