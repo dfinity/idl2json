@@ -175,3 +175,16 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: cargo publish -p "${{ matrix.package }}" --locked
+  bublish_github_release:
+    needs: ["setup", "publish_idl2json", "publish_idl2json_cli"]
+    name: Publish GitHub release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish GitHub release
+        run: |
+          GIT_TAG=${{ needs.setup.outputs.GIT_TAG }}
+          echo "Publishing release $GIT_TAG..."
+          gh release edit "$GIT_TAG" --draft=false
+        env:
+          GH_TOKEN: ${{ github.token }}
