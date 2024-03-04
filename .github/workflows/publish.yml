@@ -11,8 +11,6 @@ on:
   push:
     tags:
       - "*"
-    branches:
-      - "fix-releases"
 defaults:
   run:
     shell: bash
@@ -29,6 +27,7 @@ jobs:
         run: |
           IDL2JSON_CARGO_VERSION="$(cargo metadata --locked | jq -r '.packages[] | select(.name == "idl2json") | .version')"
           PRERELEASE="${{ github.event.inputs.prerelease }}"
+          SEMANTIC_VERSION="${IDL2JSON_CARGO_VERSION}$PRERELEASE:+-}${PRERELEASE}"
           (
             for var in IDL2JSON_CARGO_VERSION PRERELEASE SEMANTIC_VERSION ; do
               echo "$var=${!var}"
