@@ -142,12 +142,11 @@ jobs:
         run: cp "${{ matrix.asset_name }}" "${{ matrix.old_name }}"
       # UPLOAD
       - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: "${{ matrix.asset_name }}"
-          tag: "${{ needs.setup.outputs.SEMANTIC_VERSION }}"
-          draft: true
+        run: |
+          echo "Uploading ${{ matrix.asset_name }}..."
+          gh release upload "${{ needs.setup.outputs.GIT_TAG }}" "${{ matrix.asset_name }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
   publish_idl2json:
     needs: build
     name: Publish idl2json to crates.io
