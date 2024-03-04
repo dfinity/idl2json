@@ -59,7 +59,8 @@ jobs:
             echo "Release $GIT_TAG already exists."
           else
             echo "Creating release $GIT_TAG..."
-            gh release create "$GIT_TAG" --title "Release $GIT_TAG" --draft --verify-tag
+            for pkg in idl2json candid yaml2candid ; do cargo metadata --locked --format-version 1 | pkg="$pkg" jq -r '.packages[] | select(.name == env.pkg) | "\(env.pkg): \(.version)"' ; done > release_notes.txt
+            gh release create "$GIT_TAG" --title "Release $GIT_TAG" --draft --verify-tag --notes-file release_notes.txt
           fi
         env:
           GH_TOKEN: ${{ github.token }}
