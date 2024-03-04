@@ -10,6 +10,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
+# Note: On update, please also update the dependency versions in src/*_cli/Cargo.toml
 version = "0.9.3-alpha.1"
 
 [workspace.dependencies]
