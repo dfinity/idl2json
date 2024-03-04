@@ -24,11 +24,21 @@ jobs:
       - name: Get release parameters
         id: params
         run: |
+          # Get the release version:
           IDL2JSON_CARGO_VERSION="$(cargo metadata --locked | jq -r '.packages[] | select(.name == "idl2json") | .version')"
           PRERELEASE="${{ github.event.inputs.prerelease }}"
           SEMANTIC_VERSION="${IDL2JSON_CARGO_VERSION}${PRERELEASE:+-}${PRERELEASE}"
+          GIT_TAG="v$SEMANTIC_VERSION"
+          # Verify that there isn't already a tag for this version
+          if COMMIT="$(git show-ref "refs/tags/$GIT_TAG")" ; then
+            if [[ "$GIT_TAG" == "$GITHUB_SHA" ]]
+            then echo "Tag $GIT_TAG already exists"
+            else echo "Tag $GIT_TAG already exists and points to a different commit."
+                 exit 1
+            fi
+          fi
           (
-            for var in IDL2JSON_CARGO_VERSION PRERELEASE SEMANTIC_VERSION ; do
+            for var in IDL2JSON_CARGO_VERSION PRERELEASE SEMANTIC_VERSION GIT_TAG ; do
               echo "$var=${!var}"
             done
           ) | tee -a $GITHUB_OUTPUT
