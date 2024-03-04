@@ -1,12 +1,6 @@
 name: Release
 on:
   workflow_dispatch:
-    inputs:
-      prerelease:
-        description: |
-          The semantic version pre-release string.
-          E.g. in `v1.2.3-beta.2` the pre-release string is `beta.3`.
-        required: false
   push:
     tags:
       - "*"
@@ -30,11 +24,10 @@ jobs:
         run: |
           # Get the release version:
           IDL2JSON_CARGO_VERSION="$(cargo metadata --locked | jq -r '.packages[] | select(.name == "idl2json") | .version')"
-          PRERELEASE="${{ github.event.inputs.prerelease }}"
-          SEMANTIC_VERSION="${IDL2JSON_CARGO_VERSION}${PRERELEASE:+-}${PRERELEASE}"
+          SEMANTIC_VERSION="${IDL2JSON_CARGO_VERSION}"
           GIT_TAG="v$SEMANTIC_VERSION"
           (
-            for var in IDL2JSON_CARGO_VERSION PRERELEASE SEMANTIC_VERSION GIT_TAG ; do
+            for var in IDL2JSON_CARGO_VERSION SEMANTIC_VERSION GIT_TAG ; do
               echo "$var=${!var}"
             done
           ) | tee -a $GITHUB_OUTPUT
