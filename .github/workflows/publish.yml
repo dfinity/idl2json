@@ -58,7 +58,8 @@ jobs:
           if gh release view "$GIT_TAG" ; then
             echo "Release $GIT_TAG already exists."
           else
-            gh release create "$GIT_TAG" --title "Release $SEMANTIC_VERSION" --draft --verify-tag
+            echo "Creating release $GIT_TAG..."
+            gh release create "$GIT_TAG" --title "Release $GIT_TAG" --draft --verify-tag
           fi
         env:
           GH_TOKEN: ${{ github.token }}
