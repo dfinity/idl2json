@@ -18,6 +18,7 @@ jobs:
     name: Get release parameters
     outputs:
       SEMANTIC_VERSION: ${{ steps.params.outputs.SEMANTIC_VERSION }}
+      GIT_TAG: ${{ steps.params.outputs.GIT_TAG }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
