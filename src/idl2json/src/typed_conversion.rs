@@ -46,12 +46,12 @@ pub fn idl2json_with_weak_names(
             .map(JsonValue::Number)
             .unwrap_or_else(|| JsonValue::String("NaN".to_string())),
         (IDLValue::Opt(value), IDLType::OptT(opt_type)) => {
-            JsonValue::Array(vec![idl2json_with_weak_names(&value, opt_type, options)])
+            JsonValue::Array(vec![idl2json_with_weak_names(value, opt_type, options)])
         }
         (IDLValue::Opt(_value), _) => idl2json(idl, options), // Fallback for mismatched types
         (IDLValue::Vec(value), IDLType::VecT(item_type)) => match &**item_type {
-            IDLType::PrimT(prim_t) if *prim_t == PrimType::Nat8 => convert_bytes(&value, options)
-                .unwrap_or_else(|_| convert_non_bytes_array(&value, options)),
+            IDLType::PrimT(prim_t) if *prim_t == PrimType::Nat8 => convert_bytes(value, options)
+                .unwrap_or_else(|_| convert_non_bytes_array(value, options)),
             _ => JsonValue::Array(
                 value
                     .iter()
