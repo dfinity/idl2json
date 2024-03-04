@@ -39,6 +39,7 @@ jobs:
           ) | tee -a $GITHUB_OUTPUT
       - name: Tag this commit
         run: |
+          GIT_TAG=${{ steps.params.outputs.GIT_TAG }}
           # Tag this commit, if it not already tagged.  Also, verifty that the tag isn't on a different commit.
           if COMMIT="$(git show-ref "refs/tags/$GIT_TAG")" ; then
             if [[ "$GIT_TAG" == "$GITHUB_SHA" ]]
