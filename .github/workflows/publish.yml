@@ -146,6 +146,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: "${{ matrix.asset_name }}"
           tag: "${{ needs.setup.outputs.SEMANTIC_VERSION }}"
+          draft: true
   publish_idl2json:
     needs: build
     name: Publish idl2json to crates.io
