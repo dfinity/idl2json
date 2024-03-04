@@ -167,7 +167,7 @@ jobs:
       - name: Publish ${{ matrix.package }}
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: cargo publish -p "${{ matrix.package }}"
+        run: cargo publish -p "${{ matrix.package }}" --locked
   publish_idl2json_cli:
     needs: publish_idl2json
     name: Publish idl2json_cli to crates.io
@@ -186,4 +186,4 @@ jobs:
       - name: Publish ${{ matrix.package }}
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: cargo publish -p "${{ matrix.package }}"
+        run: cargo publish -p "${{ matrix.package }}" --locked
