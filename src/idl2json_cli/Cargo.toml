@@ -24,7 +24,7 @@ candid = { workspace = true }
 clap = { version = "3.1.6", features = [ "derive" ] }
 fn-error-context = "0.2.1"
 serde_json = "^1.0"
-idl2json = { workspace = true, features = ["clap", "crypto"] }
+idl2json = { path = "../idl2json", features = ["clap", "crypto"] }
 anyhow = "1"
 
 [build-dependencies]
