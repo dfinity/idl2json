@@ -53,15 +53,13 @@ jobs:
             git push origin "refs/tags/$GIT_TAG"
           fi
       - name: Create a draft release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.params.outputs.GIT_TAG }}
-          release_name: Release ${{ steps.params.outputs.SEMANTIC_VERSION }}
-          draft: true
-          prerelease: ${{ steps.params.outputs.PRERELEASE }}      
+        run: |
+          GIT_TAG=${{ steps.params.outputs.GIT_TAG }}
+          if gh release view "$GIT_TAG" ; then
+            echo "Release $GIT_TAG already exists."
+          else
+            gh release create "$GIT_TAG" --title "Release $SEMANTIC_VERSION" --draft --verify-tag
+          fi
   build:
     name: Release binary for ${{ matrix.name }}
     needs: setup
