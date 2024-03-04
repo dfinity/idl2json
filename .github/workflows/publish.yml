@@ -38,6 +38,8 @@ jobs:
               echo "$var=${!var}"
             done
           ) | tee -a $GITHUB_OUTPUT
+      - name: Dry run
+        run: cargo publish -p idl2json --dry-run --locked
       - name: Tag this commit
         run: |
           GIT_TAG=${{ steps.params.outputs.GIT_TAG }}
