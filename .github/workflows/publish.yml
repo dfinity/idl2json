@@ -1,5 +1,12 @@
 name: Release
 on:
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        description: |
+          The semantic version pre-release string.
+          E.g. in `v1.2.3-beta.2` the pre-release string is `beta.3`.
+        required: false
   push:
     tags:
       - "*"
@@ -7,8 +14,62 @@ defaults:
   run:
     shell: bash
 jobs:
+  setup:
+    name: Get release parameters
+    outputs:
+      SEMANTIC_VERSION: ${{ steps.params.outputs.SEMANTIC_VERSION }}
+      GIT_TAG: ${{ steps.params.outputs.GIT_TAG }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Get release parameters
+        id: params
+        run: |
+          # Get the release version:
+          IDL2JSON_CARGO_VERSION="$(cargo metadata --locked | jq -r '.packages[] | select(.name == "idl2json") | .version')"
+          PRERELEASE="${{ github.event.inputs.prerelease }}"
+          SEMANTIC_VERSION="${IDL2JSON_CARGO_VERSION}${PRERELEASE:+-}${PRERELEASE}"
+          GIT_TAG="v$SEMANTIC_VERSION"
+          (
+            for var in IDL2JSON_CARGO_VERSION PRERELEASE SEMANTIC_VERSION GIT_TAG ; do
+              echo "$var=${!var}"
+            done
+          ) | tee -a $GITHUB_OUTPUT
+      - name: Dry run
+        run: cargo publish -p idl2json --dry-run --locked
+      - name: Tag this commit
+        run: |
+          GIT_TAG=${{ steps.params.outputs.GIT_TAG }}
+          # Tag this commit, if it not already tagged.  Also, verifty that the tag isn't on a different commit.
+          if COMMIT="$(git show-ref "refs/tags/$GIT_TAG")" ; then
+            if [[ "$GIT_TAG" == "$GITHUB_SHA" ]]
+            then echo "Tag $GIT_TAG already exists on this commit."
+            else echo "::error::Tag $GIT_TAG already exists and points to a different commit."
+                 exit 1
+            fi
+          else
+            echo "Tagging commit $GITHUB_SHA with $GIT_TAG..."
+            git tag "$GIT_TAG"
+            git push origin "refs/tags/$GIT_TAG"
+          fi
+      - name: Create a draft release
+        run: |
+          GIT_TAG=${{ steps.params.outputs.GIT_TAG }}
+          if gh release view "$GIT_TAG" ; then
+            echo "Release $GIT_TAG already exists."
+          else
+            echo "Creating release $GIT_TAG..."
+            for pkg in idl2json candid yaml2candid ; do cargo metadata --locked --format-version 1 | pkg="$pkg" jq -r '.packages[] | select(.name == env.pkg) | "\(env.pkg): \(.version)"' ; done > release_notes.txt
+            gh release create "$GIT_TAG" --title "Release $GIT_TAG" --draft --verify-tag --notes-file release_notes.txt
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
   build:
     name: Release binary for ${{ matrix.name }}
+    needs: setup
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -44,6 +105,8 @@ jobs:
             #            make_target: unused
             #            rust: 1.60.0
     steps:
+      - name: Notification
+        run: echo "::notice::Building ${{ matrix.asset_name }} for release ${{ needs.setup.outputs.GIT_TAG }}..."
       - uses: actions/checkout@v4
       # BUILD
       - name: Static build with musl
@@ -84,11 +147,11 @@ jobs:
         run: cp "${{ matrix.asset_name }}" "${{ matrix.old_name }}"
       # UPLOAD
       - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: "${{ matrix.asset_name }}"
-          tag: "v${{ github.ref }}"
+        run: |
+          echo "Uploading ${{ matrix.asset_name }} to ${{ needs.setup.outputs.GIT_TAG }}..."
+          gh release upload "${{ needs.setup.outputs.GIT_TAG }}" "${{ matrix.asset_name }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
   publish_idl2json:
     needs: build
     name: Publish idl2json to crates.io
@@ -103,7 +166,7 @@ jobs:
       - name: Publish ${{ matrix.package }}
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: cargo publish -p "${{ matrix.package }}"
+        run: cargo publish -p "${{ matrix.package }}" --locked
   publish_idl2json_cli:
     needs: publish_idl2json
     name: Publish idl2json_cli to crates.io
@@ -118,4 +181,4 @@ jobs:
       - name: Publish ${{ matrix.package }}
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: cargo publish -p "${{ matrix.package }}"
+        run: cargo publish -p "${{ matrix.package }}" --locked

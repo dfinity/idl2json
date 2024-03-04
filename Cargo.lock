@@ -624,7 +624,7 @@ dependencies = [
 
 [[package]]
 name = "idl2json"
-version = "0.9.3"
+version = "0.9.3-alpha.1"
 dependencies = [
  "candid",
  "clap",
@@ -637,7 +637,7 @@ dependencies = [
 
 [[package]]
 name = "idl2json_cli"
-version = "0.9.3"
+version = "0.9.3-alpha.1"
 dependencies = [
  "anyhow",
  "candid",
@@ -1348,7 +1348,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a15e0ef66bf939a7c890a0bf6d5a733c70202225f9888a89ed5c62298b019129"
 dependencies = [
  "indexmap 2.0.2",
- "itoa 1.0.4",
+ "itoa",
  "ryu",
  "serde",
  "unsafe-libyaml",
@@ -1747,7 +1747,7 @@ checksum = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538"
 
 [[package]]
 name = "yaml2candid"
-version = "0.9.3"
+version = "0.9.3-alpha.1"
 dependencies = [
  "anyhow",
  "candid",
@@ -1757,7 +1757,7 @@ dependencies = [
 
 [[package]]
 name = "yaml2candid_cli"
-version = "0.9.3"
+version = "0.9.3-alpha.1"
 dependencies = [
  "clap",
  "toml",
