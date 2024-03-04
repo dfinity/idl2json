@@ -32,10 +32,14 @@ jobs:
           # Verify that there isn't already a tag for this version
           if COMMIT="$(git show-ref "refs/tags/$GIT_TAG")" ; then
             if [[ "$GIT_TAG" == "$GITHUB_SHA" ]]
-            then echo "Tag $GIT_TAG already exists"
-            else echo "Tag $GIT_TAG already exists and points to a different commit."
+            then echo "Tag $GIT_TAG already exists on this commit."
+            else echo "ERROR: Tag $GIT_TAG already exists and points to a different commit."
                  exit 1
             fi
+          else
+            echo "Tagging commit $GITHUB_SHA with $GIT_TAG..."
+            git tag "$GIT_TAG"
+            git push origin "refs/tags/$GIT_TAG"
           fi
           (
             for var in IDL2JSON_CARGO_VERSION PRERELEASE SEMANTIC_VERSION GIT_TAG ; do
