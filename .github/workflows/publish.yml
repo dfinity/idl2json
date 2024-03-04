@@ -145,7 +145,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: "${{ matrix.asset_name }}"
-          tag: "${{ github.ref }}"
+          tag: "${{ needs.setup.outputs.SEMANTIC_VERSION }}"
   publish_idl2json:
     needs: build
     name: Publish idl2json to crates.io
@@ -158,7 +158,6 @@ jobs:
     steps:
       - name: Stop, we are just testing
         run: |
-                echo SEMANTIC_VERSION="${{ needs.setup.outputs.SEMANTIC_VERSION }}"
                 false
       - uses: actions/checkout@v4
       - name: Publish ${{ matrix.package }}
