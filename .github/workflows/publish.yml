@@ -60,6 +60,8 @@ jobs:
           else
             gh release create "$GIT_TAG" --title "Release $SEMANTIC_VERSION" --draft --verify-tag
           fi
+        env:
+          GH_TOKEN: ${{ github.token }}
   build:
     name: Release binary for ${{ matrix.name }}
     needs: setup
