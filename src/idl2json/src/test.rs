@@ -4,9 +4,8 @@ use crate::{
     candid_types::internal_candid_type_to_idl_type, idl2json, idl2json_with_weak_names,
     BytesFormat, Idl2JsonOptions, JsonValue,
 };
+use candid_parser::{parse_idl_args, types::{IDLType, PrimType, TypeField}};
 use candid::{
-    parser::types::IDLType,
-    parser::types::{PrimType, TypeField},
     types::internal::Label,
     types::value::IDLValue,
     CandidType, Decode, Deserialize, IDLArgs,
@@ -33,7 +32,7 @@ fn idl_is_parsed_as_expected(idl_filename: &str, json_filename: &str) {
 
     let idl_string: String =
         fs::read_to_string(sample_file!(idl_filename)).expect("Could not read sample IDL");
-    let idl_value: IDLArgs = idl_string.parse::<IDLArgs>().expect("Malformed input");
+    let idl_value: IDLArgs = parse_idl_args(&idl_string).expect("Malformed input");
     let json_value: JsonValue = idl2json(&idl_value.args[0], &Idl2JsonOptions::default());
 
     let diff = json_patch::diff(&expected_json_value, &json_value);

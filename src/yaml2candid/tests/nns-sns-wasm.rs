@@ -1,4 +1,4 @@
-use candid::parser::types::IDLType;
+use candid_parser::types::IDLType;
 use serde_yaml::Value as YamlValue;
 use yaml2candid::Yaml2Candid;
 
