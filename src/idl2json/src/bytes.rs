@@ -12,7 +12,7 @@ pub fn convert_bytes(bytes: &[IDLValue], options: &Idl2JsonOptions) -> Result<Js
     }
     format_bytes(bytes, &(options.bytes_as.unwrap_or_default()))
 }
-/// Converts formats supposedly binary data.  Returns an error if the data is not binary.
+/// Formats supposedly binary data.  Returns an error if the data is not binary.
 fn format_bytes(bytes: &[IDLValue], bytes_format: &BytesFormat) -> Result<JsonValue, ()> {
     match bytes_format {
         BytesFormat::Numbers => Ok(JsonValue::Array(
@@ -51,6 +51,37 @@ fn format_bytes(bytes: &[IDLValue], bytes_format: &BytesFormat) -> Result<JsonVa
             }
             let digest = hasher.finalize();
             Ok(JsonValue::String(format!("Bytes with sha256: {digest:x}")))
+        }
+    }
+}
+
+/// Formats binary data.  Returns an error if the data is not binary.
+pub fn format_blob(bytes: &[u8], bytes_format: &BytesFormat) -> JsonValue {
+    match bytes_format {
+        BytesFormat::Numbers => JsonValue::Array(
+            bytes
+                .iter()
+                .map(|value| 
+                            JsonValue::Number(serde_json::Number::from(*value))
+                )
+                .collect::<Vec<JsonValue>>(),
+        ),
+        BytesFormat::Hex => {
+            let mut ans = String::with_capacity(bytes.len() * 2);
+            for value in bytes {
+                ans.push_str(nybble2hex(value >> 4));
+                ans.push_str(nybble2hex(value & 0xf));
+        }
+            JsonValue::String(ans)
+        }
+        #[cfg(feature = "crypto")]
+        BytesFormat::Sha256 => {
+            let mut hasher = Sha256::new();
+            for value in bytes {
+                    hasher.update([*value]);
+            }
+            let digest = hasher.finalize();
+            JsonValue::String(format!("Bytes with sha256: {digest:x}"))
         }
     }
 }

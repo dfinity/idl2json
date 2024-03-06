@@ -2,10 +2,7 @@
 
 /// Polyfills for the candid IDLProg struct.
 pub mod idl_prog {
-    use candid::{
-        parser::types::{Dec, IDLType, IDLTypes},
-        IDLProg,
-    };
+    use candid_parser::{types::{Dec, IDLType, IDLTypes}, IDLProg};
 
     /// Gets a type defined in a program declarations section.
     #[deprecated(since = "0.8.6", note = "Please use `get_type()` instead.")]
