@@ -4,11 +4,12 @@ use crate::{
     candid_types::internal_candid_type_to_idl_type, idl2json, idl2json_with_weak_names,
     BytesFormat, Idl2JsonOptions, JsonValue,
 };
-use candid_parser::{parse_idl_args, types::{IDLType, PrimType, TypeField}};
 use candid::{
-    types::internal::Label,
-    types::value::IDLValue,
-    CandidType, Decode, Deserialize, IDLArgs,
+    types::internal::Label, types::value::IDLValue, CandidType, Decode, Deserialize, IDLArgs,
+};
+use candid_parser::{
+    parse_idl_args,
+    types::{IDLType, PrimType, TypeField},
 };
 use serde::Serialize;
 use std::fs;

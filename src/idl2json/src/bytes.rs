@@ -55,6 +55,17 @@ fn format_bytes(bytes: &[IDLValue], bytes_format: &BytesFormat) -> Result<JsonVa
     }
 }
 
+// Converts binary data according to the args.
+/// Converts supposedly binary data.  Returns an error if the data is not binary.
+pub fn convert_blob(bytes: &[u8], options: &Idl2JsonOptions) -> JsonValue {
+    if let Some((len, bytes_format)) = options.long_bytes_as {
+        if bytes.len() >= len {
+            return format_blob(bytes, &bytes_format);
+        }
+    }
+    format_blob(bytes, &(options.bytes_as.unwrap_or_default()))
+}
+
 /// Formats binary data.  Returns an error if the data is not binary.
 pub fn format_blob(bytes: &[u8], bytes_format: &BytesFormat) -> JsonValue {
     match bytes_format {

@@ -10,7 +10,7 @@ use serde_json::value::Value as JsonValue;
 use std::iter;
 
 use crate::{
-    bytes::{convert_bytes, format_blob},
+    bytes::{convert_blob, convert_bytes},
     idl2json,
     untyped_conversion::convert_non_bytes_array,
     Idl2JsonOptions,
@@ -43,7 +43,7 @@ pub fn idl2json_with_weak_names(
                 idl2json(idl, options)
             }
         }
-        (IDLValue::Blob(bytes), _) => format_blob(bytes, &options.bytes_as.unwrap_or_default()),
+        (IDLValue::Blob(bytes), _) => convert_blob(bytes, options),
         (IDLValue::Bool(bool), _) => JsonValue::Bool(*bool),
         (IDLValue::Null, _) => JsonValue::Null,
         (IDLValue::Text(s), _) => JsonValue::String(s.clone()),

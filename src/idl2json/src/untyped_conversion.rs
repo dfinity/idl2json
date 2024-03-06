@@ -1,5 +1,5 @@
 use crate::{
-    bytes::{convert_bytes, format_blob},
+    bytes::{convert_blob, convert_bytes},
     Idl2JsonOptions,
 };
 use candid::types::value::IDLValue;
@@ -13,7 +13,7 @@ use serde_json::value::Value as JsonValue;
 /// you may wish to consider `idl_args2json` instead.
 pub fn idl2json(idl: &IDLValue, options: &Idl2JsonOptions) -> JsonValue {
     match idl {
-        IDLValue::Blob(bytes) => format_blob(bytes, &options.bytes_as.unwrap_or_default()),
+        IDLValue::Blob(bytes) => convert_blob(bytes, options),
         IDLValue::Bool(bool) => JsonValue::Bool(*bool),
         IDLValue::Null => JsonValue::Null,
         IDLValue::Text(s) => JsonValue::String(s.clone()),
