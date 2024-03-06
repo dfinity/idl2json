@@ -1,5 +1,6 @@
 //! Example of how to convert binary candid to JSON using a schema
-use candid::{parser::types::IDLType, types::value::IDLValue, Decode, IDLProg};
+use candid::{types::value::IDLValue, Decode};
+use candid_parser::types::{IDLProg, IDLType};
 use idl2json::{idl2json, idl2json_with_weak_names, polyfill, Idl2JsonOptions};
 use std::str::FromStr;
 

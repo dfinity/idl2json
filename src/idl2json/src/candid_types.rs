@@ -1,8 +1,6 @@
 //! Code for manipulating candid types.
-use candid::{
-    parser::types::{IDLType, PrimType, TypeField},
-    types::internal::{Field as InternalField, Type as InternalType, TypeInner},
-};
+use candid::types::internal::{Field as InternalField, Type as InternalType, TypeInner};
+use candid_parser::types::{IDLType, PrimType, TypeField};
 
 /// Deriving CandidType on a RustType provides
 /// the Candid type, however only as an internal

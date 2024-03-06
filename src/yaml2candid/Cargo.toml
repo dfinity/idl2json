@@ -6,7 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-candid = { workspace = true, features = [ "random" ] }
+candid = { workspace = true }
+candid_parser = { workspace = true }
 serde = "1"
 serde_yaml = "0.9"
 anyhow = "1"

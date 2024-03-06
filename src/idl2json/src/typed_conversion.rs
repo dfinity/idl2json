@@ -1,14 +1,19 @@
-use std::iter;
-
 use candid::{
-    parser::types::{IDLType, IDLTypes, PrimType, TypeField},
     types::value::{IDLField, IDLValue},
-    IDLArgs, IDLProg,
+    IDLArgs,
+};
+use candid_parser::{
+    types::{IDLType, IDLTypes, PrimType, TypeField},
+    IDLProg,
 };
 use serde_json::value::Value as JsonValue;
+use std::iter;
 
 use crate::{
-    bytes::convert_bytes, idl2json, untyped_conversion::convert_non_bytes_array, Idl2JsonOptions,
+    bytes::{convert_blob, convert_bytes},
+    idl2json,
+    untyped_conversion::convert_non_bytes_array,
+    Idl2JsonOptions,
 };
 
 /// Converts a candid IDLValue to a serde JsonValue, with keys as names where possible.
@@ -38,6 +43,7 @@ pub fn idl2json_with_weak_names(
                 idl2json(idl, options)
             }
         }
+        (IDLValue::Blob(bytes), _) => convert_blob(bytes, options),
         (IDLValue::Bool(bool), _) => JsonValue::Bool(*bool),
         (IDLValue::Null, _) => JsonValue::Null,
         (IDLValue::Text(s), _) => JsonValue::String(s.clone()),

@@ -1,8 +1,10 @@
+use crate::{
+    bytes::{convert_blob, convert_bytes},
+    Idl2JsonOptions,
+};
 use candid::types::value::IDLValue;
-use candid::IDLArgs;
+use candid_parser::IDLArgs;
 use serde_json::value::Value as JsonValue;
-
-use crate::{bytes::convert_bytes, Idl2JsonOptions};
 
 /// Converts a candid IDLValue to a serde JsonValue, without type information.
 ///
@@ -11,6 +13,7 @@ use crate::{bytes::convert_bytes, Idl2JsonOptions};
 /// you may wish to consider `idl_args2json` instead.
 pub fn idl2json(idl: &IDLValue, options: &Idl2JsonOptions) -> JsonValue {
     match idl {
+        IDLValue::Blob(bytes) => convert_blob(bytes, options),
         IDLValue::Bool(bool) => JsonValue::Bool(*bool),
         IDLValue::Null => JsonValue::Null,
         IDLValue::Text(s) => JsonValue::String(s.clone()),

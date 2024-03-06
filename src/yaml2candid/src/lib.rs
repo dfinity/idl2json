@@ -3,9 +3,11 @@
 #![deny(clippy::panic)]
 #![deny(clippy::unwrap_used)]
 use anyhow::{anyhow, bail, Context};
-use candid::parser::types::{Dec, IDLType};
 use candid::types::value::{IDLField, IDLValue, VariantValue};
-use candid::IDLProg;
+use candid_parser::{
+    types::{Dec, IDLType},
+    IDLProg,
+};
 use serde_yaml::Value as YamlValue;
 use std::path::Path;
 
@@ -82,33 +84,33 @@ impl Yaml2Candid {
                     .ok_or_else(|| anyhow!("Could not find a type called {name:?}"))?;
                 self.convert(&typ, val)
             }
-            (IDLType::PrimT(candid::parser::types::PrimType::Nat8), YamlValue::Number(number)) => {
+            (IDLType::PrimT(candid_parser::types::PrimType::Nat8), YamlValue::Number(number)) => {
                 Ok(IDLValue::Nat8(u8::try_from(
                     number
                         .as_u64()
                         .with_context(|| "Could not parse number as u64: {number:?}")?,
                 )?))
             }
-            (IDLType::PrimT(candid::parser::types::PrimType::Nat16), YamlValue::Number(number)) => {
+            (IDLType::PrimT(candid_parser::types::PrimType::Nat16), YamlValue::Number(number)) => {
                 Ok(IDLValue::Nat16(u16::try_from(
                     number
                         .as_u64()
                         .with_context(|| "Could not parse number as u64: {number:?}")?,
                 )?))
             }
-            (IDLType::PrimT(candid::parser::types::PrimType::Nat32), YamlValue::Number(number)) => {
+            (IDLType::PrimT(candid_parser::types::PrimType::Nat32), YamlValue::Number(number)) => {
                 Ok(IDLValue::Nat32(u32::try_from(
                     number
                         .as_u64()
                         .with_context(|| "Could not parse number as u64: {number:?}")?,
                 )?))
             }
-            (IDLType::PrimT(candid::parser::types::PrimType::Nat64), YamlValue::Number(number)) => {
+            (IDLType::PrimT(candid_parser::types::PrimType::Nat64), YamlValue::Number(number)) => {
                 Ok(IDLValue::Nat64(number.as_u64().with_context(|| {
                     "Could not parse number as u64: {number:?}"
                 })?))
             }
-            (IDLType::PrimT(candid::parser::types::PrimType::Text), YamlValue::String(value)) => {
+            (IDLType::PrimT(candid_parser::types::PrimType::Text), YamlValue::String(value)) => {
                 Ok(IDLValue::Text(value.to_string()))
             }
             (IDLType::PrincipalT, YamlValue::String(value)) => {

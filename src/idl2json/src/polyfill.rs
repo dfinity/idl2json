@@ -2,8 +2,8 @@
 
 /// Polyfills for the candid IDLProg struct.
 pub mod idl_prog {
-    use candid::{
-        parser::types::{Dec, IDLType, IDLTypes},
+    use candid_parser::{
+        types::{Dec, IDLType, IDLTypes},
         IDLProg,
     };
 
