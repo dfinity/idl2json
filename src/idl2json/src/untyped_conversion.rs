@@ -1,7 +1,10 @@
-use serde_json::value::Value as JsonValue;
+use crate::{
+    bytes::{convert_bytes, format_blob},
+    Idl2JsonOptions,
+};
 use candid::types::value::IDLValue;
 use candid_parser::IDLArgs;
-use crate::{bytes::{convert_bytes, format_blob}, Idl2JsonOptions};
+use serde_json::value::Value as JsonValue;
 
 /// Converts a candid IDLValue to a serde JsonValue, without type information.
 ///

@@ -9,8 +9,12 @@
 mod tests;
 
 use anyhow::{anyhow, Context};
-use candid_parser::{parse_idl_args, types::{IDLProg, IDLType, IDLTypes}, IDLArgs};
 use candid::types::value::IDLValue;
+use candid_parser::{
+    parse_idl_args,
+    types::{IDLProg, IDLType, IDLTypes},
+    IDLArgs,
+};
 use clap::Parser;
 use idl2json::{
     idl2json, idl2json_with_weak_names, idl_args2json_with_weak_names, polyfill, BytesFormat,
@@ -20,8 +24,7 @@ use std::{path::PathBuf, str::FromStr};
 
 /// Reads IDL from stdin, writes JSON to stdout.
 pub fn main(args: &Args, idl_str: &str) -> anyhow::Result<String> {
-    let idl_args: IDLArgs = parse_idl_args(idl_str)
-        .with_context(|| anyhow!("Malformed input"))?;
+    let idl_args: IDLArgs = parse_idl_args(idl_str).with_context(|| anyhow!("Malformed input"))?;
     let idl2json_options = {
         let progs: anyhow::Result<Vec<IDLProg>> = args
             .did

@@ -61,9 +61,7 @@ pub fn format_blob(bytes: &[u8], bytes_format: &BytesFormat) -> JsonValue {
         BytesFormat::Numbers => JsonValue::Array(
             bytes
                 .iter()
-                .map(|value| 
-                            JsonValue::Number(serde_json::Number::from(*value))
-                )
+                .map(|value| JsonValue::Number(serde_json::Number::from(*value)))
                 .collect::<Vec<JsonValue>>(),
         ),
         BytesFormat::Hex => {
@@ -71,14 +69,14 @@ pub fn format_blob(bytes: &[u8], bytes_format: &BytesFormat) -> JsonValue {
             for value in bytes {
                 ans.push_str(nybble2hex(value >> 4));
                 ans.push_str(nybble2hex(value & 0xf));
-        }
+            }
             JsonValue::String(ans)
         }
         #[cfg(feature = "crypto")]
         BytesFormat::Sha256 => {
             let mut hasher = Sha256::new();
             for value in bytes {
-                    hasher.update([*value]);
+                hasher.update([*value]);
             }
             let digest = hasher.finalize();
             JsonValue::String(format!("Bytes with sha256: {digest:x}"))
