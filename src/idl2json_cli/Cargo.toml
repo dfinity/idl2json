@@ -30,4 +30,4 @@ anyhow = "1"
 
 [build-dependencies]
 anyhow = "1"
-toml = "0.8.11"
+toml = "0.8.12"
