@@ -14,5 +14,5 @@ resolver = "2"
 version = "0.10.1"
 
 [workspace.dependencies]
-candid = { version = "0.10.5" }
+candid = { version = "0.10.6" }
 candid_parser = { version = "0.1.0" }
