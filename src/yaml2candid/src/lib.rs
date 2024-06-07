@@ -91,7 +91,15 @@ impl Yaml2Candid {
                             .as_u64()
                             .with_context(|| "Could not parse number as u64: {number:?}")?,
                     )?)),
-                    _ => bail!("Could not convert to Nat8: {data:?}"),
+                    _ => bail!("Please express this value as a number: {data:?}"),
+                },
+                candid_parser::types::PrimType::Nat16 => match data {
+                    YamlValue::Number(number) => Ok(IDLValue::Nat16(u16::try_from(
+                        number
+                            .as_u64()
+                            .with_context(|| "Could not parse number as u64: {number:?}")?,
+                    )?)),
+                    _ => bail!("Please express this value as a number: {data:?}"),
                 },
                 _ => unimplemented!(),
             },
@@ -99,14 +107,6 @@ impl Yaml2Candid {
         }
         /*
                 match (typ, data) {
-                    (IDLType::PrimT(candid_parser::types::PrimType::Nat8), YamlValue::Number(number)) =>
-                    (IDLType::PrimT(candid_parser::types::PrimType::Nat16), YamlValue::Number(number)) => {
-                        Ok(IDLValue::Nat16(u16::try_from(
-                            number
-                                .as_u64()
-                                .with_context(|| "Could not parse number as u64: {number:?}")?,
-                        )?))
-                    }
                     (IDLType::PrimT(candid_parser::types::PrimType::Nat32), YamlValue::Number(number)) => {
                         Ok(IDLValue::Nat32(u32::try_from(
                             number
