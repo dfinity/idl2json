@@ -123,11 +123,6 @@ impl Yaml2Candid {
         }
         /*
                 match (typ, data) {
-                    (IDLType::PrimT(candid_parser::types::PrimType::Nat64), YamlValue::Number(number)) => {
-                        Ok(IDLValue::Nat64(number.as_u64().with_context(|| {
-                            "Could not parse number as u64: {number:?}"
-                        })?))
-                    }
                     (IDLType::PrimT(candid_parser::types::PrimType::Text), YamlValue::String(value)) => {
                         Ok(IDLValue::Text(value.to_string()))
                     }
