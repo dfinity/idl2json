@@ -67,8 +67,8 @@ impl Yaml2Candid {
     /// * YAML types do not match the IDL types.
     /// * `type_name` is not defined in the converter's `.did` file.
     pub fn convert(&self, typ: &IDLType, data: &YamlValue) -> anyhow::Result<IDLValue> {
-        match (typ, data) {
-            (IDLType::VarT(name), val) => {
+        match typ {
+            IDLType::VarT(name) => {
                 let typ = self
                     .prog
                     .decs
@@ -82,94 +82,101 @@ impl Yaml2Candid {
                         None
                     })
                     .ok_or_else(|| anyhow!("Could not find a type called {name:?}"))?;
-                self.convert(&typ, val)
+                self.convert(&typ, data)
             }
-            (IDLType::PrimT(candid_parser::types::PrimType::Nat8), YamlValue::Number(number)) => {
-                Ok(IDLValue::Nat8(u8::try_from(
-                    number
-                        .as_u64()
-                        .with_context(|| "Could not parse number as u64: {number:?}")?,
-                )?))
-            }
-            (IDLType::PrimT(candid_parser::types::PrimType::Nat16), YamlValue::Number(number)) => {
-                Ok(IDLValue::Nat16(u16::try_from(
-                    number
-                        .as_u64()
-                        .with_context(|| "Could not parse number as u64: {number:?}")?,
-                )?))
-            }
-            (IDLType::PrimT(candid_parser::types::PrimType::Nat32), YamlValue::Number(number)) => {
-                Ok(IDLValue::Nat32(u32::try_from(
-                    number
-                        .as_u64()
-                        .with_context(|| "Could not parse number as u64: {number:?}")?,
-                )?))
-            }
-            (IDLType::PrimT(candid_parser::types::PrimType::Nat64), YamlValue::Number(number)) => {
-                Ok(IDLValue::Nat64(number.as_u64().with_context(|| {
-                    "Could not parse number as u64: {number:?}"
-                })?))
-            }
-            (IDLType::PrimT(candid_parser::types::PrimType::Text), YamlValue::String(value)) => {
-                Ok(IDLValue::Text(value.to_string()))
-            }
-            (IDLType::PrincipalT, YamlValue::String(value)) => {
-                Ok(IDLValue::Principal(candid::Principal::from_text(value)?))
-            }
-            (IDLType::RecordT(fields), YamlValue::Mapping(mapping)) => Ok(IDLValue::Record(
-                fields
-                    .iter()
-                    .map(|field| {
-                        let id = field.label.clone();
-                        let mapping_key = field.label.to_string();
-                        let val = mapping.get(&mapping_key);
-                        let val = match (&field.typ, val) {
-                            (IDLType::OptT(typ), Some(val)) => self.convert(typ, val)?,
-                            (IDLType::OptT(_typ), None) => IDLValue::None,
-                            (typ, Some(val)) => self.convert(typ, val)?,
-                            (_typ, None) => bail!("Missing key: {}", &mapping_key),
-                        };
-                        Ok(IDLField { id, val })
-                    })
-                    .collect::<Result<Vec<_>, _>>()?,
-            )),
-            (IDLType::VecT(typ), YamlValue::Sequence(values)) => Ok(IDLValue::Vec(
-                values
-                    .iter()
-                    .map(|val| self.convert(typ, val))
-                    .collect::<Result<Vec<_>, _>>()?,
-            )),
-            (IDLType::VariantT(types), YamlValue::Mapping(value)) => {
-                types
-                    .iter()
-                    .find_map(|typ| {
-                        let key = typ.label.to_string();
-                        // Note: This lookup can be extended:
-                        // - Handle non-string keys
-                        // - Start from the one value in Mapping and iterate over types to find a match, rather than iterating
-                        //   over types and repeatedly doing the presumably more expensive lookup in mapping.
-                        value.get(&key).map(|val| {
-                            // u64 represents the index from the type, defaults to 0 when parsing, only used for serialization
-                            let numerical_key = u64::from(typ.label.get_id());
-                            let field = IDLField {
-                                id: typ.label.clone(),
-                                val: self.convert(&typ.typ, val).with_context(|| {
-                                    format!("Failed to convert variant of type {key}")
-                                })?,
-                            };
-                            Ok(IDLValue::Variant(VariantValue(
-                                Box::new(field),
-                                numerical_key,
-                            )))
-                        })
-                    })
-                    .unwrap_or_else(|| {
-                        bail!("Could not find matching type:\n{:?}\n\n{:?}", types, value)
-                    })
-            }
-            (typ, data) => {
-                bail!("Unsupported pair:\n{:?}\n\n{:?}", typ, data);
-            }
+            IDLType::PrimT(prim_t) => match prim_t {
+                candid_parser::types::PrimType::Nat8 => match data {
+                    YamlValue::Number(number) => Ok(IDLValue::Nat8(u8::try_from(
+                        number
+                            .as_u64()
+                            .with_context(|| "Could not parse number as u64: {number:?}")?,
+                    )?)),
+                    _ => bail!("Could not convert to Nat8: {data:?}"),
+                },
+                _ => unimplemented!(),
+            },
+            _ => unimplemented!(),
         }
+        /*
+                match (typ, data) {
+                    (IDLType::PrimT(candid_parser::types::PrimType::Nat8), YamlValue::Number(number)) =>
+                    (IDLType::PrimT(candid_parser::types::PrimType::Nat16), YamlValue::Number(number)) => {
+                        Ok(IDLValue::Nat16(u16::try_from(
+                            number
+                                .as_u64()
+                                .with_context(|| "Could not parse number as u64: {number:?}")?,
+                        )?))
+                    }
+                    (IDLType::PrimT(candid_parser::types::PrimType::Nat32), YamlValue::Number(number)) => {
+                        Ok(IDLValue::Nat32(u32::try_from(
+                            number
+                                .as_u64()
+                                .with_context(|| "Could not parse number as u64: {number:?}")?,
+                        )?))
+                    }
+                    (IDLType::PrimT(candid_parser::types::PrimType::Nat64), YamlValue::Number(number)) => {
+                        Ok(IDLValue::Nat64(number.as_u64().with_context(|| {
+                            "Could not parse number as u64: {number:?}"
+                        })?))
+                    }
+                    (IDLType::PrimT(candid_parser::types::PrimType::Text), YamlValue::String(value)) => {
+                        Ok(IDLValue::Text(value.to_string()))
+                    }
+                    (IDLType::PrincipalT, YamlValue::String(value)) => {
+                        Ok(IDLValue::Principal(candid::Principal::from_text(value)?))
+                    }
+                    (IDLType::RecordT(fields), YamlValue::Mapping(mapping)) => Ok(IDLValue::Record(
+                        fields
+                            .iter()
+                            .map(|field| {
+                                let id = field.label.clone();
+                                let mapping_key = field.label.to_string();
+                                let val = mapping.get(&mapping_key);
+                                let val = match (&field.typ, val) {
+                                    (IDLType::OptT(typ), Some(val)) => self.convert(typ, val)?,
+                                    (IDLType::OptT(_typ), None) => IDLValue::None,
+                                    (typ, Some(val)) => self.convert(typ, val)?,
+                                    (_typ, None) => bail!("Missing key: {}", &mapping_key),
+                                };
+                                Ok(IDLField { id, val })
+                            })
+                            .collect::<Result<Vec<_>, _>>()?,
+                    )),
+                    (IDLType::VecT(typ), YamlValue::Sequence(values)) => Ok(IDLValue::Vec(
+                        values
+                            .iter()
+                            .map(|val| self.convert(typ, val))
+                            .collect::<Result<Vec<_>, _>>()?,
+                    )),
+                    (IDLType::VariantT(types), YamlValue::Mapping(value)) => {
+                        types
+                            .iter()
+                            .find_map(|typ| {
+                                let key = typ.label.to_string();
+                                // Note: This lookup can be extended:
+                                // - Handle non-string keys
+                                // - Start from the one value in Mapping and iterate over types to find a match, rather than iterating
+                                //   over types and repeatedly doing the presumably more expensive lookup in mapping.
+                                value.get(&key).map(|val| {
+                                    // u64 represents the index from the type, defaults to 0 when parsing, only used for serialization
+                                    let numerical_key = u64::from(typ.label.get_id());
+                                    let field = IDLField {
+                                        id: typ.label.clone(),
+                                        val: self.convert(&typ.typ, val).with_context(|| {
+                                            format!("Failed to convert variant of type {key}")
+                                        })?,
+                                    };
+                                    Ok(IDLValue::Variant(VariantValue(
+                                        Box::new(field),
+                                        numerical_key,
+                                    )))
+                                })
+                            })
+                            .unwrap_or_else(|| {
+                                bail!("Could not find matching type:\n{:?}\n\n{:?}", types, value)
+                            })
+                    }
+                }
+        */
     }
 }
