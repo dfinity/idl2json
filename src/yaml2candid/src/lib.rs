@@ -110,12 +110,25 @@ impl Yaml2Candid {
                     _ => bail!("Please express this value as a number: {data:?}"),
                 },
                 candid_parser::types::PrimType::Nat64 => match data {
-                    YamlValue::Number(number) => Ok(IDLValue::Nat64(u64::try_from(
+                    YamlValue::Number(number) => Ok(IDLValue::Nat64(
                         number
                             .as_u64()
                             .with_context(|| "Could not parse number as u64: {number:?}")?,
-                    )?)),
+                    )),
                     _ => bail!("Please express this value as a number: {data:?}"),
+                },
+                // Nat is a bigint, so can support arbitrarily large numbers.  In JSON we express large numbers as strings, small numbers may be numeric.
+                candid_parser::types::PrimType::Nat => Ok(IDLValue::Nat(match data {
+                    YamlValue::Number(number) => candid::types::number::Nat::from(
+                        number
+                            .as_u64()
+                            .with_context(|| "Could not parse number as u64: {number:?}")?,
+                    ),
+                    _ => bail!("Please express this value as a number: {data:?}"),
+                })),
+                candid_parser::types::PrimType::Text => match data {
+                    YamlValue::String(value) => Ok(IDLValue::Text(value.to_string())),
+                    _ => bail!("Please express this value as a string: {data:?}"),
                 },
                 _ => unimplemented!(),
             },
@@ -123,9 +136,6 @@ impl Yaml2Candid {
         }
         /*
                 match (typ, data) {
-                    (IDLType::PrimT(candid_parser::types::PrimType::Text), YamlValue::String(value)) => {
-                        Ok(IDLValue::Text(value.to_string()))
-                    }
                     (IDLType::PrincipalT, YamlValue::String(value)) => {
                         Ok(IDLValue::Principal(candid::Principal::from_text(value)?))
                     }
