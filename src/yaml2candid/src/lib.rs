@@ -329,24 +329,18 @@ impl Yaml2Candid {
             }
         }
     }
+    /// Gets a string from a YAML value.
     fn parse_string(data: &YamlValue) -> anyhow::Result<String> {
         match data {
             YamlValue::String(value) => Ok(value.to_string()),
             _ => bail!("Expected a string, got: {data:?}"),
         }
     }
+    /// Gets a principal from a YAML value.
     fn parse_principal(data: &YamlValue) -> anyhow::Result<Principal> {
         match data {
-            YamlValue::String(value) => Ok(Principal::from_text(value.to_string())?),
+            YamlValue::String(value) => Ok(Principal::from_text(value)?),
             _ => bail!("Expected a string for principal type, got: {data:?}"),
         }
     }
-    /*
-    fn convert_str(data: &YamlValue) -> anyhow::Result<S> {
-        match data {
-            YamlValue::String(value) => Ok(value.to_string()),
-            _ => bail!("Expected a string, got: {data:?}"),
-        }
-    }
-     */
 }
