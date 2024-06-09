@@ -3,7 +3,10 @@
 #![deny(clippy::panic)]
 #![deny(clippy::unwrap_used)]
 use anyhow::{anyhow, bail, Context};
-use candid::{types::value::{IDLField, IDLValue, VariantValue}, Principal};
+use candid::{
+    types::value::{IDLField, IDLValue, VariantValue},
+    Principal,
+};
 use candid_parser::{
     types::{Dec, IDLType},
     IDLProg,
@@ -316,7 +319,14 @@ impl Yaml2Candid {
                     _ => bail!("Expected a sequence of length 2 (principal, name) for func type, got: {data:?}"),
                 }
             }
-            //_ => unimplemented!(),
+            IDLType::ServT(_bindings) => {
+                // See: https://internetcomputer.org/docs/current/references/candid-ref#type-service-
+                todo!("Conversion of service type is not supported yet.")
+            }
+            IDLType::ClassT(_, _) => {
+                // Not defined here: https://internetcomputer.org/docs/current/references/candid-ref
+                todo!("Conversion of class type is not supported yet.")
+            }
         }
     }
     fn parse_string(data: &YamlValue) -> anyhow::Result<String> {
@@ -331,7 +341,7 @@ impl Yaml2Candid {
             _ => bail!("Expected a string for principal type, got: {data:?}"),
         }
     }
-/*
+    /*
     fn convert_str(data: &YamlValue) -> anyhow::Result<S> {
         match data {
             YamlValue::String(value) => Ok(value.to_string()),
