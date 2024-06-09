@@ -494,7 +494,7 @@ fn can_convert() {
             }]),
         },
         TestVec {
-            description: "Record containing Some(5) in canonical form",
+            description: "Record containing Some(8) in canonical form",
             typ: IDLType::RecordT(vec![TypeField {
                 label: Label::Named("Foo".to_string()),
                 typ: IDLType::OptT(Box::new(IDLType::PrimT(
@@ -515,7 +515,7 @@ fn can_convert() {
             }]),
         },
         TestVec {
-            description: "Record containing Some(5) in conventional form",
+            description: "Record containing Some(8) in conventional form",
             typ: IDLType::RecordT(vec![TypeField {
                 label: Label::Named("Foo".to_string()),
                 typ: IDLType::OptT(Box::new(IDLType::PrimT(
@@ -533,7 +533,7 @@ fn can_convert() {
             }]),
         },
         TestVec {
-            description: "Record containing Some([5]) in conventional form",
+            description: "Record containing Some([8]) in conventional form",
             typ: IDLType::RecordT(vec![TypeField {
                 label: Label::Named("Foo".to_string()),
                 typ: IDLType::OptT(Box::new(IDLType::VecT(Box::new(IDLType::PrimT(
@@ -551,6 +551,30 @@ fn can_convert() {
             expected_result: IDLValue::Record(vec![IDLField {
                 id: Label::Named("Foo".to_string()),
                 val: IDLValue::Opt(Box::new(IDLValue::Vec(vec![IDLValue::Int8(8)]))),
+            }]),
+        },
+        TestVec {
+            description: "Record containing Some([5,6]) in conventional form",
+            typ: IDLType::RecordT(vec![TypeField {
+                label: Label::Named("Foo".to_string()),
+                typ: IDLType::OptT(Box::new(IDLType::VecT(Box::new(IDLType::PrimT(
+                    candid_parser::types::PrimType::Int8,
+                ))))),
+            }]),
+            data: YamlValue::Mapping(
+                [(
+                    YamlValue::from("Foo"),
+                    YamlValue::Sequence(vec![YamlValue::from(5), YamlValue::from(6)]),
+                )]
+                .into_iter()
+                .collect(),
+            ),
+            expected_result: IDLValue::Record(vec![IDLField {
+                id: Label::Named("Foo".to_string()),
+                val: IDLValue::Opt(Box::new(IDLValue::Vec(vec![
+                    IDLValue::Int8(5),
+                    IDLValue::Int8(6),
+                ]))),
             }]),
         },
     ];
