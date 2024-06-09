@@ -376,25 +376,6 @@ fn can_convert_bool() {
 }
 
 #[test]
-fn can_convert_null() {
-    let converter = Yaml2Candid::default();
-    let typ = IDLType::PrimT(candid_parser::types::PrimType::Null);
-    let data = YamlValue::Null;
-    let expected_result = IDLValue::Null;
-    assert_conversion_is(&converter, &typ, &data, expected_result);
-}
-
-#[test]
-fn can_convert_reserved() {
-    let converter = Yaml2Candid::default();
-    let typ = IDLType::PrimT(candid_parser::types::PrimType::Reserved);
-    for data in [YamlValue::Null, YamlValue::from("foo"), YamlValue::from(6)].iter() {
-        let expected_result = IDLValue::Reserved;
-        assert_conversion_is(&converter, &typ, data, expected_result);
-    }
-}
-
-#[test]
 fn conversion_to_bool_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Bool);
@@ -408,6 +389,62 @@ fn conversion_to_bool_should_fail_for_some_inputs() {
     .iter()
     {
         assert_conversion_fails(&converter, &typ, data);
+    }
+}
+
+#[test]
+fn can_convert_null() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Null);
+    let data = YamlValue::Null;
+    let expected_result = IDLValue::Null;
+    assert_conversion_is(&converter, &typ, &data, expected_result);
+}
+
+#[test]
+fn conversion_to_null_should_fail_for_some_inputs() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Null);
+    for data in [
+        YamlValue::from(0),
+        YamlValue::from(1),
+        YamlValue::from("FOO"),
+        YamlValue::Bool(false),
+        YamlValue::Bool(true),
+    ]
+    .iter()
+    {
+        assert_conversion_fails(&converter, &typ, data);
+    }
+}
+
+#[test]
+fn can_convert_string() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Text);
+    for value in ["", "foo", "bar", "baz"].iter() {
+        let data = YamlValue::from(*value);
+        let expected_result = IDLValue::Text(value.to_string());
+        assert_conversion_is(&converter, &typ, &data, expected_result);
+    }
+}
+
+#[test]
+fn conversion_to_string_should_fail_for_some_inputs() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Text);
+    for data in [YamlValue::from(0), YamlValue::Bool(false), YamlValue::Null].iter() {
+        assert_conversion_fails(&converter, &typ, data);
+    }
+}
+
+#[test]
+fn can_convert_reserved() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Reserved);
+    for data in [YamlValue::Null, YamlValue::from("foo"), YamlValue::from(6)].iter() {
+        let expected_result = IDLValue::Reserved;
+        assert_conversion_is(&converter, &typ, data, expected_result);
     }
 }
 
