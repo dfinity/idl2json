@@ -8,7 +8,7 @@ use candid_parser::{
     types::{Dec, IDLType},
     IDLProg,
 };
-use num_bigint::BigUint;
+use num_bigint::{BigInt, BigUint};
 use serde_yaml::Value as YamlValue;
 use std::path::Path;
 
@@ -128,15 +128,29 @@ impl Yaml2Candid {
                     YamlValue::String(value) => candid::types::number::Nat::from(
                         value
                             .parse::<BigUint>()
-                            .with_context(|| format!("Could not parse value as u64: {value:?}"))?,
+                            .with_context(|| format!("Could not parse value as BigUint: {value:?}"))?,
                     ),
                     _ => bail!("Please express natural numbers (unsigned ints) as numbers (e.g. 5) or decimal strings (e.g. \"123\"): {data:?}"),
+                })),
+                // Int is a bigint, so can support arbitrarily large numbers.  In JSON we express large numbers as strings but numbers should be accepted as well.
+                candid_parser::types::PrimType::Int => Ok(IDLValue::Int(match data {
+                    YamlValue::Number(number) => candid::types::number::Int::from(
+                        number
+                            .as_i64()
+                            .with_context(|| "Could not parse number as i64: {number:?}")?,
+                    ),
+                    YamlValue::String(value) => candid::types::number::Int::from(
+                        value
+                            .parse::<BigInt>()
+                            .with_context(|| format!("Could not parse value as BigInt: {value:?}"))?,
+                    ),
+                    _ => bail!("Please express integers as numbers (e.g. 5) or decimal strings (e.g. \"123\"): {data:?}"),
                 })),
                 candid_parser::types::PrimType::Text => match data {
                     YamlValue::String(value) => Ok(IDLValue::Text(value.to_string())),
                     _ => bail!("Please express this value as a string: {data:?}"),
                 },
-                //                _ => unimplemented!(),
+                                _ => unimplemented!(),
             },
             _ => unimplemented!(),
         }
