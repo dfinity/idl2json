@@ -3,7 +3,7 @@
 #![deny(clippy::panic)]
 #![deny(clippy::unwrap_used)]
 use anyhow::{anyhow, bail, Context};
-use candid::types::value::{IDLField, IDLValue, VariantValue};
+use candid::{types::value::{IDLField, IDLValue, VariantValue}, Principal};
 use candid_parser::{
     types::{Dec, IDLType},
     IDLProg,
@@ -304,7 +304,30 @@ impl Yaml2Candid {
                 eprintln!("The recommended (but rarely used) way to represent an optional value is to use a sequence with one or zero elements.");
                 Ok(IDLValue::Opt(Box::new(self.convert(typ, data)?)))
             },
+            IDLType::PrincipalT => match data {
+                YamlValue::String(value) => Ok(IDLValue::Principal(Principal::from_text(value.to_string())?)),
+                _ => bail!("Expected a string for principal type, got: {data:?}"),
+            },
+            /*
+            IDLType::FuncT(_func) => {
+                // See: https://internetcomputer.org/docs/current/references/candid-ref#type-func---
+                match data {
+                    YamlValue::Sequence(values) if values.len() == 2 => {
+                        let principal = self.convert(&IDLType::PrincipalT, &values[0])?;
+                        let name = self.convert(&IDLType::PrimT(candid_parser::types::PrimType::Text), &values[1])?;
+                        Ok(IDLValue::Func(principal, name))
+                    }
+                }
+            }*/
             //_ => unimplemented!(),
         }
     }
+/*
+    fn convert_str(data: &YamlValue) -> anyhow::Result<S> {
+        match data {
+            YamlValue::String(value) => Ok(value.to_string()),
+            _ => bail!("Expected a string, got: {data:?}"),
+        }
+    }
+     */
 }
