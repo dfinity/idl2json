@@ -236,45 +236,40 @@ impl Yaml2Candid {
             ))} else {
                 bail!("Expected a sequence for vec type, got: {data:?}")
             },
+            IDLType::VariantT(types) => if let YamlValue::Mapping(value) = data {
+                types
+                    .iter()
+                    .find_map(|typ| {
+                        let key = typ.label.to_string();
+                        // Note: This lookup can be extended:
+                        // - Handle non-string keys
+                        // - Start from the one value in Mapping and iterate over types to find a match, rather than iterating
+                        //   over types and repeatedly doing the presumably more expensive lookup in mapping.
+                        value.get(&key).map(|val| {
+                            // u64 represents the index from the type, defaults to 0 when parsing, only used for serialization
+                            let numerical_key = u64::from(typ.label.get_id());
+                            let field = IDLField {
+                                id: typ.label.clone(),
+                                val: self.convert(&typ.typ, val).with_context(|| {
+                                    format!("Failed to convert variant of type {key}")
+                                })?,
+                            };
+                            Ok(IDLValue::Variant(VariantValue(
+                                Box::new(field),
+                                numerical_key,
+                            )))
+                        })
+                    })
+                    .unwrap_or_else(|| {
+                        bail!("Could not find matching type:\n{:?}\n\n{:?}", types, value)
+                    })
+            } else {
+                bail!("Expected a mapping for variant type, got: {data:?}")
+            },
             _ => unimplemented!(),
         }
         /*
                 match (typ, data) {
-                    (IDLType::VecT(typ), YamlValue::Sequence(values)) => Ok(IDLValue::Vec(
-                        values
-                            .iter()
-                            .map(|val| self.convert(typ, val))
-                            .collect::<Result<Vec<_>, _>>()?,
-                    )),
-                    (IDLType::VariantT(types), YamlValue::Mapping(value)) => {
-                        types
-                            .iter()
-                            .find_map(|typ| {
-                                let key = typ.label.to_string();
-                                // Note: This lookup can be extended:
-                                // - Handle non-string keys
-                                // - Start from the one value in Mapping and iterate over types to find a match, rather than iterating
-                                //   over types and repeatedly doing the presumably more expensive lookup in mapping.
-                                value.get(&key).map(|val| {
-                                    // u64 represents the index from the type, defaults to 0 when parsing, only used for serialization
-                                    let numerical_key = u64::from(typ.label.get_id());
-                                    let field = IDLField {
-                                        id: typ.label.clone(),
-                                        val: self.convert(&typ.typ, val).with_context(|| {
-                                            format!("Failed to convert variant of type {key}")
-                                        })?,
-                                    };
-                                    Ok(IDLValue::Variant(VariantValue(
-                                        Box::new(field),
-                                        numerical_key,
-                                    )))
-                                })
-                            })
-                            .unwrap_or_else(|| {
-                                bail!("Could not find matching type:\n{:?}\n\n{:?}", types, value)
-                            })
-                    }
-                }
         */
     }
 }
