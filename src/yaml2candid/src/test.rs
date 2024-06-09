@@ -4,6 +4,7 @@ use candid::types::{value::IDLField, Label};
 use candid_parser::types::TypeField;
 use num_bigint::{BigInt, BigUint};
 use pretty_assertions::assert_eq;
+use serde_yaml::Number;
 
 use super::{IDLType, IDLValue, Yaml2Candid, YamlValue};
 
@@ -403,6 +404,25 @@ fn conversion_to_bool_should_fail_for_some_inputs() {
         YamlValue::from("FOO"),
         YamlValue::from("true"),
         YamlValue::from("false"),
+    ]
+    .iter()
+    {
+        assert_conversion_fails(&converter, &typ, data);
+    }
+}
+
+#[test]
+fn conversion_to_empty_should_always_fail() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Empty);
+    for data in [
+        YamlValue::from(0),
+        YamlValue::from(1),
+        YamlValue::from("FOO"),
+        YamlValue::Bool(true),
+        YamlValue::Bool(false),
+        YamlValue::Number(Number::from(8)),
+        YamlValue::Null,
     ]
     .iter()
     {
