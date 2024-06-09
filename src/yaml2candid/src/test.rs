@@ -338,8 +338,8 @@ fn can_convert_f32() {
 #[test]
 fn conversion_to_f32_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
-    let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat64);
-    for data in [YamlValue::from(f64::MAX), YamlValue::from("FOO")].iter() {
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Float32);
+    for data in [YamlValue::Null, YamlValue::from("FOO")].iter() {
         assert_conversion_fails(&converter, &typ, data);
     }
 }
