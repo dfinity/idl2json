@@ -86,6 +86,14 @@ impl Yaml2Candid {
                 self.convert(&typ, data)
             }
             IDLType::PrimT(prim_t) => match prim_t {
+                candid_parser::types::PrimType::Int8 => match data {
+                    YamlValue::Number(number) => Ok(IDLValue::Int8(i8::try_from(
+                        number
+                            .as_i64()
+                            .with_context(|| "Could not parse number as u64: {number:?}")?,
+                    )?)),
+                    _ => bail!("Please express this value as a number: {data:?}"),
+                },
                 candid_parser::types::PrimType::Nat8 => match data {
                     YamlValue::Number(number) => Ok(IDLValue::Nat8(u8::try_from(
                         number
@@ -150,15 +158,12 @@ impl Yaml2Candid {
                     YamlValue::String(value) => Ok(IDLValue::Text(value.to_string())),
                     _ => bail!("Please express this value as a string: {data:?}"),
                 },
-                                _ => unimplemented!(),
+                //                _ => unimplemented!(),
             },
             _ => unimplemented!(),
         }
         /*
                 match (typ, data) {
-                    (IDLType::PrincipalT, YamlValue::String(value)) => {
-                        Ok(IDLValue::Principal(candid::Principal::from_text(value)?))
-                    }
                     (IDLType::RecordT(fields), YamlValue::Mapping(mapping)) => Ok(IDLValue::Record(
                         fields
                             .iter()
