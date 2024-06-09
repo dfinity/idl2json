@@ -17,3 +17,14 @@ fn can_convert_i8() {
         assert_conversion_is(&converter, &typ, &data, expected_result);
     }
 }
+
+#[cfg(test)]
+fn can_convert_u8() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat8);
+    for value in [0, 1, u8::MAX].iter() {
+        let data = YamlValue::from(*value);
+        let expected_result = IDLValue::Nat8(*value);
+        assert_conversion_is(&converter, &typ, &data, expected_result);
+    }
+}
