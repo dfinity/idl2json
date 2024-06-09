@@ -267,10 +267,19 @@ impl Yaml2Candid {
                 bail!("Expected a mapping for variant type, got: {data:?}")
             },
             IDLType::OptT(typ) => if let YamlValue::Sequence(values) = data {
+                // This is complicated.
+                // The standard specifies this conversion: https://internetcomputer.org/docs/current/references/candid-ref#corresponding-javascript-values-9
+                // None -> []
+                // Some(x) -> [x]
+                // Conventionally in JSON:
+                // None -> undefined (omitted field)
+                // Some(x) -> x
+                // When converting we will attempt the standards-compilant conversion first and then fall back to the conventional conversion.
+                // TODO: It may be a good idea to add a flag to control this behavior: standards-compliant vs conventional vs guess!
                 match values.len() {
                     0 => Ok(IDLValue::None),
                     1 => {
-                        // This could either be a correct use of representing Some(a) as [a] OR it could be the conventional use of Some(a_vec) as a_vec.
+                        // This could either be a standards-compliant use of representing Some(a) as [a] OR it could be the conventional use of Some(a_vec) as a_vec.
                         let correct_conversion = self.convert(typ, &values[0]);
                         match correct_conversion {
                             Ok(val) => Ok(IDLValue::Opt(Box::new(val))),
