@@ -244,3 +244,23 @@ fn conversion_to_int_should_fail_for_some_inputs() {
         assert_conversion_fails(&converter, &typ, data);
     }
 }
+
+#[test]
+fn can_convert_f32() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Float32);
+    for value in [0f32, -0.125, 0.5, f32::MAX, f32::MIN].iter() {
+        let data = YamlValue::from(*value);
+        let expected_result = IDLValue::Float32(*value);
+        assert_conversion_is(&converter, &typ, &data, expected_result);
+    }
+}
+
+#[test]
+fn conversion_to_f32_should_fail_for_some_inputs() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat64);
+    for data in [YamlValue::from(f64::MAX), YamlValue::from("FOO")].iter() {
+        assert_conversion_fails(&converter, &typ, data);
+    }
+}
