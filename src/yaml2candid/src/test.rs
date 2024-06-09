@@ -312,3 +312,33 @@ fn conversion_to_bool_should_fail_for_some_inputs() {
         assert_conversion_fails(&converter, &typ, data);
     }
 }
+
+struct TestVec {
+    description: &'static str,
+    typ: IDLType,
+    data: YamlValue,
+    expected_result: IDLValue,
+}
+
+#[test]
+fn can_convert() {
+    let converter = Yaml2Candid::default();
+    let test_vectors = vec![
+        TestVec {
+            description: "Vector of u8s",
+            typ: IDLType::VecT(Box::new(IDLType::PrimT(candid_parser::types::PrimType::Int8))),
+            data: YamlValue::Sequence(vec![YamlValue::from(1), YamlValue::from(2), YamlValue::from(3)]),
+            expected_result: IDLValue::Vec(vec![IDLValue::Int8(1), IDLValue::Int8(2), IDLValue::Int8(3)]),
+        },
+        TestVec {
+            description: "Some(5) in canonical form",
+            typ: IDLType::OptT(Box::new(IDLType::PrimT(candid_parser::types::PrimType::Int8))),
+            data: YamlValue::Sequence(vec![YamlValue::from(5)]),
+            expected_result: IDLValue::Opt(Box::new(IDLValue::Int8(5))),
+        },
+    ];
+
+    for TestVec{description: _, typ, data, expected_result} in test_vectors.into_iter() {
+        assert_conversion_is(&converter, &typ, &data, expected_result);
+    }
+}
