@@ -26,7 +26,10 @@ impl Default for Yaml2Candid {
     /// Creates a Yaml2Candid converter with no types.
     fn default() -> Self {
         Yaml2Candid {
-            prog: IDLProg { decs: vec![], actor: None},
+            prog: IDLProg {
+                decs: vec![],
+                actor: None,
+            },
         }
     }
 }
