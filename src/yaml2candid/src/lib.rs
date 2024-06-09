@@ -304,10 +304,7 @@ impl Yaml2Candid {
                 eprintln!("The recommended (but rarely used) way to represent an optional value is to use a sequence with one or zero elements.");
                 Ok(IDLValue::Opt(Box::new(self.convert(typ, data)?)))
             },
-            IDLType::PrincipalT => match data {
-                YamlValue::String(value) => Ok(IDLValue::Principal(Principal::from_text(value.to_string())?)),
-                _ => bail!("Expected a string for principal type, got: {data:?}"),
-            },
+            IDLType::PrincipalT => Ok(IDLValue::Principal(Self::parse_principal(data)?)),
             /*
             IDLType::FuncT(_func) => {
                 // See: https://internetcomputer.org/docs/current/references/candid-ref#type-func---
@@ -320,6 +317,18 @@ impl Yaml2Candid {
                 }
             }*/
             //_ => unimplemented!(),
+        }
+    }
+    fn parse_string(data: &YamlValue) -> anyhow::Result<String> {
+        match data {
+            YamlValue::String(value) => Ok(value.to_string()),
+            _ => bail!("Expected a string, got: {data:?}"),
+        }
+    }
+    fn parse_principal(data: &YamlValue) -> anyhow::Result<Principal> {
+        match data {
+            YamlValue::String(value) => Ok(Principal::from_text(value.to_string())?),
+            _ => bail!("Expected a string for principal type, got: {data:?}"),
         }
     }
 /*
