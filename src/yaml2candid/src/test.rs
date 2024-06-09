@@ -218,7 +218,7 @@ fn can_convert_large_unsigned_ints_from_strings() {
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat);
     for value in ["0", "1", "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"].iter() {
         let data = YamlValue::from(*value);
-        let expected_result = IDLValue::Nat(candid::Nat(value.parse().unwrap()));
+        let expected_result = IDLValue::Nat(candid::Nat(value.parse().expect("Test error: String used in test is not a valid BigUint.")));
         assert_conversion_is(&converter, &typ, &data, expected_result);
     }
 }
@@ -249,7 +249,7 @@ fn can_convert_large_ints_from_strings() {
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Int);
     for value in ["-123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890","-1","0", "1", "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"].iter() {
         let data = YamlValue::from(*value);
-        let expected_result = IDLValue::Int(candid::Int(value.parse().unwrap()));
+        let expected_result = IDLValue::Int(candid::Int(value.parse().expect("Test error: String used in test is not a valid BigInt.")));
         assert_conversion_is(&converter, &typ, &data, expected_result);
     }
 }
@@ -298,7 +298,7 @@ fn can_convert_f64() {
 fn conversion_to_f64_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Float64);
-    for data in [YamlValue::from("FOO")].iter() {
+    for data in [YamlValue::from("FOO"), YamlValue::Null].iter() {
         assert_conversion_fails(&converter, &typ, data);
     }
 }
@@ -430,6 +430,6 @@ fn can_convert() {
         expected_result,
     } in test_vectors.into_iter()
     {
-        assert_named_conversion_is(&converter, &typ, &data, expected_result, &description);
+        assert_named_conversion_is(&converter, &typ, &data, expected_result, description);
     }
 }
