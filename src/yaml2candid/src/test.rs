@@ -284,3 +284,31 @@ fn conversion_to_f64_should_fail_for_some_inputs() {
         assert_conversion_fails(&converter, &typ, data);
     }
 }
+
+#[test]
+fn can_convert_bool() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Bool);
+    for value in [true, false].iter() {
+        let data = YamlValue::from(*value);
+        let expected_result = IDLValue::Bool(*value);
+        assert_conversion_is(&converter, &typ, &data, expected_result);
+    }
+}
+
+#[test]
+fn conversion_to_bool_should_fail_for_some_inputs() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Bool);
+    for data in [
+        YamlValue::from(0),
+        YamlValue::from(1),
+        YamlValue::from("FOO"),
+        YamlValue::from("true"),
+        YamlValue::from("false"),
+    ]
+    .iter()
+    {
+        assert_conversion_fails(&converter, &typ, data);
+    }
+}
