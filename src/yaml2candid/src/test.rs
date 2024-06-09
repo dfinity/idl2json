@@ -1,4 +1,6 @@
 //! Tests converting from YAML to Candid.
+use num_bigint::BigUint;
+
 use super::{IDLType, IDLValue, Yaml2Candid, YamlValue};
 
 fn assert_conversion_is(
@@ -145,7 +147,7 @@ fn conversion_to_u32_should_fail_for_some_inputs() {
 fn can_convert_i64() {
     let converter = Yaml2Candid::default();
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Int64);
-    for value in [i64::MIN, i64::MIN + 1, -1, 0, 1, i64::MAX].iter() {
+    for value in [i64::MIN, i64::MIN + 1, -1, 0, 1, i64::MAX - 1, i64::MAX].iter() {
         let data = YamlValue::from(*value);
         let expected_result = IDLValue::Int64(*value);
         assert_conversion_is(&converter, &typ, &data, expected_result);
@@ -165,7 +167,7 @@ fn conversion_to_i64_should_fail_for_some_inputs() {
 fn can_convert_u64() {
     let converter = Yaml2Candid::default();
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat64);
-    for value in [0, 1, u64::MAX].iter() {
+    for value in [0, 1, u64::MAX - 1, u64::MAX].iter() {
         let data = YamlValue::from(*value);
         let expected_result = IDLValue::Nat64(*value);
         assert_conversion_is(&converter, &typ, &data, expected_result);
@@ -175,7 +177,38 @@ fn can_convert_u64() {
 #[test]
 fn conversion_to_u64_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
-    let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat8);
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat64);
+    for data in [YamlValue::from("foo"), YamlValue::from(-1)].iter() {
+        assert_conversion_fails(&converter, &typ, data);
+    }
+}
+
+#[test]
+fn can_convert_small_unsigned_ints() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat);
+    for value in [0, 1, u64::MAX].iter() {
+        let data = YamlValue::from(*value);
+        let expected_result = IDLValue::Nat(candid::Nat(BigUint::from(*value)));
+        assert_conversion_is(&converter, &typ, &data, expected_result);
+    }
+}
+
+#[test]
+fn can_convert_large_unsigned_ints_from_strings() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat);
+    for value in ["0", "1", "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"].iter() {
+        let data = YamlValue::from(*value);
+        let expected_result = IDLValue::Nat(candid::Nat(value.parse().unwrap()));
+        assert_conversion_is(&converter, &typ, &data, expected_result);
+    }
+}
+
+#[test]
+fn conversion_to_nat_should_fail_for_some_inputs() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat64);
     for data in [YamlValue::from("foo"), YamlValue::from(-1)].iter() {
         assert_conversion_fails(&converter, &typ, data);
     }
