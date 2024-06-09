@@ -268,8 +268,5 @@ impl Yaml2Candid {
             },
             _ => unimplemented!(),
         }
-        /*
-                match (typ, data) {
-        */
     }
 }
