@@ -12,3 +12,6 @@ serde = "1"
 serde_yaml = "0.9"
 anyhow = "1"
 num-bigint = { workspace = true }
+
+[dev-dependencies]
+pretty_assertions = "1.4.0"

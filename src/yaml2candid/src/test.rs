@@ -1,10 +1,9 @@
 //! Tests converting from YAML to Candid, especially extreme values of primitive types.
-use std::collections::HashMap;
-
 use anyhow::Context;
 use candid::types::{value::IDLField, Label};
 use candid_parser::types::TypeField;
 use num_bigint::{BigInt, BigUint};
+use pretty_assertions::assert_eq;
 
 use super::{IDLType, IDLValue, Yaml2Candid, YamlValue};
 
@@ -381,6 +380,24 @@ fn can_convert() {
             expected_result: IDLValue::Record(vec![IDLField {
                 id: Label::Named("Foo".to_string()),
                 val: IDLValue::Int8(8),
+            }]),
+        },
+        TestVec {
+            description: "Record containing None in canonical form",
+            typ: IDLType::RecordT(vec![TypeField {
+                label: Label::Named("Foo".to_string()),
+                typ: IDLType::OptT(Box::new(IDLType::PrimT(
+                    candid_parser::types::PrimType::Int8,
+                ))),
+            }]),
+            data: YamlValue::Mapping(
+                [(YamlValue::from("Foo"), YamlValue::Sequence(vec![]))]
+                    .into_iter()
+                    .collect(),
+            ),
+            expected_result: IDLValue::Record(vec![IDLField {
+                id: Label::Named("Foo".to_string()),
+                val: IDLValue::None,
             }]),
         },
         TestVec {

@@ -232,13 +232,14 @@ impl Yaml2Candid {
                         let id = field.label.clone();
                         let mapping_key = field.label.to_string();
                         let val = mapping.get(&mapping_key);
-                        let val = match (&field.typ, val) {
-                            (IDLType::OptT(typ), Some(val)) => self.convert(typ, val)?,
-                            (IDLType::OptT(_typ), None) => IDLValue::None,
-                            (typ, Some(val)) => self.convert(typ, val)?,
-                            (_typ, None) => bail!("Missing key: {}", &mapping_key),
+                        let converted_val = if let Some(val) = val {
+                            self.convert(&field.typ, val)?
+                        } else if let IDLType::OptT(_) = &field.typ {
+                            IDLValue::None
+                        } else {
+                            bail!("Missing key: {}", &mapping_key)
                         };
-                        Ok(IDLField { id, val })
+                        Ok(IDLField { id, val: converted_val })
                     })
                     .collect::<Result<Vec<_>, _>>()?,
             ))} else {
