@@ -1,5 +1,5 @@
 //! Tests converting from YAML to Candid.
-use num_bigint::BigUint;
+use num_bigint::{BigInt, BigUint};
 
 use super::{IDLType, IDLValue, Yaml2Candid, YamlValue};
 
@@ -210,6 +210,37 @@ fn conversion_to_nat_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat64);
     for data in [YamlValue::from("foo"), YamlValue::from(-1)].iter() {
+        assert_conversion_fails(&converter, &typ, data);
+    }
+}
+
+#[test]
+fn can_convert_small_ints() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Int);
+    for value in [i64::MIN, i64::MIN + 1, -1, 0, 1, i64::MAX - 1, i64::MAX].iter() {
+        let data = YamlValue::from(*value);
+        let expected_result = IDLValue::Int(candid::Int(BigInt::from(*value)));
+        assert_conversion_is(&converter, &typ, &data, expected_result);
+    }
+}
+
+#[test]
+fn can_convert_large_ints_from_strings() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Int);
+    for value in ["-123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890","-1","0", "1", "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"].iter() {
+        let data = YamlValue::from(*value);
+        let expected_result = IDLValue::Int(candid::Int(value.parse().unwrap()));
+        assert_conversion_is(&converter, &typ, &data, expected_result);
+    }
+}
+
+#[test]
+fn conversion_to_int_should_fail_for_some_inputs() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat64);
+    for data in [YamlValue::from("foo"), YamlValue::Null].iter() {
         assert_conversion_fails(&converter, &typ, data);
     }
 }
