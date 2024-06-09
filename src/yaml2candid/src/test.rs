@@ -264,3 +264,23 @@ fn conversion_to_f32_should_fail_for_some_inputs() {
         assert_conversion_fails(&converter, &typ, data);
     }
 }
+
+#[test]
+fn can_convert_f64() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Float64);
+    for value in [0f64, -0.125, 0.5, f64::MAX, f64::MIN].iter() {
+        let data = YamlValue::from(*value);
+        let expected_result = IDLValue::Float64(*value);
+        assert_conversion_is(&converter, &typ, &data, expected_result);
+    }
+}
+
+#[test]
+fn conversion_to_f64_should_fail_for_some_inputs() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Float64);
+    for data in [YamlValue::from("FOO")].iter() {
+        assert_conversion_fails(&converter, &typ, data);
+    }
+}
