@@ -102,10 +102,26 @@ impl Yaml2Candid {
                     )?)),
                     _ => bail!("Please express this value as a number: {data:?}"),
                 },
+                candid_parser::types::PrimType::Int16 => match data {
+                    YamlValue::Number(number) => Ok(IDLValue::Int16(i16::try_from(
+                        number
+                            .as_i64()
+                            .with_context(|| "Could not parse number as u64: {number:?}")?,
+                    )?)),
+                    _ => bail!("Please express this value as a number: {data:?}"),
+                },
                 candid_parser::types::PrimType::Nat16 => match data {
                     YamlValue::Number(number) => Ok(IDLValue::Nat16(u16::try_from(
                         number
                             .as_u64()
+                            .with_context(|| "Could not parse number as u64: {number:?}")?,
+                    )?)),
+                    _ => bail!("Please express this value as a number: {data:?}"),
+                },
+                candid_parser::types::PrimType::Int32 => match data {
+                    YamlValue::Number(number) => Ok(IDLValue::Int32(i32::try_from(
+                        number
+                            .as_i64()
                             .with_context(|| "Could not parse number as u64: {number:?}")?,
                     )?)),
                     _ => bail!("Please express this value as a number: {data:?}"),
@@ -116,6 +132,14 @@ impl Yaml2Candid {
                             .as_u64()
                             .with_context(|| "Could not parse number as u64: {number:?}")?,
                     )?)),
+                    _ => bail!("Please express this value as a number: {data:?}"),
+                },
+                candid_parser::types::PrimType::Int64 => match data {
+                    YamlValue::Number(number) => Ok(IDLValue::Int64(
+                        number
+                            .as_i64()
+                            .with_context(|| "Could not parse number as u64: {number:?}")?,
+                    )),
                     _ => bail!("Please express this value as a number: {data:?}"),
                 },
                 candid_parser::types::PrimType::Nat64 => match data {
