@@ -305,17 +305,17 @@ impl Yaml2Candid {
                 Ok(IDLValue::Opt(Box::new(self.convert(typ, data)?)))
             },
             IDLType::PrincipalT => Ok(IDLValue::Principal(Self::parse_principal(data)?)),
-            /*
             IDLType::FuncT(_func) => {
                 // See: https://internetcomputer.org/docs/current/references/candid-ref#type-func---
                 match data {
                     YamlValue::Sequence(values) if values.len() == 2 => {
-                        let principal = self.convert(&IDLType::PrincipalT, &values[0])?;
-                        let name = self.convert(&IDLType::PrimT(candid_parser::types::PrimType::Text), &values[1])?;
+                        let principal = Self::parse_principal(&values[0])?;
+                        let name = Self::parse_string(&values[1])?;
                         Ok(IDLValue::Func(principal, name))
-                    }
+                    },
+                    _ => bail!("Expected a sequence of length 2 (principal, name) for func type, got: {data:?}"),
                 }
-            }*/
+            }
             //_ => unimplemented!(),
         }
     }
