@@ -50,3 +50,24 @@ fn can_convert_u16() {
         assert_conversion_is(&converter, &typ, &data, expected_result);
     }
 }
+#[cfg(test)]
+fn can_convert_i32() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Int32);
+    for value in [i32::MIN, -1, 0, 1, i32::MAX].iter() {
+        let data = YamlValue::from(*value);
+        let expected_result = IDLValue::Int32(*value);
+        assert_conversion_is(&converter, &typ, &data, expected_result);
+    }
+}
+
+#[cfg(test)]
+fn can_convert_u32() {
+    let converter = Yaml2Candid::default();
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat32);
+    for value in [0, 1, u32::MAX].iter() {
+        let data = YamlValue::from(*value);
+        let expected_result = IDLValue::Nat32(*value);
+        assert_conversion_is(&converter, &typ, &data, expected_result);
+    }
+}
