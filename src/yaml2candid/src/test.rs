@@ -1,4 +1,9 @@
 //! Tests converting from YAML to Candid, especially extreme values of primitive types.
+use std::collections::HashMap;
+
+use anyhow::Context;
+use candid::types::{value::IDLField, Label};
+use candid_parser::types::TypeField;
 use num_bigint::{BigInt, BigUint};
 
 use super::{IDLType, IDLValue, Yaml2Candid, YamlValue};
@@ -13,6 +18,20 @@ fn assert_conversion_is(
         .convert(typ, data)
         .expect("Failed to convert YAML to Candid.");
     assert_eq!(value, expected_result);
+}
+
+fn assert_named_conversion_is(
+    converter: &Yaml2Candid,
+    typ: &IDLType,
+    data: &YamlValue,
+    expected_result: IDLValue,
+    name: &str,
+) {
+    let value = converter
+        .convert(typ, data)
+        .with_context(|| format!("Failed to convert {name}"))
+        .expect("Failed to convert YAML to Candid.");
+    assert_eq!(value, expected_result, "Unexpected conversion of {name}");
 }
 
 fn assert_conversion_fails(converter: &Yaml2Candid, typ: &IDLType, data: &YamlValue) {
@@ -326,19 +345,74 @@ fn can_convert() {
     let test_vectors = vec![
         TestVec {
             description: "Vector of u8s",
-            typ: IDLType::VecT(Box::new(IDLType::PrimT(candid_parser::types::PrimType::Int8))),
-            data: YamlValue::Sequence(vec![YamlValue::from(1), YamlValue::from(2), YamlValue::from(3)]),
-            expected_result: IDLValue::Vec(vec![IDLValue::Int8(1), IDLValue::Int8(2), IDLValue::Int8(3)]),
+            typ: IDLType::VecT(Box::new(IDLType::PrimT(
+                candid_parser::types::PrimType::Int8,
+            ))),
+            data: YamlValue::Sequence(vec![
+                YamlValue::from(1),
+                YamlValue::from(2),
+                YamlValue::from(3),
+            ]),
+            expected_result: IDLValue::Vec(vec![
+                IDLValue::Int8(1),
+                IDLValue::Int8(2),
+                IDLValue::Int8(3),
+            ]),
         },
         TestVec {
             description: "Some(5) in canonical form",
-            typ: IDLType::OptT(Box::new(IDLType::PrimT(candid_parser::types::PrimType::Int8))),
+            typ: IDLType::OptT(Box::new(IDLType::PrimT(
+                candid_parser::types::PrimType::Int8,
+            ))),
             data: YamlValue::Sequence(vec![YamlValue::from(5)]),
             expected_result: IDLValue::Opt(Box::new(IDLValue::Int8(5))),
         },
+        TestVec {
+            description: "Record",
+            typ: IDLType::RecordT(vec![TypeField {
+                label: Label::Named("Foo".to_string()),
+                typ: IDLType::PrimT(candid_parser::types::PrimType::Int8),
+            }]),
+            data: YamlValue::Mapping(
+                [(YamlValue::from("Foo"), YamlValue::from(8))]
+                    .into_iter()
+                    .collect(),
+            ),
+            expected_result: IDLValue::Record(vec![IDLField {
+                id: Label::Named("Foo".to_string()),
+                val: IDLValue::Int8(8),
+            }]),
+        },
+        TestVec {
+            description: "Record containing Some(5) in canonical form",
+            typ: IDLType::RecordT(vec![TypeField {
+                label: Label::Named("Foo".to_string()),
+                typ: IDLType::OptT(Box::new(IDLType::PrimT(
+                    candid_parser::types::PrimType::Int8,
+                ))),
+            }]),
+            data: YamlValue::Mapping(
+                [(
+                    YamlValue::from("Foo"),
+                    YamlValue::Sequence(vec![YamlValue::from(8)]),
+                )]
+                .into_iter()
+                .collect(),
+            ),
+            expected_result: IDLValue::Record(vec![IDLField {
+                id: Label::Named("Foo".to_string()),
+                val: IDLValue::Opt(Box::new(IDLValue::Int8(8))),
+            }]),
+        },
     ];
 
-    for TestVec{description: _, typ, data, expected_result} in test_vectors.into_iter() {
-        assert_conversion_is(&converter, &typ, &data, expected_result);
+    for TestVec {
+        description,
+        typ,
+        data,
+        expected_result,
+    } in test_vectors.into_iter()
+    {
+        assert_named_conversion_is(&converter, &typ, &data, expected_result, &description);
     }
 }
