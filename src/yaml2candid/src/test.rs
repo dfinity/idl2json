@@ -1,4 +1,4 @@
-//! Tests converting from YAML to Candid.
+//! Tests converting from YAML to Candid, especially extreme values of primitive types.
 use num_bigint::{BigInt, BigUint};
 
 use super::{IDLType, IDLValue, Yaml2Candid, YamlValue};
