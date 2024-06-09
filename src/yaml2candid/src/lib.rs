@@ -178,6 +178,10 @@ impl Yaml2Candid {
                     ),
                     _ => bail!("Please express integers as numbers (e.g. 5) or decimal strings (e.g. \"123\"): {data:?}"),
                 })),
+                candid_parser::types::PrimType::Bool => match data {
+                    YamlValue::Bool(value) => Ok(IDLValue::Bool(*value)),
+                    _ => bail!("Please express this value as a boolean: {data:?}"),
+                },
                 candid_parser::types::PrimType::Text => match data {
                     YamlValue::String(value) => Ok(IDLValue::Text(value.to_string())),
                     _ => bail!("Please express this value as a string: {data:?}"),
