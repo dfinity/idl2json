@@ -7,8 +7,10 @@ fn assert_conversion_is(
     data: &YamlValue,
     expected_result: IDLValue,
 ) {
-    let result = converter.convert(typ, data).unwrap();
-    assert_eq!(result, expected_result);
+    let value = converter
+        .convert(typ, data)
+        .expect("Failed to convert YAML to Candid.");
+    assert_eq!(value, expected_result);
 }
 
 fn assert_conversion_fails(converter: &Yaml2Candid, typ: &IDLType, data: &YamlValue) {
@@ -35,7 +37,7 @@ fn conversion_to_i8_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Int8);
     for data in [YamlValue::from("foo"), YamlValue::from(i64::MAX)].iter() {
-        assert_conversion_fails(&converter, &typ, &data);
+        assert_conversion_fails(&converter, &typ, data);
     }
 }
 
@@ -55,7 +57,7 @@ fn conversion_to_u8_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat8);
     for data in [YamlValue::from("foo"), YamlValue::from(i64::MAX)].iter() {
-        assert_conversion_fails(&converter, &typ, &data);
+        assert_conversion_fails(&converter, &typ, data);
     }
 }
 
@@ -75,7 +77,7 @@ fn conversion_to_i16_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Int16);
     for data in [YamlValue::from("foo"), YamlValue::from(i64::MAX)].iter() {
-        assert_conversion_fails(&converter, &typ, &data);
+        assert_conversion_fails(&converter, &typ, data);
     }
 }
 
@@ -95,7 +97,7 @@ fn conversion_to_u16_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat16);
     for data in [YamlValue::from("foo"), YamlValue::from(i64::MAX)].iter() {
-        assert_conversion_fails(&converter, &typ, &data);
+        assert_conversion_fails(&converter, &typ, data);
     }
 }
 
@@ -115,7 +117,7 @@ fn conversion_to_i32_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Int32);
     for data in [YamlValue::from("foo"), YamlValue::from(i64::MAX)].iter() {
-        assert_conversion_fails(&converter, &typ, &data);
+        assert_conversion_fails(&converter, &typ, data);
     }
 }
 
@@ -135,7 +137,7 @@ fn conversion_to_u32_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat32);
     for data in [YamlValue::from("foo"), YamlValue::from(i64::MAX)].iter() {
-        assert_conversion_fails(&converter, &typ, &data);
+        assert_conversion_fails(&converter, &typ, data);
     }
 }
 
@@ -155,7 +157,7 @@ fn conversion_to_i64_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Int64);
     for data in [YamlValue::from("foo"), YamlValue::from(u64::MAX)].iter() {
-        assert_conversion_fails(&converter, &typ, &data);
+        assert_conversion_fails(&converter, &typ, data);
     }
 }
 
@@ -175,6 +177,6 @@ fn conversion_to_u64_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
     let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat8);
     for data in [YamlValue::from("foo"), YamlValue::from(-1)].iter() {
-        assert_conversion_fails(&converter, &typ, &data);
+        assert_conversion_fails(&converter, &typ, data);
     }
 }
