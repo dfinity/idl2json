@@ -182,6 +182,10 @@ impl Yaml2Candid {
                     YamlValue::Bool(value) => Ok(IDLValue::Bool(*value)),
                     _ => bail!("Please express this value as a boolean: {data:?}"),
                 },
+                candid_parser::types::PrimType::Null => match data {
+                    YamlValue::Null => Ok(IDLValue::Null),
+                    _ => bail!("Please express this value as null: {data:?}"),
+                },
                 candid_parser::types::PrimType::Text => match data {
                     YamlValue::String(value) => Ok(IDLValue::Text(value.to_string())),
                     _ => bail!("Please express this value as a string: {data:?}"),
