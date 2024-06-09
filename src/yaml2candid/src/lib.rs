@@ -106,7 +106,7 @@ impl Yaml2Candid {
                     YamlValue::Number(number) => Ok(IDLValue::Int8(i8::try_from(
                         number
                             .as_i64()
-                            .with_context(|| "Could not parse number as u64: {number:?}")?,
+                            .with_context(|| "Could not parse number as i64: {number:?}")?,
                     )?)),
                     _ => bail!("Please express this value as a number: {data:?}"),
                 },
@@ -122,7 +122,7 @@ impl Yaml2Candid {
                     YamlValue::Number(number) => Ok(IDLValue::Int16(i16::try_from(
                         number
                             .as_i64()
-                            .with_context(|| "Could not parse number as u64: {number:?}")?,
+                            .with_context(|| "Could not parse number as i64: {number:?}")?,
                     )?)),
                     _ => bail!("Please express this value as a number: {data:?}"),
                 },
@@ -138,7 +138,7 @@ impl Yaml2Candid {
                     YamlValue::Number(number) => Ok(IDLValue::Int32(i32::try_from(
                         number
                             .as_i64()
-                            .with_context(|| "Could not parse number as u64: {number:?}")?,
+                            .with_context(|| "Could not parse number as i64: {number:?}")?,
                     )?)),
                     _ => bail!("Please express this value as a number: {data:?}"),
                 },
@@ -154,7 +154,7 @@ impl Yaml2Candid {
                     YamlValue::Number(number) => Ok(IDLValue::Int64(
                         number
                             .as_i64()
-                            .with_context(|| "Could not parse number as u64: {number:?}")?,
+                            .with_context(|| "Could not parse number as i64: {number:?}")?,
                     )),
                     _ => bail!("Please express this value as a number: {data:?}"),
                 },
