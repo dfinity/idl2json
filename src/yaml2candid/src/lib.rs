@@ -266,7 +266,36 @@ impl Yaml2Candid {
             } else {
                 bail!("Expected a mapping for variant type, got: {data:?}")
             },
-            _ => unimplemented!(),
+            IDLType::OptT(typ) => if let YamlValue::Sequence(values) = data {
+                match values.len() {
+                    0 => Ok(IDLValue::None),
+                    1 => {
+                        // This could either be a correct use of representing Some(a) as [a] OR it could be the conventional use of Some(a_vec) as a_vec.
+                        let correct_conversion = self.convert(typ, &values[0]);
+                        match correct_conversion {
+                            Ok(val) => Ok(IDLValue::Opt(Box::new(val))),
+                            err => {
+                                // Try the conventional, technically incorrect, interpretation
+                                eprintln!("The recommended (but rarely used) way to represent an optional value is to use an empty sequence for None and a sequence with one element for Some.  Guessing you meant opt vec ...");
+                                let conventional_conversion = self.convert(typ, data);
+                                if let Ok(val) = conventional_conversion {
+                                    Ok(IDLValue::Opt(Box::new(val)))
+                                } else {
+                                    err
+                                }
+                            }
+                        }}
+                    _ => {
+                        // TODO: Find a good way of formalizing the common practice of representing None in JSON&YAML as an omitted element and Some(x) as a x being present.
+                        eprintln!("The recommended (but rarely used) way to represent an optional value is to use a sequence with one or zero elements.  Guessing you meant opt vec ...");
+                        Ok(IDLValue::Opt(Box::new(self.convert(typ, data)?)))
+                    }
+                }
+            } else {
+                eprintln!("The recommended (but rarely used) way to represent an optional value is to use a sequence with one or zero elements.");
+                Ok(IDLValue::Opt(Box::new(self.convert(typ, data)?)))
+            },
+            //_ => unimplemented!(),
         }
     }
 }
