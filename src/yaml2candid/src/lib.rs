@@ -206,7 +206,8 @@ impl Yaml2Candid {
                     YamlValue::String(value) => Ok(IDLValue::Text(value.to_string())),
                     _ => bail!("Please express this value as a string: {data:?}"),
                 },
-                //                _ => unimplemented!(),
+                candid_parser::types::PrimType::Reserved => Ok(IDLValue::Reserved),
+                candid_parser::types::PrimType::Empty => bail!("Cannot create an Empty type; by definition the Empty type can never occur.  https://internetcomputer.org/docs/current/references/candid-ref#type-empty"),
             },
             _ => unimplemented!(),
         }
