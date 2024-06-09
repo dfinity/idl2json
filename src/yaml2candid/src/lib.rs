@@ -14,11 +14,21 @@ use candid_parser::{
 use num_bigint::{BigInt, BigUint};
 use serde_yaml::Value as YamlValue;
 use std::path::Path;
+#[cfg(test)]
+mod test;
 
 /// Converts YAML to Candid using a given did file.
 pub struct Yaml2Candid {
     /// The types that the converter supports, defined in an IDLProg interface definition.
     pub prog: IDLProg,
+}
+impl Default for Yaml2Candid {
+    /// Creates a Yaml2Candid converter with no types.
+    fn default() -> Self {
+        Yaml2Candid {
+            prog: IDLProg { decs: vec![], actor: None},
+        }
+    }
 }
 impl Yaml2Candid {
     /// Utility that creates a Yaml2Candid converter from the did file at the given path.
