@@ -577,6 +577,19 @@ fn can_convert() {
                 ]))),
             }]),
         },
+        TestVec {
+            description: "Function pointer",
+            typ: IDLType::FuncT(candid_parser::types::FuncType {
+                modes: vec![],
+                args: vec![IDLType::PrimT(candid_parser::types::PrimType::Int8)],
+                rets: vec![IDLType::PrimT(candid_parser::types::PrimType::Int8)],
+            }),
+            data: YamlValue::Sequence(vec![
+                YamlValue::from("2vxsx-fae"),
+                YamlValue::from("my_fun"),
+            ]),
+            expected_result: IDLValue::Func(candid::Principal::anonymous(), "my_fun".to_string()),
+        },
     ];
 
     for TestVec {
