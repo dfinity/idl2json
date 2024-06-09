@@ -480,6 +480,20 @@ fn can_convert() {
             }]),
         },
         TestVec {
+            description: "Record containing None in conventional form (omission)",
+            typ: IDLType::RecordT(vec![TypeField {
+                label: Label::Named("Foo".to_string()),
+                typ: IDLType::OptT(Box::new(IDLType::PrimT(
+                    candid_parser::types::PrimType::Int8,
+                ))),
+            }]),
+            data: YamlValue::Mapping([].into_iter().collect()),
+            expected_result: IDLValue::Record(vec![IDLField {
+                id: Label::Named("Foo".to_string()),
+                val: IDLValue::None,
+            }]),
+        },
+        TestVec {
             description: "Record containing Some(5) in canonical form",
             typ: IDLType::RecordT(vec![TypeField {
                 label: Label::Named("Foo".to_string()),
@@ -498,6 +512,45 @@ fn can_convert() {
             expected_result: IDLValue::Record(vec![IDLField {
                 id: Label::Named("Foo".to_string()),
                 val: IDLValue::Opt(Box::new(IDLValue::Int8(8))),
+            }]),
+        },
+        TestVec {
+            description: "Record containing Some(5) in conventional form",
+            typ: IDLType::RecordT(vec![TypeField {
+                label: Label::Named("Foo".to_string()),
+                typ: IDLType::OptT(Box::new(IDLType::PrimT(
+                    candid_parser::types::PrimType::Int8,
+                ))),
+            }]),
+            data: YamlValue::Mapping(
+                [(YamlValue::from("Foo"), YamlValue::from(8))]
+                    .into_iter()
+                    .collect(),
+            ),
+            expected_result: IDLValue::Record(vec![IDLField {
+                id: Label::Named("Foo".to_string()),
+                val: IDLValue::Opt(Box::new(IDLValue::Int8(8))),
+            }]),
+        },
+        TestVec {
+            description: "Record containing Some([5]) in conventional form",
+            typ: IDLType::RecordT(vec![TypeField {
+                label: Label::Named("Foo".to_string()),
+                typ: IDLType::OptT(Box::new(IDLType::VecT(Box::new(IDLType::PrimT(
+                    candid_parser::types::PrimType::Int8,
+                ))))),
+            }]),
+            data: YamlValue::Mapping(
+                [(
+                    YamlValue::from("Foo"),
+                    YamlValue::Sequence(vec![YamlValue::from(8)]),
+                )]
+                .into_iter()
+                .collect(),
+            ),
+            expected_result: IDLValue::Record(vec![IDLField {
+                id: Label::Named("Foo".to_string()),
+                val: IDLValue::Opt(Box::new(IDLValue::Vec(vec![IDLValue::Int8(8)]))),
             }]),
         },
     ];
