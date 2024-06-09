@@ -275,7 +275,7 @@ fn can_convert_large_unsigned_ints_from_strings() {
 #[test]
 fn conversion_to_nat_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
-    let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat64);
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat);
     for data in [
         YamlValue::from("foo"),
         YamlValue::from(-1),
@@ -312,7 +312,7 @@ fn can_convert_large_ints_from_strings() {
 #[test]
 fn conversion_to_int_should_fail_for_some_inputs() {
     let converter = Yaml2Candid::default();
-    let typ = IDLType::PrimT(candid_parser::types::PrimType::Nat64);
+    let typ = IDLType::PrimT(candid_parser::types::PrimType::Int);
     for data in [
         YamlValue::from("foo"),
         YamlValue::Null,
