@@ -209,27 +209,37 @@ impl Yaml2Candid {
                 candid_parser::types::PrimType::Reserved => Ok(IDLValue::Reserved),
                 candid_parser::types::PrimType::Empty => bail!("Cannot create an Empty type; by definition the Empty type can never occur.  https://internetcomputer.org/docs/current/references/candid-ref#type-empty"),
             },
+            IDLType::RecordT(fields) => if let YamlValue::Mapping(mapping) = data {Ok(IDLValue::Record(
+                fields
+                    .iter()
+                    .map(|field| {
+                        let id = field.label.clone();
+                        let mapping_key = field.label.to_string();
+                        let val = mapping.get(&mapping_key);
+                        let val = match (&field.typ, val) {
+                            (IDLType::OptT(typ), Some(val)) => self.convert(typ, val)?,
+                            (IDLType::OptT(_typ), None) => IDLValue::None,
+                            (typ, Some(val)) => self.convert(typ, val)?,
+                            (_typ, None) => bail!("Missing key: {}", &mapping_key),
+                        };
+                        Ok(IDLField { id, val })
+                    })
+                    .collect::<Result<Vec<_>, _>>()?,
+            ))} else {
+                bail!("Expected a mapping for record type, got: {data:?}")
+            },
+            IDLType::VecT(typ) => if let YamlValue::Sequence(values) = data { Ok(IDLValue::Vec(
+                values
+                    .iter()
+                    .map(|val| self.convert(typ, val))
+                    .collect::<Result<Vec<_>, _>>()?,
+            ))} else {
+                bail!("Expected a sequence for vec type, got: {data:?}")
+            },
             _ => unimplemented!(),
         }
         /*
                 match (typ, data) {
-                    (IDLType::RecordT(fields), YamlValue::Mapping(mapping)) => Ok(IDLValue::Record(
-                        fields
-                            .iter()
-                            .map(|field| {
-                                let id = field.label.clone();
-                                let mapping_key = field.label.to_string();
-                                let val = mapping.get(&mapping_key);
-                                let val = match (&field.typ, val) {
-                                    (IDLType::OptT(typ), Some(val)) => self.convert(typ, val)?,
-                                    (IDLType::OptT(_typ), None) => IDLValue::None,
-                                    (typ, Some(val)) => self.convert(typ, val)?,
-                                    (_typ, None) => bail!("Missing key: {}", &mapping_key),
-                                };
-                                Ok(IDLField { id, val })
-                            })
-                            .collect::<Result<Vec<_>, _>>()?,
-                    )),
                     (IDLType::VecT(typ), YamlValue::Sequence(values)) => Ok(IDLValue::Vec(
                         values
                             .iter()
