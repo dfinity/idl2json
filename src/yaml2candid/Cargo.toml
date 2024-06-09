@@ -11,3 +11,4 @@ candid_parser = { workspace = true }
 serde = "1"
 serde_yaml = "0.9"
 anyhow = "1"
+num-bigint = { workspace = true }

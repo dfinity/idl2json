@@ -1279,6 +1279,7 @@ dependencies = [
  "anyhow",
  "candid",
  "candid_parser",
+ "num-bigint",
  "serde",
  "serde_yaml",
 ]

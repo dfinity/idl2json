@@ -8,6 +8,7 @@ use candid_parser::{
     types::{Dec, IDLType},
     IDLProg,
 };
+use num_bigint::BigUint;
 use serde_yaml::Value as YamlValue;
 use std::path::Path;
 
@@ -110,27 +111,32 @@ impl Yaml2Candid {
                     _ => bail!("Please express this value as a number: {data:?}"),
                 },
                 candid_parser::types::PrimType::Nat64 => match data {
-                    YamlValue::Number(number) => Ok(IDLValue::Nat64(
-                        number
-                            .as_u64()
-                            .with_context(|| "Could not parse number as u64: {number:?}")?,
-                    )),
+                    YamlValue::Number(number) => {
+                        Ok(IDLValue::Nat64(number.as_u64().with_context(|| {
+                            "Could not parse number as u64: {number:?}"
+                        })?))
+                    }
                     _ => bail!("Please express this value as a number: {data:?}"),
                 },
-                // Nat is a bigint, so can support arbitrarily large numbers.  In JSON we express large numbers as strings, small numbers may be numeric.
+                // Nat is a bigint, so can support arbitrarily large numbers.  In JSON we express large numbers as strings but numbers should be accepted as well.
                 candid_parser::types::PrimType::Nat => Ok(IDLValue::Nat(match data {
                     YamlValue::Number(number) => candid::types::number::Nat::from(
                         number
                             .as_u64()
                             .with_context(|| "Could not parse number as u64: {number:?}")?,
                     ),
-                    _ => bail!("Please express this value as a number: {data:?}"),
+                    YamlValue::String(value) => candid::types::number::Nat::from(
+                        value
+                            .parse::<BigUint>()
+                            .with_context(|| format!("Could not parse value as u64: {value:?}"))?,
+                    ),
+                    _ => bail!("Please express natural numbers (unsigned ints) as numbers (e.g. 5) or decimal strings (e.g. \"123\"): {data:?}"),
                 })),
                 candid_parser::types::PrimType::Text => match data {
                     YamlValue::String(value) => Ok(IDLValue::Text(value.to_string())),
                     _ => bail!("Please express this value as a string: {data:?}"),
                 },
-                _ => unimplemented!(),
+                //                _ => unimplemented!(),
             },
             _ => unimplemented!(),
         }
