@@ -42,7 +42,7 @@ pub struct Idl2JsonOptions {
 
 /// Options for how to represent `Vec<u8>`
 #[derive(Copy, Clone, Eq, PartialEq, Default, Debug)]
-#[cfg_attr(feature = "clap", derive(clap::ArgEnum))]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 #[cfg_attr(feature = "clap", clap(rename_all = "kebab_case"))]
 pub enum BytesFormat {
     /// Data is represented as an array of numbers: `[1,34,0]`
