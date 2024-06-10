@@ -22,7 +22,7 @@ path = "src/main.rs"
 [dependencies]
 candid = { workspace = true }
 candid_parser = { workspace = true }
-clap = { version = "3.1.6", features = [ "derive" ] }
+clap = { version = "4.5.6", features = [ "derive" ] }
 fn-error-context = "0.2.1"
 serde_json = "^1.0"
 idl2json = { path = "../idl2json", version="0.10.1", features = ["clap", "crypto"] }
@@ -30,4 +30,4 @@ anyhow = "1"
 
 [build-dependencies]
 anyhow = "1"
-toml = "0.8.13"
+toml = "0.8.14"
