@@ -128,7 +128,7 @@ pub struct Args {
     #[clap(short, long, requires("did"))]
     init: bool,
     /// How to display bytes
-    #[clap(short, long, arg_enum)]
+    #[clap(short, long, value_enum)]
     bytes_as: Option<BytesFormat>,
     /// Print compact output
     #[clap(short, long)]
