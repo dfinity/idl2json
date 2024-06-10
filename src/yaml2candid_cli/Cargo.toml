@@ -10,4 +10,4 @@ clap = { version = "4.5.6", features = [ "derive" ] }
 yaml2candid = { path = "../yaml2candid", version = "0.10.1" }
 
 [build-dependencies]
-toml = "0.8.13"
+toml = "0.8.14"
