@@ -1,4 +1,5 @@
 use candid_parser::types::IDLType;
+use pretty_assertions::assert_eq;
 use serde_yaml::Value as YamlValue;
 use yaml2candid::Yaml2Candid;
 
