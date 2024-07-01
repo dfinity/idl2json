@@ -25,7 +25,7 @@ clap = { version = "4", features = [ "derive" ], optional = true }
 [dev-dependencies]
 json-patch = "0.2.7"
 serde = "1"
-num-bigint = "0.4.5"
+num-bigint = "0.4.6"
 
 [features]
 default = ["crypto"]
