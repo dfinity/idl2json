@@ -691,3 +691,49 @@ fn can_convert() {
         assert_named_conversion_is(&converter, &typ, &data, expected_result, description);
     }
 }
+
+/// A conversion that should fail.
+struct ErrorTestVec {
+    typ: IDLType,
+    data: YamlValue,
+    expected_error: &'static str,
+}
+impl ErrorTestVec {
+    pub fn should_fail(&self) {
+        let Self {
+            typ,
+            data,
+            expected_error,
+        } = self;
+        let converter = Yaml2Candid::default();
+        let result = converter.convert(typ, data);
+        if let Err(e) = result {
+            assert!(e.to_string().contains(expected_error))
+        } else {
+            panic!("Converting {data:?} to {typ:?} should fail.");
+        }
+    }
+}
+
+#[test]
+fn unsupported_blob_encoding_should_fail() {
+    ErrorTestVec{
+        typ: IDLType::VecT(Box::new(IDLType::PrimT(
+            candid_parser::types::PrimType::Nat8,
+        ))),
+        data: YamlValue::from("010203090a1000"),
+        expected_error: "Unknown encoding for byte vector as string starting: 010203  Please prefix string encoded byte vectors"
+    }.should_fail();
+}
+
+#[test]
+fn unsupported_blob_type_should_fail() {
+    ErrorTestVec {
+        typ: IDLType::VecT(Box::new(IDLType::PrimT(
+            candid_parser::types::PrimType::Nat8,
+        ))),
+        data: YamlValue::from(9),
+        expected_error: "Expected vector of bytes encoded as one of",
+    }
+    .should_fail();
+}
