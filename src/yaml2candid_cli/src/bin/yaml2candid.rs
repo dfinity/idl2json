@@ -22,9 +22,11 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    let converter = Yaml2Candid::from_did_file(&args.did).unwrap();
+    let converter = Yaml2Candid::from_did_file(&args.did).expect("Failed to parse .did file");
     let yaml_str = file2string(args.yml);
-    let candid = converter.convert_str(&args.typ, &yaml_str).unwrap();
+    let candid = converter
+        .convert_str(&args.typ, &yaml_str)
+        .expect("Failed to convert YAML to idl");
     println!("{candid}")
 }
 

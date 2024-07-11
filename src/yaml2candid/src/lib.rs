@@ -233,7 +233,7 @@ impl Yaml2Candid {
                         let mapping_key = field.label.to_string();
                         let val = mapping.get(&mapping_key);
                         let converted_val = if let Some(val) = val {
-                            self.convert(&field.typ, val)?
+                            self.convert(&field.typ, val).with_context(|| format!("Failed to parse value for key '{mapping_key}'"))?
                         } else if let IDLType::OptT(_) = &field.typ {
                             IDLValue::None
                         } else {
@@ -248,7 +248,8 @@ impl Yaml2Candid {
             IDLType::VecT(typ) => if let YamlValue::Sequence(values) = data { Ok(IDLValue::Vec(
                 values
                     .iter()
-                    .map(|val| self.convert(typ, val))
+                    .enumerate()
+                    .map(|(index, val)| self.convert(typ, val).with_context(|| format!("Failed to convert element #{index}")))
                     .collect::<Result<Vec<_>, _>>()?,
             ))} else {
                 bail!("Expected a sequence for vec type, got: {data:?}")
