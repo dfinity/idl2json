@@ -3,6 +3,7 @@
 #![deny(clippy::panic)]
 #![deny(clippy::unwrap_used)]
 use anyhow::{anyhow, bail, Context};
+use base64::Engine as _;
 use candid::{
     types::value::{IDLField, IDLValue, VariantValue},
     Principal,
@@ -251,8 +252,25 @@ impl Yaml2Candid {
                     .enumerate()
                     .map(|(index, val)| self.convert(typ, val).with_context(|| format!("Failed to convert element #{index}")))
                     .collect::<Result<Vec<_>, _>>()?,
-            ))} else {
-                bail!("Expected a sequence for vec type, got: {data:?}")
+            ))} else if matches!(**typ, IDLType::PrimT(candid_parser::types::PrimType::Nat8)) {
+                // Byte vectors MAY be represented in different ways, such as hex or base64 strings
+                const BASE_64_PREFIX: &str="base64,";
+                const HEX_PREFIX: &str="0x";
+                if let YamlValue::String(value) = data {
+                  if let Some(base64_str) = value.strip_prefix(BASE_64_PREFIX) {
+                    let bytes = base64::engine::general_purpose::STANDARD.decode(base64_str).with_context(|| "Failed to interpret base64 string in JSON/YAML as Candid byte vector")?;
+                    Ok(IDLValue::Vec(bytes.iter().map(|&b| IDLValue::Nat8(b)).collect::<Vec<_>>()))
+                  } else if let Some(hex_str) = value.strip_prefix(HEX_PREFIX) {
+                    let bytes = hex::decode(hex_str).with_context(|| "Failed to interpret hex string in JSON/YAML as Candid byte vector")?;
+                    Ok(IDLValue::Vec(bytes.iter().map(|&b| IDLValue::Nat8(b)).collect::<Vec<_>>()))
+                  } else {
+                    bail!("Unknown encoding for byte vector as string starting: {}  Please prefix string encoded byte vectors with one of '{BASE_64_PREFIX}' and '{HEX_PREFIX}'.", &value[0..6])
+                  }
+                } else {
+                    bail!("Expected vector of bytes encoded as one of: Vec<number>, hex string prefixed with '{HEX_PREFIX}', base64 string prefixed with '{BASE_64_PREFIX}'.");
+                }
+            } else {
+                bail!("Expected a sequence of {typ:?}, got: {data:?}")
             },
             IDLType::VariantT(types) => if let YamlValue::Mapping(value) = data {
                 types

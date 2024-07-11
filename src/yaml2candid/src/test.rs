@@ -495,6 +495,38 @@ fn can_convert() {
             ]),
         },
         TestVec {
+            description: "hex encoded blob",
+            typ: IDLType::VecT(Box::new(IDLType::PrimT(
+                candid_parser::types::PrimType::Nat8,
+            ))),
+            data: YamlValue::from("0x010203090a1000"),
+            expected_result: IDLValue::Vec(vec![
+                IDLValue::Nat8(1),
+                IDLValue::Nat8(2),
+                IDLValue::Nat8(3),
+                IDLValue::Nat8(9),
+                IDLValue::Nat8(10),
+                IDLValue::Nat8(16),
+                IDLValue::Nat8(0),
+            ]),
+        },
+        TestVec {
+            description: "base64 encoded blob",
+            typ: IDLType::VecT(Box::new(IDLType::PrimT(
+                candid_parser::types::PrimType::Nat8,
+            ))),
+            data: YamlValue::from("base64,AQIDCQoQAA=="),
+            expected_result: IDLValue::Vec(vec![
+                IDLValue::Nat8(1),
+                IDLValue::Nat8(2),
+                IDLValue::Nat8(3),
+                IDLValue::Nat8(9),
+                IDLValue::Nat8(10),
+                IDLValue::Nat8(16),
+                IDLValue::Nat8(0),
+            ]),
+        },
+        TestVec {
             description: "Some(5) in canonical form",
             typ: IDLType::OptT(Box::new(IDLType::PrimT(
                 candid_parser::types::PrimType::Int8,
