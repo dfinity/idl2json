@@ -1,4 +1,5 @@
 //! Tests converting from YAML to Candid, especially extreme values of primitive types.
+#![allow(clippy::panic)] // Tests are allowed to panic!
 use anyhow::Context;
 use candid::types::{value::IDLField, Label};
 use candid_parser::types::TypeField;
