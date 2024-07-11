@@ -16,3 +16,4 @@ version = "0.10.1"
 [workspace.dependencies]
 candid = { version = "0.10.9" }
 candid_parser = { version = "0.1.0" }
+num-bigint = { version = "0.4.5" }

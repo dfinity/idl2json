@@ -1,60 +1,60 @@
 record {
-  url = "http://sgymv-uiaaa-aaaaa-aaaia-cai.localhost:8080/";
-  max_dissolve_delay_seconds = 252_460_800 : nat64;
-  max_dissolve_delay_bonus_percentage = 0 : nat64;
+  url = opt "http://sgymv-uiaaa-aaaaa-aaaia-cai.localhost:8080/";
+  max_dissolve_delay_seconds = opt (252_460_800 : nat64);
+  max_dissolve_delay_bonus_percentage = opt (0 : nat64);
   fallback_controller_principal_ids = vec {
     "hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe";
   };
-  token_symbol = "LANUW";
+  token_symbol = opt "LANUW";
   final_reward_rate_basis_points = null;
-  neuron_minimum_stake_e8s = 100_000 : nat64;
-  logo = "logo.svg";
-  name = "LANUW";
-  initial_voting_period_seconds = 345_600 : nat64;
-  neuron_minimum_dissolve_delay_to_vote_seconds = 15_778_800 : nat64;
-  description = "This is my awesome project";
-  max_neuron_age_seconds_for_age_bonus = 126_230_400 : nat64;
+  neuron_minimum_stake_e8s = opt (100_000 : nat64);
+  logo = opt "logo.svg";
+  name = opt "LANUW";
+  initial_voting_period_seconds = opt (345_600 : nat64);
+  neuron_minimum_dissolve_delay_to_vote_seconds = opt (15_778_800 : nat64);
+  description = opt "This is my awesome project";
+  max_neuron_age_seconds_for_age_bonus = opt (126_230_400 : nat64);
   initial_reward_rate_basis_points = null;
-  wait_for_quiet_deadline_increase_seconds = 86_400 : nat64;
-  transaction_fee_e8s = 10_000 : nat64;
+  wait_for_quiet_deadline_increase_seconds = opt (86_400 : nat64);
+  transaction_fee_e8s = opt (10_000 : nat64);
   sns_initialization_parameters = null;
   max_age_bonus_percentage = null;
-  initial_token_distribution = variant {
+  initial_token_distribution = opt variant {
     FractionalDeveloperVotingPower = record {
-      treasury_distribution = record { total_e8s = 5_000_000_000 : nat64 };
-      developer_distribution = record {
+      treasury_distribution = opt record { total_e8s = 5_000_000_000 : nat64 };
+      developer_distribution = opt record {
         developer_neurons = vec {
           record {
-            controller = principal "x4vjn-rrapj-c2kqe-a6m2b-7pzdl-ntmc4-riutz-5bylw-2q2bh-ds5h2-lae";
+            controller = opt principal "x4vjn-rrapj-c2kqe-a6m2b-7pzdl-ntmc4-riutz-5bylw-2q2bh-ds5h2-lae";
             dissolve_delay_seconds = 15_780_000 : nat64;
             memo = 0 : nat64;
             stake_e8s = 1_500_000_000 : nat64;
           };
           record {
-            controller = principal "fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe";
+            controller = opt principal "fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe";
             dissolve_delay_seconds = 31_560_000 : nat64;
             memo = 1 : nat64;
             stake_e8s = 1_500_000_000 : nat64;
           };
         };
       };
-      airdrop_distribution = record {
+      airdrop_distribution = opt record {
         airdrop_neurons = vec {
           record {
-            controller = principal "fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe";
+            controller = opt principal "fod6j-klqsi-ljm4t-7v54x-2wd6s-6yduy-spdkk-d2vd4-iet7k-nakfi-qqe";
             dissolve_delay_seconds = 15_780_000 : nat64;
             memo = 0 : nat64;
             stake_e8s = 500_000_000 : nat64;
           };
         };
       };
-      swap_distribution = record {
+      swap_distribution = opt record {
         total_e8s = 6_000_000_000 : nat64;
         initial_swap_amount_e8s = 200_000_000 : nat64;
       };
     }
   };
-  reward_rate_transition_duration_seconds = 1 : nat64;
-  token_name = "maxs awesome LANUW";
-  proposal_reject_cost_e8s = 100_000_000 : nat64;
+  reward_rate_transition_duration_seconds = opt (1 : nat64);
+  token_name = opt "maxs awesome LANUW";
+  proposal_reject_cost_e8s = opt (100_000_000 : nat64);
 }
