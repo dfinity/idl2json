@@ -12,7 +12,6 @@ readme = "../../README.md"
 
 categories = ["encoding", "parsing"]
 keywords = ["internet-computer", "idl", "candid", "dfinity", "json"]
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
@@ -20,13 +19,13 @@ name = "idl2json"
 path = "src/main.rs"
 
 [dependencies]
+anyhow = "1"
 candid = { workspace = true }
 candid_parser = { workspace = true }
 clap = { version = "4.5.8", features = [ "derive" ] }
 fn-error-context = "0.2.1"
+idl2json = { path = "../idl2json", version = "0.10.1", features = ["clap", "crypto"] }
 serde_json = "^1.0"
-idl2json = { path = "../idl2json", version="0.10.1", features = ["clap", "crypto"] }
-anyhow = "1"
 
 [build-dependencies]
 anyhow = "1"

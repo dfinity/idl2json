@@ -1,4 +1,5 @@
 //! Tests converting from YAML to Candid, especially extreme values of primitive types.
+#![allow(clippy::panic)] // Tests are allowed to panic!
 use anyhow::Context;
 use candid::types::{value::IDLField, Label};
 use candid_parser::types::TypeField;
@@ -495,6 +496,38 @@ fn can_convert() {
             ]),
         },
         TestVec {
+            description: "hex encoded blob",
+            typ: IDLType::VecT(Box::new(IDLType::PrimT(
+                candid_parser::types::PrimType::Nat8,
+            ))),
+            data: YamlValue::from("0x010203090a1000"),
+            expected_result: IDLValue::Vec(vec![
+                IDLValue::Nat8(1),
+                IDLValue::Nat8(2),
+                IDLValue::Nat8(3),
+                IDLValue::Nat8(9),
+                IDLValue::Nat8(10),
+                IDLValue::Nat8(16),
+                IDLValue::Nat8(0),
+            ]),
+        },
+        TestVec {
+            description: "base64 encoded blob",
+            typ: IDLType::VecT(Box::new(IDLType::PrimT(
+                candid_parser::types::PrimType::Nat8,
+            ))),
+            data: YamlValue::from("base64,AQIDCQoQAA=="),
+            expected_result: IDLValue::Vec(vec![
+                IDLValue::Nat8(1),
+                IDLValue::Nat8(2),
+                IDLValue::Nat8(3),
+                IDLValue::Nat8(9),
+                IDLValue::Nat8(10),
+                IDLValue::Nat8(16),
+                IDLValue::Nat8(0),
+            ]),
+        },
+        TestVec {
             description: "Some(5) in canonical form",
             typ: IDLType::OptT(Box::new(IDLType::PrimT(
                 candid_parser::types::PrimType::Int8,
@@ -658,4 +691,50 @@ fn can_convert() {
     {
         assert_named_conversion_is(&converter, &typ, &data, expected_result, description);
     }
+}
+
+/// A conversion that should fail.
+struct ErrorTestVec {
+    typ: IDLType,
+    data: YamlValue,
+    expected_error: &'static str,
+}
+impl ErrorTestVec {
+    pub fn should_fail(&self) {
+        let Self {
+            typ,
+            data,
+            expected_error,
+        } = self;
+        let converter = Yaml2Candid::default();
+        let result = converter.convert(typ, data);
+        if let Err(e) = result {
+            assert!(e.to_string().contains(expected_error))
+        } else {
+            panic!("Converting {data:?} to {typ:?} should fail.");
+        }
+    }
+}
+
+#[test]
+fn unsupported_blob_encoding_should_fail() {
+    ErrorTestVec{
+        typ: IDLType::VecT(Box::new(IDLType::PrimT(
+            candid_parser::types::PrimType::Nat8,
+        ))),
+        data: YamlValue::from("010203090a1000"),
+        expected_error: "Unknown encoding for byte vector as string starting: 010203  Please prefix string encoded byte vectors"
+    }.should_fail();
+}
+
+#[test]
+fn unsupported_blob_type_should_fail() {
+    ErrorTestVec {
+        typ: IDLType::VecT(Box::new(IDLType::PrimT(
+            candid_parser::types::PrimType::Nat8,
+        ))),
+        data: YamlValue::from(9),
+        expected_error: "Expected vector of bytes encoded as one of",
+    }
+    .should_fail();
 }
