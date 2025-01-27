@@ -22,7 +22,7 @@ path = "src/main.rs"
 anyhow = "1"
 candid = { workspace = true }
 candid_parser = { workspace = true }
-clap = { version = "4.5.20", features = [ "derive" ] }
+clap = { version = "4.5.27", features = [ "derive" ] }
 fn-error-context = "0.2.1"
 idl2json = { path = "../idl2json", version = "0.10.1", features = ["clap", "crypto"] }
 serde_json = "^1.0"
